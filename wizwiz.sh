@@ -56,11 +56,11 @@ echo -e "\n\e[92mPackages Installed Continuing ...\033[0m\n"
 
 randomdbpasstxt69=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-20)
 
-echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | debconf-set-selections
-echo 'phpmyadmin phpmyadmin/app-password-confirm password $randomdbpasstxt69' | debconf-set-selections
-echo 'phpmyadmin phpmyadmin/mysql/admin-pass password $randomdbpasstxt69' | debconf-set-selections
-echo 'phpmyadmin phpmyadmin/mysql/app-pass password $randomdbpasstxt69' | debconf-set-selections
-echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
+echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/app-password-confirm password $randomdbpasstxt69" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/mysql/admin-pass password $randomdbpasstxt69" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/mysql/app-pass password $randomdbpasstxt69" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections
 sudo apt-get install phpmyadmin -y
 sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
 sudo a2enconf phpmyadmin.conf
@@ -77,7 +77,7 @@ sudo systemctl enable apache2
 sudo systemctl start apache2
 
 echo -e "\n\e[92m Setting Up UFW...\033[0m\n"
-
+ufw enable
 ufw allow 'Apache'
 
 sudo systemctl restart apache2
@@ -134,7 +134,7 @@ if [ ! -d "/root/confwizwiz" ]; then
     sleep 1
     
     touch /root/confwizwiz/dbrootwizwiz.txt
-    sudo chmod -R 777 /root/confwizwiz/dbrootwizwiz.txt
+    sudo chmod -R 600 /root/confwizwiz/dbrootwizwiz.txt
     sleep 1
     
     randomdbpasstxt=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-30)
@@ -143,7 +143,7 @@ if [ ! -d "/root/confwizwiz" ]; then
 
     echo "${ASAS}user = 'root';" >> /root/confwizwiz/dbrootwizwiz.txt
     echo "${ASAS}pass = '${randomdbpasstxt}';" >> /root/confwizwiz/dbrootwizwiz.txt
-    #echo "${ASAS}paths = '${RANDOM_CODE}';" >> /root/confwizwiz/dbrootwizwiz.txt
+    echo "${ASAS}paths = '${RANDOM_CODE}';" >> /root/confwizwiz/dbrootwizwiz.txt
     
     sleep 1
 
