@@ -1,0 +1,11 @@
+{
+  "name": "your-vendor/your-bot",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "require": {
+    "ext-mysqli": "*"
+  }
+}
