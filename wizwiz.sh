@@ -16,7 +16,7 @@ echo -e "\e[32m
 ██ ███ ██ ██  ███    ██ ███ ██ ██  ███         ██ ██  ██    ██ ██ 
  ███ ███  ██ ███████  ███ ███  ██ ███████     ██   ██  ██████  ██ 
 \033[0m"
-echo -e "    \e[31mTelegram Channel: \e[34m@wizwizch\033[0m | \e[31mTelegram Group: \e[34m@wizwizdev\033[0m\n"
+echo -e "    \e[31mTelegram Channel: \e[34m@FilterBeshcan_Support\033[0m | \e[31mTelegram Group: \e[34m@wizwizdev\033[0m\n"
 
 #sleep
 echo -e "\e[32mInstalling WizWiz script ... \033[0m\n"
@@ -317,7 +317,7 @@ wait
         sleep 1
 
         curl -F "url=https://${YOUR_DOMAIN}/wizwizxui-timebot/bot.php" "https://api.telegram.org/bot${YOUR_BOT_TOKEN}/setWebhook"
-        MESSAGE="✅ The wizwiz bot has been successfully installed! @wizwizch"
+        MESSAGE="✅ The wizwiz bot has been successfully installed! @FilterBeshcan_Support"
         curl -s -X POST "https://api.telegram.org/bot${YOUR_BOT_TOKEN}/sendMessage" -d chat_id="${YOUR_CHAT_ID}" -d text="$MESSAGE"
         
         
