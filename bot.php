@@ -10209,10 +10209,10 @@ if($data == "managePanel" and (($from_id == $admin || $userInfo['isAdmin'] == tr
     
     setUser();
     $msg = "
-👤 عزیزم به بخش مدیریت خوشومدی 
+👤 عزیزم به <s>بخش</s> مدیریت خوشومدی 
 🤌 هرچی نیاز داشتی میتونی اینجا طبق نیازهات اضافه و تغییر بدی ، عزیزم $first_name جان اگه از فروش ربات درآمد داری از من حمایت کن تا پروژه همیشه آپدیت بمونه !
 
-🆔 @wizwizch
+🆔 @FilterBeshcan_Support
 
 🚪 /start
 ";
