@@ -39,6 +39,15 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
+if (!empty($userInfo['token'])) {
+    $token = trim($userInfo['token']);
+
+    if (!isValidCloudzyToken($token)) {
+        setUser('', 'token');
+        sendMessage($mainValues['invalid_token']);
+    }
+}
+
 if ($userInfo['step'] == 'awaiting_token') {
     $token = trim($text);
 
