@@ -28,6 +28,7 @@ function sendMessage($txt, $key = null, $parse = "MarkDown", $ci = null, $msg = 
 {
     global $from_id;
     $ci = $ci ?? $from_id;
+    $parse = $parse ?? "MarkDown";
     return bot('sendMessage', [
         'chat_id' => $ci,
         'text' => $txt,
