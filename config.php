@@ -267,25 +267,14 @@ function getMainKeys()
     $mainKeys = array();
     $temp = array();
 
-    if ($botState['agencyState'] == "on" && $userInfo['is_agent'] == 1) {
-        $mainKeys = array_merge($mainKeys, [
-            [['text' => $buttonValues['agency_setting'], 'callback_data' => "agencySettings"]],
-            [['text' => $buttonValues['agent_one_buy'], 'callback_data' => "agentOneBuy"], ['text' => $buttonValues['agent_much_buy'], 'callback_data' => "agentMuchBuy"]],
-            [['text' => $buttonValues['my_subscriptions'], 'callback_data' => "agentConfigsList"]],
-        ]);
-    } else {
-        $mainKeys = array_merge($mainKeys, [
-            (($botState['agencyState'] == "on" && $userInfo['is_agent'] == 0) ? [
-                ['text' => $buttonValues['request_agency'], 'callback_data' => "requestAgency"]
-            ] :
-                []),
-            (($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true) ?
-                [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions'], ['text' => $buttonValues['buy_subscriptions'], 'callback_data' => "buySubscription"]]
-                :
-                [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions']]
-            )
-        ]);
-    }
+    $mainKeys = array_merge($mainKeys, [
+        (($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true) ?
+            [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions'], ['text' => $buttonValues['buy_subscriptions'], 'callback_data' => "buySubscription"]]
+            :
+            [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions']]
+        )
+    ]);
+
     $mainKeys = array_merge($mainKeys, [
         (
             ($botState['testAccount'] == "on") ? [['text' => $buttonValues['test_account'], 'callback_data' => "getTestAccount"]] :
