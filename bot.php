@@ -38,14 +38,9 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (empty($userInfo['token']) && $from_id != $admin) {
+if (empty($userInfo['token']) && $from_id != $admin && $userInfo['step'] != 'awaiting_token') {
     sendMessage(
-        $mainValues['token_is_required'],
-        json_encode([
-            'keyboard' => [[['text' => $buttonValues['cancel'],]]],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => true
-        ])
+        $mainValues['token_is_required']
     );
     setUser('awaiting_token');
     exit();
@@ -162,6 +157,14 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
             );
         }
         sendMessage($mainValues['start_message'], getMainKeys());
+    }
+}
+if ($userInfo['step'] == 'awaiting_token') {
+    if (!is_numeric($text)) {
+        sendMessage("آفرین");
+        setUser('createAccVolume' . $match[1] . "_" . $text);
+    } else {
+        sendMessage("نافرین");
     }
 }
 if (preg_match('/^sendMessageToUser(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true) && $text != $buttonValues['cancel']) {
@@ -1206,18 +1209,6 @@ if (preg_match('/^createAccPlan(\d+)/', $data, $match) && $text != $buttonValues
     setUser('createAccDate' . $match[1]);
 }
 if (preg_match('/^createAccDate(\d+)/', $userInfo['step'], $match) && $text != $buttonValues['cancel'] && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
-    if (is_numeric($text)) {
-        if ($text > 0) {
-            sendMessage("❕حجم اکانت ها رو به گیگابایت ( GB ) وارد کن:");
-            setUser('createAccVolume' . $match[1] . "_" . $text);
-        } else {
-            sendMessage("عدد باید بیشتر از 0 باشه");
-        }
-    } else {
-        sendMessage($mainValues["send_only_number"]);
-    }
-}
-if ($userInfo['step'] == 'awaiting_token') {
     if (is_numeric($text)) {
         if ($text > 0) {
             sendMessage("❕حجم اکانت ها رو به گیگابایت ( GB ) وارد کن:");
