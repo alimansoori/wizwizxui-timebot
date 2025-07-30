@@ -37,6 +37,20 @@ if ($robotState == "off" && $from_id != $admin) {
     sendMessage($mainValues['bot_is_updating']);
     exit();
 }
+
+if (empty($userInfo['token']) && $from_id != $admin) {
+    sendMessage(
+        $mainValues['please_send_token'],
+        json_encode([
+            'keyboard' => [[['text' => $buttonValues['cancel'],]]],  
+            'resize_keyboard' => true,
+            'one_time_keyboard' => true
+        ])
+    );
+    setUser('awaiting_token', 'token');
+    exit();
+}
+
 if (strstr($text, "/start ")) {
     $inviter = str_replace("/start ", "", $text);
     if ($inviter < 0)
