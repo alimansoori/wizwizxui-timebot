@@ -39,9 +39,9 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if ($userInfo['step'] === 'awaiting_token') {
-    $token = trim($text);
+if ($userInfo['step'] === 'awaiting_token' && $text != $buttonValues['cancel']) {
 
+    $token = trim($text);
     if (isValidCloudzyToken($token)) {
         setUser($token, 'token');
         setUser('none', 'step');
@@ -72,7 +72,15 @@ if (empty($userInfo['token'])) {
 $token = trim($userInfo['token']);
 if (!isValidCloudzyToken($token)) {
     setUser(null, 'token');
+    setUser('awaiting_token', 'step');
     sendMessage($mainValues['invalid_token']);
+    exit();
+}
+
+if (preg_match('/^\/(update_token)/', $text) or $text == $buttonValues['update_token'] or $data == 'updateToken') {
+    sendMessage($mainValues['update_token'], $cancelKey, null, null, $message_id);
+    setUser('awaiting_token', 'step');
+    exit();
 }
 
 if (strstr($text, "/start ")) {

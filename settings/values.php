@@ -2,7 +2,8 @@
 
 $mainValues = [
     "token_is_required" => "➡️ **To continue using the bot, please enter your API Access Token key.**",
-    "invalid_token" => "❌ The token is invalid. Please make sure you've activated it in your Cloudzy panel.",
+    "invalid_token" => "❌ The token is invalid.  
+Please make sure you've activated it in your **Cloudzy panel**, then enter it here to enable the bot features.",
     "token_is_valid" => "✅ Congratulations! Your token is valid.  
 You can now use all the features of the bot.
 ",
@@ -377,6 +378,7 @@ $buttonValues = [
     'disable_config' => "غیر فعال سازی کانفیگ",
     "tron_gateway" => "درگاه ترون",
     'plan_discount' => "روی پلن",
-    'server_discount' => "روی سرور"
+    'server_discount' => "روی سرور",
+    "update_token" => "Update Api Access Token",
 ];
 ?>
