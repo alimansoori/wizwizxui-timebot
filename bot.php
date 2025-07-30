@@ -40,11 +40,12 @@ if ($robotState == "off" && $from_id != $admin) {
 
 if ($userInfo['step'] == 'awaiting_token') {
     if (!is_numeric($text)) {
-        sendMessage("Your Wellcome");
         setUser($text, 'token');
         setUser('none', 'step');
+        sendMessage($mainValues['token_is_valid'], json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), null, null, $msgId);
+        exit();
     } else {
-        sendMessage("OOOOPS");
+        sendMessage($mainValues['invalid_token']);
     }
 }
 if (empty($userInfo['token']) && $from_id != $admin) {
