@@ -54,11 +54,11 @@ if ($userInfo['step'] == 'awaiting_token') {
             ]),
             null,
             null,
-            $msgId
+            $message_id
         );
         exit();
     } else {
-        sendMessage($mainValues["invalid_token"], null, null, null, $msgId);
+        sendMessage($mainValues["invalid_token"], null, null, null, $message_id);
     }
 }
 if (empty($userInfo['token'])) {
@@ -67,7 +67,7 @@ if (empty($userInfo['token'])) {
         null,
         null,
         null,
-        $msgId
+        $message_id
     );
     setUser('awaiting_token');
     exit();
