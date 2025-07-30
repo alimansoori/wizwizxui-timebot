@@ -38,7 +38,17 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (empty($userInfo['token']) && $from_id != $admin && $userInfo['step'] != 'awaiting_token') {
+if ($userInfo['step'] == 'awaiting_token') {
+    if (!is_numeric($text)) {
+        sendMessage("Your Wellcome");
+        setUser($text, 'token');
+        setUser('none', 'step');
+        goto GOTOSTART;
+    } else {
+        sendMessage("OOOOPS");
+    }
+}
+if (empty($userInfo['token']) && $from_id != $admin) {
     sendMessage(
         $mainValues['token_is_required']
     );
@@ -157,14 +167,6 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
             );
         }
         sendMessage($mainValues['start_message'], getMainKeys());
-    }
-}
-if ($userInfo['step'] == 'awaiting_token') {
-    if (!is_numeric($text)) {
-        sendMessage("آفرین");
-        setUser('createAccVolume' . $match[1] . "_" . $text);
-    } else {
-        sendMessage("نافرین");
     }
 }
 if (preg_match('/^sendMessageToUser(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true) && $text != $buttonValues['cancel']) {
