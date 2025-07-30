@@ -38,7 +38,7 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (true) {
+if (empty($userInfo['token']) && $from_id != $admin) {
     sendMessage(
         $mainValues['token_is_required'],
         json_encode([
