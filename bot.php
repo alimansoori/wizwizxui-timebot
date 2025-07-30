@@ -43,8 +43,8 @@ if ($userInfo['step'] === 'awaiting_token' && $text != $buttonValues['cancel']) 
 
     $token = trim($text);
     if (isValidCloudzyToken($token)) {
+        setUser();
         setUser($token, 'token');
-        setUser('none', 'step');
 
         sendMessage(
             $mainValues['token_is_valid'],
@@ -78,7 +78,7 @@ if (!isValidCloudzyToken($token)) {
 }
 
 if (preg_match('/^\/(update_token)/', $text) or $text == $buttonValues['update_token'] or $data == 'updateToken') {
-    sendMessage($mainValues['update_token'], $cancelKey, null, null, $message_id);
+    sendMessage($buttonValues['update_token'], $cancelKey, null, null, $message_id);
     setUser('awaiting_token', 'step');
     exit();
 }
