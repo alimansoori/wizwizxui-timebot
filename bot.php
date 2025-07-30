@@ -38,7 +38,7 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (empty($userInfo['token']) && $from_id != $admin) {
+if (is_null($userInfo['token']) && $from_id != $admin) {
     sendMessage(
         $mainValues['token_is_required'],
         json_encode([
@@ -51,7 +51,7 @@ if (empty($userInfo['token']) && $from_id != $admin) {
     exit();
 }
 
-if (strstr($text, "/start ")) {
+/* if (strstr($text, "/start ")) {
     $inviter = str_replace("/start ", "", $text);
     if ($inviter < 0)
         exit();
@@ -163,7 +163,7 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
         }
         sendMessage($mainValues['start_message'], getMainKeys());
     }
-}
+} */
 if (preg_match('/^sendMessageToUser(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true) && $text != $buttonValues['cancel']) {
     editText($message_id, '🔘|لطفا پیامت رو بفرست');
     setUser($data);
