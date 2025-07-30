@@ -47,9 +47,7 @@ if (empty($userInfo['token']) && $from_id != $admin) {
             'one_time_keyboard' => true
         ])
     );
-    if (!empty($text) && $text != $buttonValues['cancel']) {
-        setUser($text, 'token');
-    }
+    setUser('awaiting_token');
     exit();
 }
 
@@ -1216,7 +1214,19 @@ if (preg_match('/^createAccDate(\d+)/', $userInfo['step'], $match) && $text != $
             sendMessage("عدد باید بیشتر از 0 باشه");
         }
     } else {
-        sendMessage('😡 | مگه نمیگم فقط عدد بفرس نمیفهمی؟ یا خودتو زدی به نفهمی؟');
+        sendMessage($mainValues["send_only_number"]);
+    }
+}
+if ($userInfo['step'] == 'awaiting_token') {
+    if (is_numeric($text)) {
+        if ($text > 0) {
+            sendMessage("❕حجم اکانت ها رو به گیگابایت ( GB ) وارد کن:");
+            setUser('createAccVolume' . $match[1] . "_" . $text);
+        } else {
+            sendMessage("عدد باید بیشتر از 0 باشه");
+        }
+    } else {
+        sendMessage($mainValues["send_only_number"]);
     }
 }
 if (preg_match('/^createAccVolume(\d+)_(\d+)/', $userInfo['step'], $match) && $text != $buttonValues['cancel'] && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
