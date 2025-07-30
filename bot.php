@@ -42,12 +42,14 @@ if (empty($userInfo['token']) && $from_id != $admin) {
     sendMessage(
         $mainValues['token_is_required'],
         json_encode([
-            'keyboard' => [[['text' => $buttonValues['cancel'],]]],  
+            'keyboard' => [[['text' => $buttonValues['cancel'],]]],
             'resize_keyboard' => true,
             'one_time_keyboard' => true
         ])
     );
-    setUser('awaiting_token', 'token');
+    if (!empty($text) && $text != $buttonValues['cancel']) {
+        setUser($text, 'token');
+    }
     exit();
 }
 
