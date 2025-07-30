@@ -1,7 +1,7 @@
 <?php
 
 function isValidCloudzyToken(string $token): bool {
-    $url = "https://panel.cloudzy.com/developers/v1/instances";
+    $url = "https://api.cloudzy.com/developers/v1/instances";
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
