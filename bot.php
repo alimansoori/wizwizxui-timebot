@@ -40,7 +40,7 @@ if ($robotState == "off" && $from_id != $admin) {
 
 if (empty($userInfo['token']) && $from_id != $admin) {
     sendMessage(
-        $mainValues['please_send_token'],
+        $mainValues['token_is_required'],
         json_encode([
             'keyboard' => [[['text' => $buttonValues['cancel'],]]],  
             'resize_keyboard' => true,
