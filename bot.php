@@ -43,7 +43,6 @@ if ($userInfo['step'] == 'awaiting_token') {
         sendMessage("Your Wellcome");
         setUser($text, 'token');
         setUser('none', 'step');
-        exit();
     } else {
         sendMessage("OOOOPS");
     }
