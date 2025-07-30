@@ -2,10 +2,7 @@
 
 $mainValues = [
     "token_is_required" => "➡️ **To continue using the bot, please enter your API Access Token key.**",
-    "invalid_token" => "❌ | The API Access Token you entered is invalid.
-
-🔧 Please log in to your [Cloudzy panel](https://cloudzy.com), go to the **Account** section, open the **Access Token** tab, activate your API Access Token, and enter it here.
-",
+    "invalid_token" => "❌ The token is invalid. Please make sure you've activated it in your Cloudzy panel.",
     "token_is_valid" => "✅ Congratulations! Your token is valid.  
 You can now use all the features of the bot.
 ",

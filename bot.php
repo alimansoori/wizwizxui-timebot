@@ -39,16 +39,28 @@ if ($robotState == "off" && $from_id != $admin) {
 }
 
 if ($userInfo['step'] == 'awaiting_token') {
-    if (!is_numeric($text)) {
-        setUser($text, 'token');
+    $token = trim($text);
+
+    if (isValidCloudzyToken($token)) {
+        setUser($token, 'token');
         setUser('none', 'step');
-        sendMessage($mainValues['token_is_valid'], json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), null, null, $msgId);
+        sendMessage(
+            $mainValues['token_is_valid'],
+            json_encode([
+                'inline_keyboard' => [
+                    [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]
+                ]
+            ]),
+            null,
+            null,
+            $msgId
+        );
         exit();
     } else {
-        sendMessage($mainValues['invalid_token']);
+        sendMessage($mainValues["invalid_token"]);
     }
 }
-if (empty($userInfo['token']) && $from_id != $admin) {
+if (empty($userInfo['token'])) {
     sendMessage(
         $mainValues['token_is_required']
     );
