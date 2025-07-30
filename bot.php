@@ -62,13 +62,7 @@ if ($userInfo['step'] == 'awaiting_token') {
     }
 }
 if (empty($userInfo['token'])) {
-    sendMessage(
-        $mainValues['token_is_required'],
-        null,
-        null,
-        null,
-        $message_id
-    );
+    sendMessage($mainValues['token_is_required']);
     setUser('awaiting_token');
     exit();
 }
