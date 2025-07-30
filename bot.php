@@ -39,21 +39,19 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (!empty($userInfo['token'])) {
-    $token = trim($userInfo['token']);
-
-    if (!isValidCloudzyToken($token)) {
-        setUser('', 'token');
-        sendMessage($mainValues['invalid_token']);
-    }
+if (empty($userInfo['token'])) {
+    sendMessage($mainValues['token_is_required']);
+    setUser('awaiting_token');
+    exit();
 }
 
-if ($userInfo['step'] == 'awaiting_token') {
+if ($userInfo['step'] === 'awaiting_token') {
     $token = trim($text);
 
     if (isValidCloudzyToken($token)) {
         setUser($token, 'token');
         setUser('none', 'step');
+
         sendMessage(
             $mainValues['token_is_valid'],
             json_encode([
@@ -65,15 +63,16 @@ if ($userInfo['step'] == 'awaiting_token') {
             null,
             $message_id
         );
-        exit();
     } else {
         sendMessage($mainValues["invalid_token"], null, null, null, $message_id);
     }
-}
-if (empty($userInfo['token'])) {
-    sendMessage($mainValues['token_is_required']);
-    setUser('awaiting_token');
     exit();
+}
+
+$token = trim($userInfo['token']);
+if (!isValidCloudzyToken($token)) {
+    setUser(null, 'token');
+    sendMessage($mainValues['invalid_token']);
 }
 
 if (strstr($text, "/start ")) {
