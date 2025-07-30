@@ -39,12 +39,6 @@ if ($robotState == "off" && $from_id != $admin) {
     exit();
 }
 
-if (empty($userInfo['token'])) {
-    sendMessage($mainValues['token_is_required']);
-    setUser('awaiting_token');
-    exit();
-}
-
 if ($userInfo['step'] === 'awaiting_token') {
     $token = trim($text);
 
@@ -66,6 +60,12 @@ if ($userInfo['step'] === 'awaiting_token') {
     } else {
         sendMessage($mainValues["invalid_token"], null, null, null, $message_id);
     }
+    exit();
+}
+
+if (empty($userInfo['token'])) {
+    sendMessage($mainValues['token_is_required']);
+    setUser('awaiting_token');
     exit();
 }
 
