@@ -1,5 +1,6 @@
 <?php
 include_once 'config.php';
+include_once 'api.php';
 check();
 
 $robotState = $botState['botState'] ?? "on";
