@@ -31,7 +31,7 @@ do
 			rm -r /var/www/html/wizwizxui-timebot/
 			echo -e "\n\e[92mWait a few seconds ...\033[0m\n"
 			sleep 3
-			git clone -b dev https://github.com/alimansoori/wizwizxui-timebot.git /var/www/html/wizwizxui-timebot
+			git clone --branch dev https://github.com/alimansoori/wizwizxui-timebot.git /var/www/html/wizwizxui-timebot
 			sudo chown -R www-data:www-data /var/www/html/wizwizxui-timebot/
 			sudo chmod -R 755 /var/www/html/wizwizxui-timebot/
 			sleep 3
