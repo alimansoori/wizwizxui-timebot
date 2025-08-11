@@ -3959,6 +3959,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                 }elseif($netType == 'ws') {
                     $header_type = json_decode($row->streamSettings)->wsSettings->header->type;
                     $path = json_decode($row->streamSettings)->wsSettings->path;
+                    sendMessage('Path: ' . $path);
                     $host = json_decode($row->streamSettings)->wsSettings->headers->Host;
                 }elseif($netType == 'grpc') {
                     if($tlsStatus == 'tls'){
