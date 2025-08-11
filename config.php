@@ -4042,7 +4042,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
     
             if($protocol == 'trojan'){
                 $psting = '';
-                if($header_type == 'http') $psting .= "&path=/&host=$host";
+                if($header_type == 'http') $psting .= "&path=$path&host=$host";
                 if($netType == 'tcp' and $header_type == 'http') $psting .= '&headerType=http';
                 if(strlen($sni) > 1) $psting .= "&sni=$sni";
                 $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus{$psting}#$remark";
@@ -4128,7 +4128,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     if($netType == 'tcp' and $header_type == 'http') $psting .= '&headerType=http';
                     if($tlsStatus=="xtls") $psting .= "&flow=xtls-rprx-direct";
                     if($tlsStatus=="reality") $psting .= "&fp=$fp&pbk=$pbk&sni=$sni" . ($flow != ""?"&flow=$flow":"") . "&sid=$sid&spx=$spiderX";
-                    if($header_type == "http") $psting .= "&path=/&host=$host";
+                    if($header_type == "http") $psting .= "&path=$path&host=$host";
                     $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus{$psting}#$remark";
                 }elseif($netType == 'ws'){
                     if($rahgozar == true)$outputlink = "$protocol://$uniqid@$server_ip:" . ($customPort!=0?$customPort:"443") . "?type=$netType&security=tls&path=" . rawurlencode($path . ($customPath == true?"?ed=2048":"")) . "&encryption=none&host=$host{$psting}#$remark";
@@ -4149,7 +4149,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                 }
             }elseif($protocol == 'trojan'){                
                 $psting = '';
-                if($header_type == 'http') $psting .= "&path=/&host=$host";
+                if($header_type == 'http') $psting .= "&path=$path&host=$host";
                 if($netType == 'tcp' and $header_type == 'http') $psting .= '&headerType=http';
                 if(strlen($sni) > 1) $psting .= "&sni=$sni";
                 $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus{$psting}#$remark";
