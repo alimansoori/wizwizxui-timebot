@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Written By: wizwiz
+# Written By: alimansoori
 
 if [ "$(id -u)" -ne 0 ]; then
     echo -e "\033[33mPlease run as root\033[0m"
