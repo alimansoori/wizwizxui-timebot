@@ -4215,7 +4215,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
 
     $response = getJson($server_id)->obj;
     foreach ($response as $row) {
-        sendMessage($inbound_id);
         if ($inbound_id == 0) {
             $clients = json_decode($row->settings)->clients;
             if ($clients[0]->id == $uniqid || $clients[0]->password == $uniqid) {
@@ -4297,6 +4296,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
             }
         } else {
             if ($row->id == $inbound_id) {
+                sendMessage('EEEE');
                 if ($serverType == "sanaei" || $serverType == "alireza") {
                     $settings = json_decode($row->settings);
                     $clients = $settings->clients;
