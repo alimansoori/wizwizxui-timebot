@@ -3885,6 +3885,10 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     if (!empty($host)) {
                         $sni = $host;
                         $tlsStatus = 'tls';
+                        sendMessage($header_type);
+                        sendMessage($path);
+                        sendMessage($host);
+                        sendMessage($sni);
                     }
                 }
                 if($header_type == 'http' && empty($host)){
