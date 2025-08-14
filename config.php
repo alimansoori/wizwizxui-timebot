@@ -4215,7 +4215,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
 
     $response = getJson($server_id)->obj;
     foreach ($response as $row) {
-        // sendMessage(json_encode($row, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        sendMessage($inbound_id);
         if ($inbound_id == 0) {
             $clients = json_decode($row->settings)->clients;
             if ($clients[0]->id == $uniqid || $clients[0]->password == $uniqid) {
@@ -4878,8 +4878,6 @@ function updateConfig($server_id, $inboundId, $protocol, $netType = 'tcp', $secu
             'sniffing' => $row->sniffing
         );
     }
-
-    sendMessage("FFFFF");
 
     $serverName = $server_info['username'];
     $serverPass = $server_info['password'];
