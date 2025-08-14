@@ -4879,7 +4879,7 @@ function updateConfig($server_id, $inboundId, $protocol, $netType = 'tcp', $secu
         );
     }
 
-    sendMessage($dataArr);
+    sendMessage("FFFFF");
 
     $serverName = $server_info['username'];
     $serverPass = $server_info['password'];
