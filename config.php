@@ -4331,9 +4331,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     $header_type = json_decode($row->streamSettings)->wsSettings->header->type;
                     $path = json_decode($row->streamSettings)->wsSettings->path;
                     $host = json_decode($row->streamSettings)->wsSettings->headers->Host;
-                    sendMessage($header_type);
-                    sendMessage($path);
-                    sendMessage($host);
                     if (!empty($host)) {
                         $sni = $host;
                         $tlsStatus = 'tls';
