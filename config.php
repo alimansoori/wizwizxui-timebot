@@ -3882,13 +3882,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     $header_type = json_decode($row->streamSettings)->wsSettings->header->type;
                     $path = json_decode($row->streamSettings)->wsSettings->path;
                     $host = json_decode($row->streamSettings)->wsSettings->headers->Host;
-                    sendMessage($header_type);
-                        sendMessage($path);
-                        sendMessage($host);
-                    if (!empty($host)) {
-                        $sni = $host;
-                        $tlsStatus = 'tls';
-                    }
                 }
                 if($header_type == 'http' && empty($host)){
                     $request_header = explode(':', $request_header);
@@ -3968,6 +3961,11 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     $header_type = json_decode($row->streamSettings)->wsSettings->header->type;
                     $path = json_decode($row->streamSettings)->wsSettings->path;
                     $host = json_decode($row->streamSettings)->wsSettings->headers->Host;
+                    if (!empty($host)) {
+                        $sni = $host;
+                        $tlsStatus = 'tls';
+                        $port = 443;
+                    }
                 }elseif($netType == 'grpc') {
                     if($tlsStatus == 'tls'){
                         $alpn = $tlsSetting->alpn;
