@@ -4542,10 +4542,11 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                         $psting .= "&path=$path&host=$host";
                     $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus{$psting}#$remark";
                 } elseif ($netType == 'ws') {
-                    if ($rahgozar == true)
-                        $outputlink = "$protocol://$uniqid@$server_ip:" . ($customPort != 0 ? $customPort : "443") . "?type=$netType&security=tls&path=" . rawurlencode($path . ($customPath == true ? "?ed=2048" : "")) . "&encryption=none&host=$host{$psting}#$remark";
-                    else {
+                    if ($rahgozar == true){
                         sendMessage($host, $port);
+                        $outputlink = "$protocol://$uniqid@$server_ip:" . ($customPort != 0 ? $customPort : "443") . "?type=$netType&security=tls&path=" . rawurlencode($path . ($customPath == true ? "?ed=2048" : "")) . "&encryption=none&host=$host{$psting}#$remark";
+                    }
+                    else {
                         $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus&path=$path&host=$host{$psting}#$remark";
                     }
                 } elseif ($netType == 'kcp')
