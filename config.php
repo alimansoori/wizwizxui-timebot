@@ -4315,7 +4315,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                 $xtlsSetting = json_decode($row->streamSettings)->xtlsSettings;
                 $netType = json_decode($row->streamSettings)->network;
                 if ($netType == 'tcp') {
-                    sendMessage('tcp');
                     $header_type = json_decode($row->streamSettings)->tcpSettings->header->type;
                     $path = json_decode($row->streamSettings)->tcpSettings->header->request->path[0];
                     $host = json_decode($row->streamSettings)->tcpSettings->header->request->headers->Host[0];
@@ -4329,17 +4328,18 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                         $sid = $realitySettings->shortIds[0];
                     }
                 } elseif ($netType == 'ws') {
-                    sendMessage('ws');
                     $header_type = json_decode($row->streamSettings)->wsSettings->header->type;
                     $path = json_decode($row->streamSettings)->wsSettings->path;
                     $host = json_decode($row->streamSettings)->wsSettings->headers->Host;
+                    sendMessage($header_type);
+                    sendMessage($path);
+                    sendMessage($host);
                     if (!empty($host)) {
                         $sni = $host;
                         $tlsStatus = 'tls';
                         $port = 443;
                     }
                 } elseif ($netType == 'grpc') {
-                    sendMessage('grpc');
                     if ($tlsStatus == 'tls') {
                         $alpn = $tlsSetting->alpn;
                         if (isset($tlsSetting->serverName))
@@ -4357,13 +4357,11 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                     $grpcSecurity = json_decode($row->streamSettings)->security;
                     $serviceName = json_decode($row->streamSettings)->grpcSettings->serviceName;
                 } elseif ($netType == 'kcp') {
-                    sendMessage('kcp');
                     $kcpSettings = json_decode($row->streamSettings)->kcpSettings;
                     $kcpType = $kcpSettings->header->type;
                     $kcpSeed = $kcpSettings->seed;
                 }
                 if ($tlsStatus == 'tls') {
-                    sendMessage('tlstls');
                     $serverName = $tlsSetting->serverName;
                     if (isset($tlsSetting->serverName))
                         $sni = $tlsSetting->serverName;
@@ -4371,7 +4369,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                         $sni = $tlsSetting->settings->serverName;
                 }
                 if ($tlsStatus == "xtls") {
-                    sendMessage('xtlsxtls');
                     $serverName = $xtlsSetting->serverName;
                     $alpn = $xtlsSetting->alpn;
                     if (isset($xtlsSetting->serverName))
