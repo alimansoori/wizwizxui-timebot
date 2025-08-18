@@ -1072,7 +1072,7 @@ if ($userInfo['step'] == "editLockChannel" && ($from_id == $admin || $userInfo['
     sendMessage($mainValues['the_bot_in_not_admin']);
 }
 
-if (strstr($text, "/buyy ") && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
+if ($text == '/buyy' && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     if ($botState['cartToCartState'] == "off" && $botState['walletState'] == "off") {
         alert($mainValues['selling_is_off']);
         exit();
