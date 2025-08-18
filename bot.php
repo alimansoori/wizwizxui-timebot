@@ -1077,7 +1077,7 @@ if ($text == '/buyy' && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
         alert($mainValues['selling_is_off']);
         exit();
     }
-    if ($data == "buySubscription" || strstr($text, "/buyy "))
+    if ($data == "buySubscription" || $text == '/buyy')
         $buyType = "none";
     elseif ($data == "agentOneBuy")
         $buyType = "one";
