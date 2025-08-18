@@ -1072,12 +1072,12 @@ if ($userInfo['step'] == "editLockChannel" && ($from_id == $admin || $userInfo['
     sendMessage($mainValues['the_bot_in_not_admin']);
 }
 
-if ($text == '/buyy' && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
+if ($data == 'buyService' && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     if ($botState['cartToCartState'] == "off" && $botState['walletState'] == "off") {
         alert($mainValues['selling_is_off']);
         exit();
     }
-    if ($data == "buySubscription" || $text == '/buyy')
+    if ($data == "buyService")
         $buyType = "none";
     elseif ($data == "agentOneBuy")
         $buyType = "one";
