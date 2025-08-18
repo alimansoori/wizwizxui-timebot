@@ -104,6 +104,7 @@ $connection->query("CREATE TABLE `orders_list` (
   `token` varchar(1000) NOT NULL,
   `transid` varchar(150) NOT NULL,
   `fileid` int(11) NOT NULL,
+  `cat_id` int(11) NOT NULL DEFAULT 0,
   `server_id` int(11) NOT NULL,
   `inbound_id` int(11) NOT NULL DEFAULT 0,
   `remark` varchar(100) NOT NULL,
@@ -149,6 +150,11 @@ $connection->query("CREATE TABLE `server_categories` (
   `parent` int(11) NOT NULL DEFAULT 0,
   `step` int(11) NOT NULL,
   `active` int(11) NOT NULL DEFAULT 0,
+  `days` float NOT NULL,
+  `volume` float NOT NULL,
+  `limit_ip` int(11) NOT NULL DEFAULT 1,
+  `price` int(11) NOT NULL,
+  `priority` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
 

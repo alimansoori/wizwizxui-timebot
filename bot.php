@@ -1071,6 +1071,56 @@ if ($userInfo['step'] == "editLockChannel" && ($from_id == $admin || $userInfo['
     }
     sendMessage($mainValues['the_bot_in_not_admin']);
 }
+
+if (strstr($text, "/buyy ") && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
+    if ($botState['cartToCartState'] == "off" && $botState['walletState'] == "off") {
+        alert($mainValues['selling_is_off']);
+        exit();
+    }
+    if ($data == "buySubscription" || strstr($text, "/buyy "))
+        $buyType = "none";
+    elseif ($data == "agentOneBuy")
+        $buyType = "one";
+    elseif ($data == "agentMuchBuy")
+        $buyType = "much";
+
+    $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `active`=1 ORDER BY `priority` ASC");
+    $stmt->execute();
+    $respd = $stmt->get_result();
+    $stmt->close();
+    if ($respd->num_rows == 0) {
+        alert($mainValues['no_service_available']);
+        exit;
+    }
+    $keyboard = [];
+    while ($cat = $respd->fetch_assoc()) {
+        $id = $cat['id'];
+        $name = $cat['title'];
+        $price = $cat['price'];
+
+        if ($userInfo['is_agent'] == true && ($buyType == "one" || $buyType == "much")) {
+            $discounts = json_decode($userInfo['discount_percent'], true);
+            if ($botState['agencyPlanDiscount'] == "on")
+                $discount = $discounts['plans'][$id] ?? $discounts['normal'];
+            else
+                $discount = $discounts['servers'][$sid] ?? $discounts['normal'];
+
+            $price -= floor($price * $discount / 100);
+        }
+        $price = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
+
+        $keyboard[] = ['text' => "$name - $price", 'callback_data' => "selectService{$id}_{$buyType}"];
+    }
+
+    if ($botState['plandelkhahState'] == "on" && $match['buyType'] != "much") {
+        $keyboard[] = ['text' => $mainValues['buy_custom_plan'], 'callback_data' => "selectCustomService{$$id}_{$buyType}"];
+    }
+
+    $keyboard = array_chunk($keyboard, 1);
+    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
+    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]));
+}
+
 if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuchBuy") && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
     if ($botState['cartToCartState'] == "off" && $botState['walletState'] == "off") {
         alert($mainValues['selling_is_off']);
@@ -1102,6 +1152,7 @@ if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuch
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
     editText($message_id, $mainValues['buy_sub_select_location'], json_encode(['inline_keyboard' => $keyboard]));
 }
+
 if ($data == 'createMultipleAccounts' && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `active`=1 and `ucount` > 0 ORDER BY `id` ASC");
     $stmt->execute();
@@ -2389,6 +2440,38 @@ if ($userInfo['step'] == "forwardToAll" && ($from_id == $admin || $userInfo['isA
         ]
     ]));
 }
+
+if (preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
+    $sid = $match['serviceId'];
+
+    $keyboard = [];
+    /* while ($file = $respd->fetch_assoc()) {
+        $id = $file['id'];
+        $name = $file['title'];
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `catid`=? and `active`=1");
+        $stmt->bind_param("ii", $sid, $id);
+        $stmt->execute();
+        $rowcount = $stmt->get_result()->num_rows;
+        $stmt->close();
+        if ($rowcount > 0)
+            $keyboard[] = ['text' => "$name", 'callback_data' => "selectCategory{$id}_{$sid}_{$match['buyType']}"];
+    }
+    if (empty($keyboard)) {
+        alert($mainValues['category_not_avilable']);
+        exit;
+    }
+    alert($mainValues['receive_categories']);
+
+    $keyboard[] = [
+        'text' => $buttonValues['back_to_main'],
+        'callback_data' =>
+            ($match['buyType'] == "one" ? "agentOneBuy" : ($match['buyType'] == "much" ? "agentMuchBuy" : "buySubscription"))
+    ];
+    $keyboard = array_chunk($keyboard, 1);
+    editText($message_id, $mainValues['buy_sub_select_category'], json_encode(['inline_keyboard' => $keyboard])); */
+
+}
+
 if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
     $sid = $match['serverId'];
 
@@ -2428,6 +2511,7 @@ if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) 
     }
 
 }
+
 if (preg_match('/selectCategory(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true)) {
     $call_id = $match['categoryId'];
     $sid = $match['serverId'];
@@ -2464,8 +2548,8 @@ if (preg_match('/selectCategory(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w
         $keyboard = array_chunk($keyboard, 1);
         editText($message_id, $mainValues['buy_sub_select_plan'], json_encode(['inline_keyboard' => $keyboard]));
     }
-
 }
+
 if (preg_match('/selectCustomPlan(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true)) {
     $call_id = $match['categoryId'];
     $sid = $match['serverId'];
