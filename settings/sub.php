@@ -234,9 +234,9 @@ foreach ($orderList as $info) {
 
     // ---- Push remark to panel ----------------------------------------------
     if ($inbound_id === 0) {
-        $res = editInboundRemark($server_id, $uuid, $newRemark);
+        $res = editInboundRemark($server_id, $uuid, $remark);
     } else {
-        $res = editClientRemark($server_id, $clientInbound, $uuid, $newRemark);
+        $res = editClientRemark($server_id, $clientInbound, $uuid, $remark);
     }
 
     if (!isset($res->success) || !$res->success) {
@@ -249,7 +249,7 @@ foreach ($orderList as $info) {
         $server_id,
         $uniqid,        // <<-- استفاده از uuid همان سفارش
         $protocol,
-        $newRemark,
+        $remark,
         $port,
         $netType,
         $inbound_id,
@@ -264,7 +264,7 @@ foreach ($orderList as $info) {
         $stmt = $connection->prepare("UPDATE `orders_list` SET `link` = ?, `remark` = ? WHERE `id` = ?");
         $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $id = (int) $info['id'];
-        $stmt->bind_param("ssi", $newLinkJson, $newRemark, $id);
+        $stmt->bind_param("ssi", $newLinkJson, $remark, $id);
         $stmt->execute();
         $stmt->close();
 
