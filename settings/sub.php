@@ -272,15 +272,15 @@ foreach ($orderList as $info) {
 }
 
 // --- Build and prepend the header link ---------------------------------------
-$usedGbAll = round($accUsedBytes / 1073741824, 2) . ' GB';
-$totalGbAll = round($accTotalBytes / 1073741824, 2) . ' GB';
-$headerRemarkText = '📊مصرف شما: ' . $usedGbAll . ' از ' . $totalGbAll;
+$usedGbAll = round($accUsedBytes / 1073741824, 2) . 'GB';
+$totalGbAll = round($accTotalBytes / 1073741824, 2) . 'GB';
+$headerRemarkText = '📊 مصرف شما: ' . $usedGbAll . ' از ' . $totalGbAll . ' 📊';
 $randomId = uuidv4_random();
 
 // ساخت یک لینک VLESS ساده به عنوان هدر (localhost:1)
 $usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#' . rawurlencode($headerRemarkText);
 $expireDaysLink = 'vless://' . $randomId . '@127.0.0.1:2?type=none&encryption=none#' . rawurlencode('⏰ تاریخ انقضا: ' . $daysLeft . ' روز دیگر ⏰');
-$descLink = 'vless://' . $randomId . '@127.0.0.1:3?type=none&encryption=none#' . rawurlencode('📣 زمانی که دسترسی شما قطع شد، کانفیگ‌های خود را با لینک سابسکریپشن آپدیت کنید.');
+$descLink = 'vless://' . $randomId . '@127.0.0.1:3?type=none&encryption=none#' . rawurlencode('📣 قطع شد؟ کانفیگ‌هات رو سریع با لینک سابسکریپشن آپدیت کن.');
 
 shuffle($allLinksFlat);
 
