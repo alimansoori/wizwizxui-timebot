@@ -195,7 +195,7 @@ $connection->query("CREATE TABLE `server_info` (
 $connection->query("CREATE TABLE `server_plans` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fileid` varchar(250) NOT NULL,
-  `cat_id` int(11) NOT NULL,
+  `catid` int(11) NOT NULL,
   `server_id` int(11) NOT NULL,
   `inbound_id` int(11) NOT NULL DEFAULT 0,
   `acount` bigint(20) NOT NULL,

@@ -341,7 +341,7 @@ if (preg_match('/^addDiscount(Server|Plan)Agent(\d+)/', $data, $match) && ($from
             $keys = array();
             while ($row = $list->fetch_assoc()) {
                 $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
-                $stmt->bind_param("i", $row['cat_id']);
+                $stmt->bind_param("i", $row['catid']);
                 $stmt->execute();
                 $catInfo = $stmt->get_result()->fetch_assoc();
                 $stmt->close();
@@ -403,7 +403,7 @@ if (preg_match('/^nextAgentDiscountPlan(?<agentId>\d+)_(?<offset>\d+)/', $data, 
         $keys = array();
         while ($row = $list->fetch_assoc()) {
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
-            $stmt->bind_param("i", $row['cat_id']);
+            $stmt->bind_param("i", $row['catid']);
             $stmt->execute();
             $catInfo = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -1190,7 +1190,7 @@ if (preg_match('/createAccServer(\d+)/', $data, $match) && ($from_id == $admin |
         while ($file = $respd->fetch_assoc()) {
             $id = $file['id'];
             $name = $file['title'];
-            $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `cat_id`=? and `active`=1");
+            $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `catid`=? and `active`=1");
             $stmt->bind_param("ii", $sid, $id);
             $stmt->execute();
             $rowcount = $stmt->get_result()->num_rows;
@@ -1214,7 +1214,7 @@ if (preg_match('/createAccServer(\d+)/', $data, $match) && ($from_id == $admin |
 if (preg_match('/createAccCategory(\d+)_(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     $call_id = $match[1];
     $sid = $match[2];
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `cat_id`=? and `active`=1 order by `id` asc");
+    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `catid`=? and `active`=1 order by `id` asc");
     $stmt->bind_param("ii", $sid, $call_id);
     $stmt->execute();
     $respd = $stmt->get_result();
@@ -2670,7 +2670,7 @@ if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) 
         while ($file = $respd->fetch_assoc()) {
             $id = $file['id'];
             $name = $file['title'];
-            $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `cat_id`=? and `active`=1");
+            $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `catid`=? and `active`=1");
             $stmt->bind_param("ii", $sid, $id);
             $stmt->execute();
             $rowcount = $stmt->get_result()->num_rows;
@@ -2698,7 +2698,7 @@ if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) 
 if (preg_match('/selectCategory(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true)) {
     $call_id = $match['categoryId'];
     $sid = $match['serverId'];
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `price` != 0 and `cat_id`=? and `active`=1 order by `id` asc");
+    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `price` != 0 and `catid`=? and `active`=1 order by `id` asc");
     $stmt->bind_param("ii", $sid, $call_id);
     $stmt->execute();
     $respd = $stmt->get_result();
@@ -2736,7 +2736,7 @@ if (preg_match('/selectCategory(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w
 if (preg_match('/selectCustomPlan(?<categoryId>\d+)_(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true)) {
     $call_id = $match['categoryId'];
     $sid = $match['serverId'];
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `cat_id`=? and `active`=1 order by `id` asc");
+    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `server_id`=? and `catid`=? and `active`=1 order by `id` asc");
     $stmt->bind_param("ii", $sid, $call_id);
     $stmt->execute();
     $respd = $stmt->get_result();
@@ -2925,7 +2925,7 @@ if ((preg_match('/^discountCustomPlanDay(\d+)/', $userInfo['step'], $match) || p
     $stmt->close();
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-    $stmt->bind_param("i", $respd['cat_id']);
+    $stmt->bind_param("i", $respd['catid']);
     $stmt->execute();
     $catname = $stmt->get_result()->fetch_assoc()['title'];
     $stmt->close();
@@ -3032,7 +3032,7 @@ if ($data == "getTestAccount") {
         while ($row = $respd->fetch_assoc()) {
             $id = $row['id'];
             $catInfo = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-            $catInfo->bind_param("i", $row['cat_id']);
+            $catInfo->bind_param("i", $row['catid']);
             $catInfo->execute();
             $catname = $catInfo->get_result()->fetch_assoc()['title'];
             $catInfo->close();
@@ -3187,7 +3187,7 @@ if (
     $stmt->close();
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-    $stmt->bind_param("i", $respd['cat_id']);
+    $stmt->bind_param("i", $respd['catid']);
     $stmt->execute();
     $catname = $stmt->get_result()->fetch_assoc()['title'];
     $stmt->close();
@@ -3675,7 +3675,7 @@ if (preg_match('/payCustomWithCartToCart(.*)/', $userInfo['step'], $match) and $
         $stmt->close();
 
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-        $stmt->bind_param("i", $res['cat_id']);
+        $stmt->bind_param("i", $res['catid']);
         $stmt->execute();
         $catname = $stmt->get_result()->fetch_assoc()['title'];
         $stmt->close();
@@ -4393,7 +4393,7 @@ if (preg_match('/payWithCartToCart(.*)/', $userInfo['step'], $match) and $text !
             $filename = $configInfo['remark'];
         } else {
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-            $stmt->bind_param("i", $res['cat_id']);
+            $stmt->bind_param("i", $res['catid']);
             $stmt->execute();
             $catname = $stmt->get_result()->fetch_assoc()['title'];
             $stmt->close();
@@ -6415,7 +6415,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     delMessage();
 
     sendMessage('1');
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `cat_id`=?");
+    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `catid`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
     $files_detail = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -7164,7 +7164,7 @@ if (preg_match('/sConfigRenewPlan(\d+)_(\d+)/', $data, $match) && ($botState['se
     $stmt->close();
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-    $stmt->bind_param("i", $respd['cat_id']);
+    $stmt->bind_param("i", $respd['catid']);
     $stmt->execute();
     $catname = $stmt->get_result()->fetch_assoc()['title'];
     $stmt->close();
@@ -7301,10 +7301,10 @@ if (($data == 'addNewPlan' || $data == "addNewRahgozarPlan" || $data == "addNewM
     $stmt->execute();
     $stmt->close();
     if ($data == "addNewPlan" || $data == "addNewMarzbanPlan") {
-        $sql = "INSERT INTO `server_plans` (`fileid`, `cat_id`, `server_id`, `inbound_id`, `acount`, `limitip`, `title`, `protocol`, `days`, `volume`, `type`, `price`, `descr`, `pic`, `active`, `step`, `date`)
+        $sql = "INSERT INTO `server_plans` (`fileid`, `catid`, `server_id`, `inbound_id`, `acount`, `limitip`, `title`, `protocol`, `days`, `volume`, `type`, `price`, `descr`, `pic`, `active`, `step`, `date`)
                                             VALUES ('', 0,0,0,0, 1, '', '', 0, 0, '', 0, '', '',0,1, ?);";
     } elseif ($data == "addNewRahgozarPlan") {
-        $sql = "INSERT INTO `server_plans` (`fileid`, `cat_id`, `server_id`, `inbound_id`, `acount`, `limitip`, `title`, `protocol`, `days`, `volume`, `type`, `price`, `descr`, `pic`, `active`, `step`, `date`, `rahgozar`)
+        $sql = "INSERT INTO `server_plans` (`fileid`, `catid`, `server_id`, `inbound_id`, `acount`, `limitip`, `title`, `protocol`, `days`, `volume`, `type`, `price`, `descr`, `pic`, `active`, `step`, `date`, `rahgozar`)
                     VALUES ('', 0,0,0,0, 1, '', '', 0, 0, '', 0, '', '',0,1, ?, 1);";
     }
     $stmt = $connection->prepare($sql);
@@ -7396,7 +7396,7 @@ if (preg_match('/(addNewRahgozarPlan|addNewPlan|addNewMarzbanPlan)/', $userInfo[
         if ($inarr == 1) {
             $input = explode(' - ', $text);
             $catid = $input[0];
-            $stmt = $connection->prepare("UPDATE `server_plans` SET `cat_id`=?,`step`=50 WHERE `active`=0");
+            $stmt = $connection->prepare("UPDATE `server_plans` SET `catid`=?,`step`=50 WHERE `active`=0");
             $stmt->bind_param("i", $catid);
             $stmt->execute();
             $stmt->close();
@@ -8250,7 +8250,7 @@ if (preg_match('/changeNetworkType(\d+)_(\d+)/', $data, $match)) {
     if ($respd) {
         $respd = $respd->fetch_assoc();
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-        $stmt->bind_param("i", $respd['cat_id']);
+        $stmt->bind_param("i", $respd['catid']);
         $stmt->execute();
         $cadquery = $stmt->get_result();
         $stmt->close();
@@ -8533,7 +8533,7 @@ if (preg_match('/changeAccProtocol(\d+)_(\d+)_(.*)/', $data, $match)) {
     if ($respd) {
         $respd = $respd->fetch_assoc();
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-        $stmt->bind_param("i", $respd['cat_id']);
+        $stmt->bind_param("i", $respd['catid']);
         $stmt->execute();
         $cadquery = $stmt->get_result();
         $stmt->close();
