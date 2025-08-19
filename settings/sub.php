@@ -228,10 +228,6 @@ foreach ($orderList as $info) {
         continue;
     }
 
-    // ---- Build new remark with usage & days ---------------------------------
-    $newRemarkBase = preg_replace("/\(📊.+-.+\|📆.+\)/u", "", $remark);
-    $newRemark = rtrim($newRemarkBase) . "(📊" . $totalUsedGb . " - " . $totalGb . "|📆" . $daysLeft . ")";
-
     // ---- Push remark to panel ----------------------------------------------
     if ($inbound_id === 0) {
         $res = editInboundRemark($server_id, $uuid, $remark);
@@ -283,15 +279,15 @@ $randomId = uuidv4_random();
 
 // ساخت یک لینک VLESS ساده به عنوان هدر (localhost:1)
 $usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#' . rawurlencode($headerRemarkText);
-$expireDaysLink = 'vless://' . $randomId . '@127.0.0.1:2?type=none&encryption=none#' . rawurlencode('⏰ تاریخ انقضا: ' . $daysLeft . ' روز دیگر⏰');
+$expireDaysLink = 'vless://' . $randomId . '@127.0.0.1:2?type=none&encryption=none#' . rawurlencode('⏰ تاریخ انقضا: ' . $daysLeft . ' روز دیگر ⏰');
 $descLink = 'vless://' . $randomId . '@127.0.0.1:3?type=none&encryption=none#' . rawurlencode('📣 زمانی که دسترسی شما قطع شد، کانفیگ‌های خود را با لینک سابسکریپشن آپدیت کنید.');
 
 shuffle($allLinksFlat);
 
 // قرار دادن در ابتدای آرایه
-array_unshift($allLinksFlat, $usageLink);
-array_unshift($allLinksFlat, $expireDaysLink);
 array_unshift($allLinksFlat, $descLink);
+array_unshift($allLinksFlat, $expireDaysLink);
+array_push($allLinksFlat, $usageLink);
 
 // --- Final Output ------------------------------------------------------------
 if (!empty($allLinksFlat)) {
