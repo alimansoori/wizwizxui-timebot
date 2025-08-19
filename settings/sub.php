@@ -285,9 +285,9 @@ $descLink = 'vless://' . $randomId . '@127.0.0.1:3?type=none&encryption=none#' .
 shuffle($allLinksFlat);
 
 // قرار دادن در ابتدای آرایه
-array_unshift($allLinksFlat, $descLink);
 array_unshift($allLinksFlat, $expireDaysLink);
-array_push($allLinksFlat, $usageLink);
+array_unshift($allLinksFlat, $usageLink);
+array_push($allLinksFlat, $descLink);
 
 // --- Final Output ------------------------------------------------------------
 if (!empty($allLinksFlat)) {
