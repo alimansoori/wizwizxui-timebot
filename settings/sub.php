@@ -11,16 +11,26 @@ if ($connection->connect_error) {
 $connection->set_charset("utf8mb4");
 
 // --- Helpers ------------------------------------------------------------------
-function strictTokenIsValid($token) {
+function strictTokenIsValid($token)
+{
     return (bool) preg_match('/^[a-zA-Z0-9]{30}$/', $token);
 }
 
-function decodeFirstLinkFromJson($jsonLinks) {
+function decodeFirstLinkFromJson($jsonLinks)
+{
     $arr = json_decode($jsonLinks, true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($arr) && isset($arr[0])) {
         return $arr[0];
     }
     return null;
+}
+
+function uuidv4_random()
+{
+    $data = random_bytes(16);
+    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40); // version 4
+    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80); // variant
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
 // --- Input Validation ---------------------------------------------------------
@@ -51,22 +61,26 @@ if (!$orderList || count($orderList) === 0) {
 // --- Caches to avoid repetitive queries/calls --------------------------------
 $serverInfoCache = []; // server_id => server_info row
 $serverJsonCache = []; // server_id => getJson(...)->obj
-$planCache       = []; // file_id  => server_plans row
+$planCache = []; // file_id  => server_plans row
 
-$allLinksFlat = []; // for final base64 output (merged links of all orders)
+$allLinksFlat = [];          // for final base64 output (merged links of all orders)
+$accUsedBytes = 0;           // sum of (up+down) over all orders
+$accTotalBytes = 0;          // sum of total over all orders
 
 // --- Process each order -------------------------------------------------------
 foreach ($orderList as $info) {
     // Extract basic fields from order
-    $remark     = $info['remark'] ?? '';
-    $uuid       = trim($info['uuid'] ?? ""); // هر سفارش uuid مخصوص خودش را دارد
-    $server_id  = (int)($info['server_id'] ?? 0);
-    $inbound_id = (int)($info['inbound_id'] ?? 0);
-    $protocol   = $info['protocol'] ?? '';
-    $rahgozar   = $info['rahgozar'] ?? '';
-    $file_id    = (int)($info['fileid'] ?? 0);
+    $remark = $info['remark'] ?? '';
+    $uuid = trim($info['uuid'] ?? ""); // هر سفارش uuid مخصوص خودش را دارد
+    $server_id = (int) ($info['server_id'] ?? 0);
+    $inbound_id = (int) ($info['inbound_id'] ?? 0);
+    $protocol = $info['protocol'] ?? '';
+    $rahgozar = $info['rahgozar'] ?? '';
+    $file_id = (int) ($info['fileid'] ?? 0);
 
-    if ($server_id === 0) { continue; }
+    if ($server_id === 0) {
+        continue;
+    }
 
     // ---- Fetch plan details (custom path/port/sni) --------------------------
     if (!isset($planCache[$file_id])) {
@@ -77,9 +91,9 @@ foreach ($orderList as $info) {
         $stmt->close();
     }
     $file_detail = $planCache[$file_id];
-    $customPath  = $file_detail['custom_path'] ?? null;
-    $customPort  = $file_detail['custom_port'] ?? null;
-    $customSni   = $file_detail['custom_sni'] ?? null;
+    $customPath = $file_detail['custom_path'] ?? null;
+    $customPort = $file_detail['custom_port'] ?? null;
+    $customSni = $file_detail['custom_sni'] ?? null;
 
     // ---- Fetch server config ------------------------------------------------
     if (!isset($serverInfoCache[$server_id])) {
@@ -99,8 +113,13 @@ foreach ($orderList as $info) {
 
     // ---- Find client usage/port/network ------------------------------------
     $clientInbound = null;
-    $port = null; $netType = null; $security = null;
-    $up = 0; $down = 0; $total = 0; $enable = null;
+    $port = null;
+    $netType = null;
+    $security = null;
+    $up = 0;
+    $down = 0;
+    $total = 0;
+    $enable = null;
 
     if ($inbound_id === 0) {
         // Search across all inbounds and ALL clients
@@ -108,46 +127,50 @@ foreach ($orderList as $info) {
             $clients = json_decode($row->settings)->clients ?? [];
             foreach ($clients as $c) {
                 $match = false;
-                if (isset($c->id) && $c->id == $uuid) $match = true;
-                if (isset($c->password) && $c->password == $uuid) $match = true;
+                if (isset($c->id) && $c->id == $uuid)
+                    $match = true;
+                if (isset($c->password) && $c->password == $uuid)
+                    $match = true;
                 if ($match) {
                     $clientInbound = $row->id;
-                    $total   = $row->total ?? 0;
-                    $port    = $row->port ?? null;
-                    $up      = $row->up ?? 0;
-                    $down    = $row->down ?? 0;
-                    $stream  = json_decode($row->streamSettings);
+                    $total = $row->total ?? 0;
+                    $port = $row->port ?? null;
+                    $up = $row->up ?? 0;
+                    $down = $row->down ?? 0;
+                    $stream = json_decode($row->streamSettings);
                     $netType = $stream->network ?? null;
-                    $security= $stream->security ?? null;
+                    $security = $stream->security ?? null;
                     break 2; // found
                 }
             }
         }
     } else {
         foreach ($response as $row) {
-            if ((int)$row->id === $inbound_id) {
+            if ((int) $row->id === $inbound_id) {
                 $clientInbound = $row->id;
                 $port = $row->port ?? null;
-                $stream  = json_decode($row->streamSettings);
+                $stream = json_decode($row->streamSettings);
                 $netType = $stream->network ?? null;
-                $security= $stream->security ?? null;
+                $security = $stream->security ?? null;
 
                 $clientsStates = $row->clientStats ?? [];
-                $clients       = json_decode($row->settings)->clients ?? [];
+                $clients = json_decode($row->settings)->clients ?? [];
                 foreach ($clients as $client) {
                     $match = false;
-                    if (isset($client->id) && $client->id == $uuid) $match = true;
-                    if (isset($client->password) && $client->password == $uuid) $match = true;
+                    if (isset($client->id) && $client->id == $uuid)
+                        $match = true;
+                    if (isset($client->password) && $client->password == $uuid)
+                        $match = true;
                     if ($match) {
                         $email = $client->email ?? null;
                         if ($email !== null && is_array($clientsStates)) {
-                            $emails   = array_column($clientsStates, 'email');
+                            $emails = array_column($clientsStates, 'email');
                             $emailKey = array_search($email, $emails, true);
                             if ($emailKey !== false && isset($clientsStates[$emailKey])) {
-                                $state  = $clientsStates[$emailKey];
-                                $total  = $state->total ?? 0;
-                                $up     = $state->up ?? 0;
-                                $down   = $state->down ?? 0;
+                                $state = $clientsStates[$emailKey];
+                                $total = $state->total ?? 0;
+                                $up = $state->up ?? 0;
+                                $down = $state->down ?? 0;
                                 $enable = $state->enable ?? null;
                             }
                         }
@@ -159,11 +182,15 @@ foreach ($orderList as $info) {
         }
     }
 
+    // ---- Accumulate totals for the header link ------------------------------
+    $accUsedBytes += (int) $up + (int) $down;
+    $accTotalBytes += (int) $total;
+
     // ---- Compute usage/days -------------------------------------------------
     $totalUsedGb = round(($up + $down) / 1073741824, 2) . " GB";
-    $totalGb     = round(($total) / 1073741824, 2) . " GB";
+    $totalGb = round(($total) / 1073741824, 2) . " GB";
 
-    $expireTs = (int)($info['expire_date'] ?? 0);
+    $expireTs = (int) ($info['expire_date'] ?? 0);
     $daysLeft = round(max(0, $expireTs - time()) / 86400, 1);
 
     // ---- Determine uniq id explicitly from this order's uuid ----------------
@@ -178,15 +205,19 @@ foreach ($orderList as $info) {
             $decoded = json_decode(base64_decode($b64));
             if ($decoded) {
                 $uniqid = $decoded->id ?? null;
-                if (!$protocol) { $protocol = 'vmess'; }
-                $port    = $decoded->port ?? $port;
+                if (!$protocol) {
+                    $protocol = 'vmess';
+                }
+                $port = $decoded->port ?? $port;
                 $netType = $decoded->net ?? $netType;
             }
         } elseif ($origLink) {
             $linkInfo = @parse_url($origLink);
             if ($linkInfo !== false) {
-                $uniqid   = $linkInfo['user'] ?? $uniqid;
-                if (!$protocol) { $protocol = $linkInfo['scheme'] ?? $protocol; }
+                $uniqid = $linkInfo['user'] ?? $uniqid;
+                if (!$protocol) {
+                    $protocol = $linkInfo['scheme'] ?? $protocol;
+                }
             }
         }
     }
@@ -231,15 +262,31 @@ foreach ($orderList as $info) {
         // Update only this specific row
         $stmt = $connection->prepare("UPDATE `orders_list` SET `link` = ?, `remark` = ? WHERE `id` = ?");
         $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $id = (int)$info['id'];
+        $id = (int) $info['id'];
         $stmt->bind_param("ssi", $newLinkJson, $newRemark, $id);
         $stmt->execute();
         $stmt->close();
 
         // Collect for final output
-        foreach ($vraylink as $lnk) { $allLinksFlat[] = $lnk; }
+        foreach ($vraylink as $lnk) {
+            $allLinksFlat[] = $lnk;
+        }
     }
 }
+
+// --- Build and prepend the header link ---------------------------------------
+$usedGbAll = round($accUsedBytes / 1073741824, 2) . ' GB';
+$totalGbAll = round($accTotalBytes / 1073741824, 2) . ' GB';
+$headerRemarkText = ' | مجموع مصرف تمام لینک‌ها: ' . $usedGbAll . ' از ' . $totalGbAll;
+$randomId = uuidv4_random();
+
+
+// ساخت یک لینک VLESS ساده به عنوان هدر (localhost:1)
+$headerLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#' . rawurlencode($headerRemarkText);
+
+
+// قرار دادن در ابتدای آرایه
+array_unshift($allLinksFlat, $headerLink);
 
 // --- Final Output ------------------------------------------------------------
 if (!empty($allLinksFlat)) {
