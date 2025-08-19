@@ -6605,7 +6605,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     define('IMAGE_WIDTH', 540);
     define('IMAGE_HEIGHT', 540);
 
-    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
+    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
     if (!empty($vraylink)) {
 
