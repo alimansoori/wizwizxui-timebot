@@ -6414,11 +6414,14 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     }
     delMessage();
 
+    sendMessage('1');
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `cat_id`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
     $files_detail = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
+
+    sendMessage('2');
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
     $stmt->bind_param("i", $cat_id);
@@ -6431,7 +6434,10 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $vraylink = [];
 
+    sendMessage('3');
+
     foreach ($files_detail as $file_detail) {
+        sendMessage('4');
         $id = $file_detail['id'];
         $days = $cat_detail['days'];
         $date = time();
@@ -6601,6 +6607,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $stmt->close();
         }
 
+        sendMessage('5');
         setUser('used', 'freetrial');
     }
 
@@ -6609,7 +6616,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
+    sendMessage('6');
     if (!empty($vraylink)) {
+        sendMessage('7');
 
         $acc_text = "
 😍 سفارش جدید شما
