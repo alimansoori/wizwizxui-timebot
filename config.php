@@ -591,7 +591,7 @@ function getAgentDiscounts($agentId)
             $stmt->close();
 
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
-            $stmt->bind_param("i", $info['catid']);
+            $stmt->bind_param("i", $info['cat_id']);
             $stmt->execute();
             $catInfo = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -1517,7 +1517,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $respd = $respd->fetch_assoc();
 
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-            $stmt->bind_param("i", $respd['catid']);
+            $stmt->bind_param("i", $respd['cat_id']);
             $stmt->execute();
             $cadquery = $stmt->get_result();
             $stmt->close();
@@ -1817,7 +1817,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             $respd = $respd->fetch_assoc();
 
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-            $stmt->bind_param("i", $respd['catid']);
+            $stmt->bind_param("i", $respd['cat_id']);
             $stmt->execute();
             $cadquery = $stmt->get_result();
             $stmt->close();
