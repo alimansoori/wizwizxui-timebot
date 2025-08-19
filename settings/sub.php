@@ -66,6 +66,7 @@ $planCache = []; // file_id  => server_plans row
 $allLinksFlat = [];          // for final base64 output (merged links of all orders)
 $accUsedBytes = 0;           // sum of (up+down) over all orders
 $accTotalBytes = 0;          // sum of total over all orders
+$daysLeft = 0;
 
 // --- Process each order -------------------------------------------------------
 foreach ($orderList as $info) {
@@ -184,7 +185,7 @@ foreach ($orderList as $info) {
 
     // ---- Accumulate totals for the header link ------------------------------
     $accUsedBytes += (int) $up + (int) $down;
-    $accTotalBytes += (int) $total;
+    $accTotalBytes = (int) $total;
 
     // ---- Compute usage/days -------------------------------------------------
     $totalUsedGb = round(($up + $down) / 1073741824, 2) . " GB";
@@ -277,16 +278,20 @@ foreach ($orderList as $info) {
 // --- Build and prepend the header link ---------------------------------------
 $usedGbAll = round($accUsedBytes / 1073741824, 2) . ' GB';
 $totalGbAll = round($accTotalBytes / 1073741824, 2) . ' GB';
-$headerRemarkText = ' | مجموع مصرف تمام لینک‌ها: ' . $usedGbAll . ' از ' . $totalGbAll;
+$headerRemarkText = '📊مصرف شما: ' . $usedGbAll . ' از ' . $totalGbAll;
 $randomId = uuidv4_random();
 
-
 // ساخت یک لینک VLESS ساده به عنوان هدر (localhost:1)
-$headerLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#' . rawurlencode($headerRemarkText);
+$usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#' . rawurlencode($headerRemarkText);
+$expireDaysLink = 'vless://' . $randomId . '@127.0.0.1:2?type=none&encryption=none#' . rawurlencode('⏰ تاریخ انقضا: ' . $daysLeft . ' روز دیگر⏰');
+$descLink = 'vless://' . $randomId . '@127.0.0.1:3?type=none&encryption=none#' . rawurlencode('📣 زمانی که دسترسی شما قطع شد، کانفیگ‌های خود را با لینک سابسکریپشن آپدیت کنید.');
 
+shuffle($allLinksFlat);
 
 // قرار دادن در ابتدای آرایه
-array_unshift($allLinksFlat, $headerLink);
+array_unshift($allLinksFlat, $usageLink);
+array_unshift($allLinksFlat, $expireDaysLink);
+array_unshift($allLinksFlat, $descLink);
 
 // --- Final Output ------------------------------------------------------------
 if (!empty($allLinksFlat)) {
