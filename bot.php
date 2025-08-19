@@ -6646,7 +6646,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
         unlink($file);
     } else {
+        sendMessage("8");
         alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
+        exit;
     }
 }
 
