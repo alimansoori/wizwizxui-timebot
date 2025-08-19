@@ -2574,14 +2574,14 @@ if (
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
-    $catname = $stmt->get_result()->fetch_assoc()['title'];
+    $catInfo = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    $name = $catname;
-    $desc = $catname['descr'];
+    $name = $catInfo['title'];
+    $desc = $catInfo['descr'];
     // $sid = $respd['server_id'];
     $keyboard = array();
-    $price = $catname['price'];
+    $price = $catInfo['price'];
     if (isset($accountCount))
         $price *= $accountCount;
 
