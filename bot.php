@@ -6343,6 +6343,7 @@ if (preg_match('/freeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
         $vray_link = json_encode($vraylink);
     }
+
     define('IMAGE_WIDTH', 540);
     define('IMAGE_HEIGHT', 540);
     foreach ($vraylink as $link) {
@@ -6606,7 +6607,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
-    $acc_text = "
+    if (!empty($vraylink)) {
+
+        $acc_text = "
 😍 سفارش جدید شما
 🔮 نام سرویس: $serviceName
 🔋 حجم سرویس: $volume گیگ
@@ -6614,23 +6617,26 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
 \n🌐 Subscription : <code>$subLink</code>";
 
-    $file = RandomString() . ".png";
-    $ecc = 'L';
-    $pixel_Size = 11;
-    $frame_Size = 0;
-    QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_size);
+        $file = RandomString() . ".png";
+        $ecc = 'L';
+        $pixel_Size = 11;
+        $frame_Size = 0;
+        QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_size);
 
-    $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
-    $qrImage = imagecreatefrompng($file);
+        $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
+        $qrImage = imagecreatefrompng($file);
 
-    $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
-    imagecopy($backgroundImage, $qrImage, 300, 300, 0, 0, $qrSize['width'], $qrSize['height']);
-    imagepng($backgroundImage, $file);
-    imagedestroy($backgroundImage);
-    imagedestroy($qrImage);
+        $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
+        imagecopy($backgroundImage, $qrImage, 300, 300, 0, 0, $qrSize['width'], $qrSize['height']);
+        imagepng($backgroundImage, $file);
+        imagedestroy($backgroundImage);
+        imagedestroy($qrImage);
 
-    sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
-    unlink($file);
+        sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
+        unlink($file);
+    } else {
+        alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
+    }
 }
 
 if (preg_match('/^showMainButtonAns(\d+)/', $data, $match)) {
