@@ -6429,6 +6429,8 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $serviceName = $cat_detail['title'];
     $token = RandomString(30);
 
+    $vraylink = [];
+
     foreach ($files_detail as $file_detail) {
         $id = $file_detail['id'];
         $days = $cat_detail['days'];
@@ -11243,7 +11245,7 @@ if ($data == "managePanel" and (($from_id == $admin || $userInfo['isAdmin'] == t
     setUser();
     $msg = "
 👤 عزیزم به بخش مدیریت خوشومدی 
-🤌 هرچی نیاز داشتی میتونی اینجا طبق نیازهات اضافه و تغییر بدی ، عزیزم $first_name جان اگه از فروش ربات درآمد داری از من حمایت کن تا پروژه همیشه آپدیت بمونه !
+🤌 هرچی نیاز داشتی میتونی اینجا طبق نیازهات اضافه و تغییر بدی.
 
 🆔 @ّFilterBeshcan_Support
 
