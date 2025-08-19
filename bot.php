@@ -1109,7 +1109,7 @@ if ($data == 'buyService' && ($from_id == $admin || $userInfo['isAdmin'] == true
         }
         $price = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
 
-        $keyboard[] = ['text' => "$name - $price", 'callback_data' => "selectService{$id}_{$buyType}"];
+        $keyboard[] = ['text' => "$name $price", 'callback_data' => "selectService{$id}_{$buyType}"];
     }
 
     if ($botState['plandelkhahState'] == "on" && $match['buyType'] != "much") {
@@ -1118,7 +1118,7 @@ if ($data == 'buyService' && ($from_id == $admin || $userInfo['isAdmin'] == true
 
     $keyboard = array_chunk($keyboard, 1);
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
-    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]));
+    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'MarkDown');
 }
 
 if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuchBuy") && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {

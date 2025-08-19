@@ -154,7 +154,7 @@ $connection->query("CREATE TABLE `server_categories` (
   `volume` float NOT NULL,
   `limit_ip` int(11) NOT NULL DEFAULT 1,
   `price` int(11) NOT NULL,
-  `priority` int(11) NOT NULL DEFAULT 1,
+  `priority` SMALLINT  NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
 

@@ -115,6 +115,7 @@ if (isset($_GET['token'])) {
             $stmt->close();
 
             echo base64_encode(implode("\n", $vraylink));
+            echo base64_encode(implode("\n", $vraylink));
             exit();
         } else
             exit("Error occured");
