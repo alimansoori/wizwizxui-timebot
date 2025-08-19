@@ -2645,7 +2645,7 @@ if (
             $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
 
     }
-    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "selectService{$cat_id}_{$match['buyType']}"]];
+    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "buyService"]];
     $priceC = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
     if (isset($accountCount)) {
         $eachPrice = number_format($price / $accountCount) . " تومان";
