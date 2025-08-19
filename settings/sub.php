@@ -59,9 +59,8 @@ if (!$orderList || count($orderList) === 0) {
 }
 
 // --- Caches to avoid repetitive queries/calls --------------------------------
-$serverInfoCache = []; // server_id => server_info row
-$serverJsonCache = []; // server_id => getJson(...)->obj
-$planCache = []; // file_id  => server_plans row
+$serverJsonCache = [];       // server_id => getJson(...)->obj
+$planCache = [];             // file_id  => server_plans row
 
 $allLinksFlat = [];          // for final base64 output (merged links of all orders)
 $accUsedBytes = 0;           // sum of (up+down) over all orders
@@ -95,16 +94,6 @@ foreach ($orderList as $info) {
     $customPath = $file_detail['custom_path'] ?? null;
     $customPort = $file_detail['custom_port'] ?? null;
     $customSni = $file_detail['custom_sni'] ?? null;
-
-    // ---- Fetch server config ------------------------------------------------
-    if (!isset($serverInfoCache[$server_id])) {
-        $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
-        $stmt->bind_param("i", $server_id);
-        $stmt->execute();
-        $serverInfoCache[$server_id] = $stmt->get_result()->fetch_assoc() ?: [];
-        $stmt->close();
-    }
-    $server_info = $serverInfoCache[$server_id];
 
     // ---- Pull inbounds JSON from panel (once per server) --------------------
     if (!isset($serverJsonCache[$server_id])) {
@@ -223,7 +212,6 @@ foreach ($orderList as $info) {
         }
     }
 
-    // اگر هنوز هم uniqid نداشتیم، این سفارش را رد می‌کنیم.
     if ($uniqid === null || $uniqid === '') {
         continue;
     }
@@ -243,7 +231,7 @@ foreach ($orderList as $info) {
     // ---- Build fresh connection links & update DB ---------------------------
     $vraylink = getConnectionLink(
         $server_id,
-        $uniqid,        // <<-- استفاده از uuid همان سفارش
+        $uniqid,
         $protocol,
         $remark,
         $port,

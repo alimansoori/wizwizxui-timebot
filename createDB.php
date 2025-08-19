@@ -130,6 +130,7 @@ $connection->query("CREATE TABLE IF NOT EXISTS `pays` (
     `user_id` bigint(10) NOT NULL,
     `type` varchar(100),
     `plan_id` int(255),
+    `cat_id` SMALLINT NOT NULL DEFAULT 0,
     `volume` int(255),
     `day` int(255),
     `price` int(255) NOT NULL,
@@ -154,7 +155,8 @@ $connection->query("CREATE TABLE `server_categories` (
   `volume` float NOT NULL,
   `limit_ip` int(11) NOT NULL DEFAULT 1,
   `price` int(11) NOT NULL,
-  `priority` SMALLINT  NOT NULL DEFAULT 1,
+  `priority` SMALLINT NOT NULL DEFAULT 1,
+  `descr` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
 

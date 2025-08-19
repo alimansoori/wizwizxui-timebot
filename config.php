@@ -2846,6 +2846,134 @@ function changeInboundState($server_id, $uuid)
     return $response;
 
 }
+
+function changeInboundDisableState($server_id, $uuid)
+{
+    global $connection;
+    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+    $stmt->bind_param("i", $server_id);
+    $stmt->execute();
+    $server_info = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $panel_url = $server_info['panel_url'];
+    $serverType = $server_info['type'];
+
+    $response = getJson($server_id);
+    if (!$response)
+        return null;
+    $response = $response->obj;
+    foreach ($response as $row) {
+        $settings = json_decode($row->settings, true);
+        $clients = $settings['clients'];
+        if ($clients[0]['id'] == $uuid || $clients[0]['password'] == $uuid) {
+            $inbound_id = $row->id;
+            $enable = $row->enable;
+            break;
+        }
+    }
+
+    if (!isset($settings['clients'][0]['subId']) && ($serverType == "sanaei" || $serverType == "alireza"))
+        $settings['clients'][0]['subId'] = RandomString(16);
+    if (!isset($settings['clients'][0]['enable']) && ($serverType == "sanaei" || $serverType == "alireza"))
+        $settings['clients'][0]['enable'] = true;
+
+    // $editedClient = $settings['clients'][$client_key];
+    $settings['clients'] = array_values($settings['clients']);
+    $settings = json_encode($settings, 488);
+
+    // $newEnable = $enable == true ? false : true;
+
+    $dataArr = array(
+        'up' => $row->up,
+        'down' => $row->down,
+        'total' => $row->total,
+        'remark' => $row->remark,
+        'enable' => false,
+        'expiryTime' => $row->expiryTime,
+        'listen' => '',
+        'port' => $row->port,
+        'protocol' => $row->protocol,
+        'settings' => $settings,
+        'streamSettings' => $row->streamSettings,
+        'sniffing' => $row->sniffing
+    );
+
+
+    $serverName = $server_info['username'];
+    $serverPass = $server_info['password'];
+
+    $loginUrl = $panel_url . '/login';
+
+    $postFields = array(
+        "username" => $serverName,
+        "password" => $serverPass
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $loginUrl);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postFields));
+    curl_setopt($curl, CURLOPT_HEADER, 1);
+    $response = curl_exec($curl);
+
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+    $cookies = array();
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
+    }
+
+
+    $loginResponse = json_decode($body, true);
+    if (!$loginResponse['success']) {
+        curl_close($curl);
+        return $loginResponse;
+    }
+
+    if ($serverType == "sanaei")
+        $url = "$panel_url/panel/inbound/update/$inbound_id";
+    else
+        $url = "$panel_url/xui/inbound/update/$inbound_id";
+
+    $phost = str_ireplace('https://', '', str_ireplace('http://', '', $panel_url));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_CONNECTTIMEOUT => 15,      // timeout on connect
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $dataArr,
+        CURLOPT_HEADER => false,
+        CURLOPT_HTTPHEADER => array(
+            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+            'Accept:  application/json, text/plain, */*',
+            'Accept-Language:  en-US,en;q=0.5',
+            'Accept-Encoding:  gzip, deflate',
+            'X-Requested-With:  XMLHttpRequest',
+            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+        )
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    $response = json_decode($response);
+    return $response;
+
+}
+
 function renewInboundUuid($server_id, $uuid)
 {
     global $connection;
