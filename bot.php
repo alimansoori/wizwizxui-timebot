@@ -6414,7 +6414,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     }
     delMessage();
 
-    sendMessage('1');
+    sendMessage('Cat ID:' . $cat_id);
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `catid`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
