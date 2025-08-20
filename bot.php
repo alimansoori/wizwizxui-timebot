@@ -6483,9 +6483,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             }
         }
 
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-
         $uniqid = generateRandomString(42, $protocol);
 
         $savedinfo = file_get_contents('settings/temp.txt');
@@ -6509,12 +6506,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $panelUrl = $serverConfig['panel_url'];
         $stmt->close();
 
-        sendMessage(txt: 'Server: ' . $serverInfo['title']);
-        sendMessage('Server Type: ' . $serverType);
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-
-        /*
         if ($from_id == $admin && !empty($userInfo['temp'])) {
             $remark = $userInfo['temp'];
             setUser('', 'temp');
@@ -6527,6 +6518,12 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 $remark = "{$srv_remark}-{$from_id}-{$rnd}";
             }
         }
+
+        sendMessage('remark: ' . $remark);
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+
+        /*
 
         if ($portType == "auto") {
             file_put_contents('settings/temp.txt', $port . '-' . $last_num);
