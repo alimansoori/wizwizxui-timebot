@@ -6406,7 +6406,7 @@ if (preg_match('/freeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 }
 
 if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
-    $cat_id = $match[1];
+    $cat_id = (int)$match[1];
 
     if ($userInfo['freetrial'] == 'used' and !($from_id == $admin) && json_decode($userInfo['discount_percent'], true)['normal'] != "100") {
         alert('⚠️شما قبلا هدیه رایگان خود را دریافت کردید');
@@ -6418,7 +6418,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `catid`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
-    $files_detail = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $files_detail = $stmt->get_result()->fetch_all();
     $stmt->close();
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
