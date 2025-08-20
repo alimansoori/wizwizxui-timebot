@@ -6481,12 +6481,10 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 alert($mainValues['out_of_server_capacity']);
                 exit;
             }
-            sendMessage('Server: ' . $server_info['title']);
         }
 
         sendMessage('Token: ' . $token);
         sendMessage('Plan ID: ' . $file_detail['id']);
-        /*
 
         $uniqid = generateRandomString(42, $protocol);
 
@@ -6511,6 +6509,12 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $panelUrl = $serverConfig['panel_url'];
         $stmt->close();
 
+        sendMessage(txt: 'Server: ' . $serverInfo['title']);
+        sendMessage('Server Type: ' . $serverType);
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+
+        /*
         if ($from_id == $admin && !empty($userInfo['temp'])) {
             $remark = $userInfo['temp'];
             setUser('', 'temp');
