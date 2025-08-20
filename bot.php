@@ -6421,8 +6421,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $files_detail = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    sendMessage('2');
-
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
@@ -6434,11 +6432,10 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $vraylink = [];
 
-    sendMessage('3');
-
     foreach ($files_detail as $file_detail) {
-        sendMessage('4');
-        $id = $file_detail['id'];
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+        /* $id = $file_detail['id'];
         $days = $cat_detail['days'];
         $date = time();
         $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
@@ -6605,10 +6602,8 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $stmt->bind_param("i", $id);
             $stmt->execute();
             $stmt->close();
-        }
+        } */
 
-        sendMessage('5');
-        setUser('used', 'freetrial');
     }
 
     define('IMAGE_WIDTH', 540);
@@ -6616,7 +6611,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
-    sendMessage('6');
+    sendMessage('AAA');
     if (!empty($vraylink)) {
         sendMessage('7');
 
@@ -6646,10 +6641,11 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
         unlink($file);
     } else {
-        sendMessage("8");
+        sendMessage("BBBB");
         alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
-        exit;
     }
+
+    setUser('used', 'freetrial');
 }
 
 if (preg_match('/^showMainButtonAns(\d+)/', $data, $match)) {
