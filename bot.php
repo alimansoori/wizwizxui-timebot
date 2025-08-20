@@ -6580,8 +6580,8 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $vraylink = [$subLink];
             $vray_link = json_encode($response->vray_links);
         } else {
-            // $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
-            // $vray_link = json_encode($vraylink);
+            $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
+            $vray_link = json_encode($vraylink);
         }
 
         sendMessage('vray_link: ' . $vray_link);
