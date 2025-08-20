@@ -6433,9 +6433,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $vraylink = [];
 
     foreach ($files_detail as $file_detail) {
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-        /* $id = $file_detail['id'];
+        $id = $file_detail['id'];
         $days = $cat_detail['days'];
         $date = time();
         $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
@@ -6454,6 +6452,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $customPort = $file_detail['custom_port'];
         $customSni = $file_detail['custom_sni'];
 
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+        /* 
         $agentBought = false;
         if ($match['buyType'] == "one" || $match['buyType'] == "much") {
             $agentBought = true;
