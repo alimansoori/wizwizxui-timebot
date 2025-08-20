@@ -6433,23 +6433,23 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $vraylink = [];
 
     foreach ($files_detail as $file_detail) {
-        $id = $file_detail['id'];
-        $days = $cat_detail['days'];
+        $id = (int)$file_detail['id'];
+        $days = (int)$cat_detail['days'];
         $date = time();
         $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
         $expire_date = $date + (86400 * $days);
         $type = $file_detail['type'];
-        $volume = $cat_detail['volume'];
+        $volume = (float)$cat_detail['volume'];
         $protocol = $file_detail['protocol'];
-        $price = $cat_detail['price'];
-        $server_id = $file_detail['server_id'];
-        $acount = $file_detail['acount'];
-        $inbound_id = $file_detail['inbound_id'];
-        $limitip = $cat_detail['limit_ip'];
+        $price = (int)$cat_detail['price'];
+        $server_id = (int)$file_detail['server_id'];
+        $acount = (int)$file_detail['acount'];
+        $inbound_id = (int)$file_detail['inbound_id'];
+        $limitip = (int)$cat_detail['limit_ip'];
         $netType = $file_detail['type'];
-        $rahgozar = $file_detail['rahgozar'];
-        $customPath = $file_detail['custom_path'];
-        $customPort = $file_detail['custom_port'];
+        $rahgozar = (int)$file_detail['rahgozar'];
+        $customPath = (int)$file_detail['custom_path'];
+        $customPort = (int)$file_detail['custom_port'];
         $customSni = $file_detail['custom_sni'];
 
         $agentBought = false;
@@ -6465,10 +6465,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $price -= floor($price * $discount / 100);
         }
 
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-
-        
         if ($acount == 0 and $inbound_id != 0) {
             alert($mainValues['out_of_connection_capacity']);
             exit;
