@@ -6452,9 +6452,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $customPort = $file_detail['custom_port'];
         $customSni = $file_detail['custom_sni'];
 
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-        /* 
         $agentBought = false;
         if ($match['buyType'] == "one" || $match['buyType'] == "much") {
             $agentBought = true;
@@ -6468,6 +6465,10 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $price -= floor($price * $discount / 100);
         }
 
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+
+        /*
         if ($acount == 0 and $inbound_id != 0) {
             alert($mainValues['out_of_connection_capacity']);
             exit;
