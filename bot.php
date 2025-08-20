@@ -6521,12 +6521,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             }
         }
 
-        $remark = $srv_flag . ' ' . $srv_title . '-' . $rnd;
-        sendMessage("$remark", null, null, $admin);
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-
-        /*
+        $remark = $srv_flag . ' ' . $srv_title . '-' . $from_id . '-' . $rnd;
 
         if ($portType == "auto") {
             file_put_contents('settings/temp.txt', $port . '-' . $last_num);
@@ -6563,6 +6558,11 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $id);
             }
         }
+
+
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+        /*
 
         if (is_null($response)) {
             alert('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...');
