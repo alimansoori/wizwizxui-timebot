@@ -6495,6 +6495,8 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $stmt->execute();
         $serverInfo = $stmt->get_result()->fetch_assoc();
         $srv_remark = $serverInfo['remark'];
+        $srv_title = $serverInfo['title'];
+        $srv_flag = $serverInfo['flag'];
         $stmt->close();
 
         $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id`=?");
@@ -6516,10 +6518,11 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             } else {
                 $rnd = rand(1111, 99999);
                 $remark = "{$srv_remark}-{$from_id}-{$rnd}";
-                sendMessage("$remark", null, null, $admin);
             }
         }
 
+        $remark = $srv_flag . ' ' . $srv_title . '-' . $rnd;
+        sendMessage("$remark", null, null, $admin);
         sendMessage('Token: ' . $token);
         sendMessage('Plan ID: ' . $file_detail['id']);
 
