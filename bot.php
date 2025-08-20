@@ -6418,7 +6418,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `catid`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
-    $files_detail = $stmt->get_result()->fetch_all();
+    $files_detail = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
     $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
