@@ -6584,7 +6584,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $vray_link = json_encode($vraylink);
         }
 
-        sendMessage('vray_link: ' . $vray_link);
+        sendMessage('vray_link: ' . $vray_link, null, null, $admin);
         sendMessage('Token: ' . $token);
         sendMessage('Plan ID: ' . $file_detail['id']);
         /*
