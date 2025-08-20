@@ -6584,11 +6584,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $vray_link = json_encode($vraylink);
         }
 
-        sendMessage('vray_link: ' . $vray_link, null, null, $admin);
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-        /*
-
         $stmt = $connection->prepare("INSERT INTO `orders_list` 
 	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
 	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,1, ?, 0, ?, ?)");
@@ -6607,7 +6602,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $stmt->bind_param("i", $id);
             $stmt->execute();
             $stmt->close();
-        } */
+        }
 
     }
 
