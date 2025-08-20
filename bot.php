@@ -6433,7 +6433,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $vraylink = [];
 
     foreach ($files_detail as $file_detail) {
-        $id = (int)$file_detail['id'];
+        $planId = (int)$file_detail['id'];
         $days = (int)$cat_detail['days'];
         $date = time();
         $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
@@ -6531,31 +6531,31 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
         if ($inbound_id == 0) {
             if ($serverType == "marzban") {
-                $response = addMarzbanUser($server_id, $remark, $volume, $days, $id);
+                $response = addMarzbanUser($server_id, $remark, $volume, $days, $planId);
                 if (!$response->success) {
                     if ($response->msg == "User already exists") {
                         $remark .= rand(1111, 99999);
-                        $response = addMarzbanUser($server_id, $remark, $volume, $days, $id);
+                        $response = addMarzbanUser($server_id, $remark, $volume, $days, $planId);
                     }
                 }
             } else {
-                $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $id);
+                $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $planId);
                 if (!$response->success) {
                     if (strstr($response->msg, "Duplicate email"))
                         $remark .= RandomString();
                     elseif (strstr($response->msg, "Port already exists"))
                         $port = rand(1111, 65000);
 
-                    $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $id);
+                    $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $planId);
                 }
             }
         } else {
-            $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $id);
+            $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $planId);
             if (!$response->success) {
                 if (strstr($response->msg, "Duplicate email"))
                     $remark .= RandomString();
 
-                $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $id);
+                $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $planId);
             }
         }
 
