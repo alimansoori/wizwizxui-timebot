@@ -6509,6 +6509,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         if ($from_id == $admin && !empty($userInfo['temp'])) {
             $remark = $userInfo['temp'];
             setUser('', 'temp');
+            sendMessage('remark: ' . $remark);
         } else {
             if ($botState['remark'] == "digits") {
                 $rnd = rand(10000, 99999);
@@ -6517,9 +6518,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 $rnd = rand(1111, 99999);
                 $remark = "{$srv_remark}-{$from_id}-{$rnd}";
             }
+            sendMessage('remark: ' . $remark);
         }
 
-        sendMessage('remark: ' . $remark);
         sendMessage('Token: ' . $token);
         sendMessage('Plan ID: ' . $file_detail['id']);
 
