@@ -6507,16 +6507,18 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $stmt->close();
 
         if ($from_id == $admin && !empty($userInfo['temp'])) {
+            sendMessage('remark1 ');
             $remark = $userInfo['temp'];
             setUser('', 'temp');
         } else {
             if ($botState['remark'] == "digits") {
+                sendMessage('remark2 ');
                 $rnd = rand(10000, 99999);
                 $remark = "{$srv_remark}-{$rnd}";
             } else {
                 $rnd = rand(1111, 99999);
                 $remark = "{$srv_remark}-{$from_id}-{$rnd}";
-                sendMessage('remark: ' . $remark);
+                sendMessage('remark3 ');
             }
         }
 
