@@ -6574,16 +6574,14 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         }
         alert($mainValues['sending_config_to_user']);
 
-        include 'phpqrcode/qrlib.php';
-
         if ($serverType == "marzban") {
             $uniqid = $token = str_replace("/sub/", "", $response->sub_link);
             $subLink = $botState['subLinkState'] == "on" ? $panelUrl . $response->sub_link : "";
             $vraylink = [$subLink];
             $vray_link = json_encode($response->vray_links);
         } else {
-            $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
-            $vray_link = json_encode($vraylink);
+            // $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
+            // $vray_link = json_encode($vraylink);
         }
 
         sendMessage('vray_link: ' . $vray_link);
@@ -6612,6 +6610,8 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         } */
 
     }
+
+    include 'phpqrcode/qrlib.php';
 
     define('IMAGE_WIDTH', 540);
     define('IMAGE_HEIGHT', 540);
