@@ -6559,11 +6559,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             }
         }
 
-
-        sendMessage('Token: ' . $token);
-        sendMessage('Plan ID: ' . $file_detail['id']);
-        /*
-
         if (is_null($response)) {
             alert('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...');
             continue;
@@ -6579,6 +6574,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         }
         alert($mainValues['sending_config_to_user']);
 
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+        /*
         include 'phpqrcode/qrlib.php';
 
         if ($serverType == "marzban") {
