@@ -6587,7 +6587,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         $stmt = $connection->prepare("INSERT INTO `orders_list` 
 	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
 	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,1, ?, 0, ?, ?)");
-        $stmt->bind_param("isiiiisssisiiii", $from_id, $token, $id, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $price, $date, $rahgozar, $agentBought);
+        $stmt->bind_param("isiiiisssisiiii", $from_id, $token, $planId, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $price, $date, $rahgozar, $agentBought);
         $stmt->execute();
         $order = $stmt->get_result();
         $stmt->close();
@@ -6599,7 +6599,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             $stmt->close();
         } else {
             $stmt = $connection->prepare("UPDATE `server_plans` SET `acount` = `acount` - 1 WHERE `id`=?");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("i", $planId);
             $stmt->execute();
             $stmt->close();
         }
