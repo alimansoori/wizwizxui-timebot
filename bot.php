@@ -6516,7 +6516,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
             } else {
                 $rnd = rand(1111, 99999);
                 $remark = "{$srv_remark}-{$from_id}-{$rnd}";
-                sendMessage($remark);
+                sendMessage("$remark", null, null, $admin);
             }
         }
 
