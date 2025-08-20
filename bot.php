@@ -6468,7 +6468,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         sendMessage('Token: ' . $token);
         sendMessage('Plan ID: ' . $file_detail['id']);
 
-        /*
+        
         if ($acount == 0 and $inbound_id != 0) {
             alert($mainValues['out_of_connection_capacity']);
             exit;
@@ -6485,7 +6485,12 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 alert($mainValues['out_of_server_capacity']);
                 exit;
             }
+            sendMessage('Server: ' . $server_info['title']);
         }
+
+        sendMessage('Token: ' . $token);
+        sendMessage('Plan ID: ' . $file_detail['id']);
+        /*
 
         $uniqid = generateRandomString(42, $protocol);
 
