@@ -2626,7 +2626,17 @@ if (
             $price = $afterDiscount;
         }
 
-        if ($botState['cartToCartState'] == "on")
+        $inventoryTxt = $buttonValues['pay_with_wallet'] . '(موجودی ناکافی)' . ' ' . '('. number_format($userInfo['wallet']) . ' تومان)';
+        if ($botState['walletState'] == "on") {
+            if ($price == 0) {
+                $inventoryTxt = 'دریافت رایگان';
+            } elseif ($userInfo['wallet'] >= $price) {
+                $inventoryTxt = $buttonValues['pay_with_wallet'] . '(موجودی کافی)' . ' ' . '('. number_format($userInfo['wallet']) . ' تومان)';
+            }
+            $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "servicePayWithWallet$hash_id"]];
+        }
+
+        if ($botState['cartToCartState'] == "on" and $price != 0)
             $keyboard[] = [['text' => $buttonValues['cart_to_cart'], 'callback_data' => "servicePayWithCartToCart$hash_id"]];
         // if ($botState['nowPaymentOther'] == "on")
         //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
@@ -2636,12 +2646,10 @@ if (
         //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
         // if ($botState['weSwapState'] == "on")
         //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
-        if ($botState['walletState'] == "on")
-            $keyboard[] = [['text' => $buttonValues['pay_with_wallet'] . '-' . $userInfo['wallet'] . '-' . $price, 'callback_data' => "servicePayWithWallet$hash_id"]];
-        if ($botState['tronWallet'] == "on")
+        if ($botState['tronWallet'] == "on" and $price != 0)
             $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
 
-        if (!preg_match('/^discountSelectService/', $userInfo['step']))
+        if (!preg_match('/^discountSelectService/', $userInfo['step']) and $price != 0)
             $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
 
     }
