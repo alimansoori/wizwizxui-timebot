@@ -4330,6 +4330,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
     $uid = $from_id;
     $fid = $payInfo['plan_id'];
     $cat_id = $payInfo['cat_id'];
+    $price = $payInfo['price'];
     $acctxt = '';
 
     if ($payInfo['state'] == "paid_with_wallet")
@@ -4352,9 +4353,15 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
     $cat_detail = $stmt->get_result()->fetch_assoc();
+    $serviceName = $cat_detail['title'];
+    $days = (int) $cat_detail['days'];
+    $volume = (float) $cat_detail['volume'];
+    $limitip = (int) $cat_detail['limit_ip'];
     $stmt->close();
 
+    $msg = $message_id;
 
+    sendMessage('Cat id: ' . $cat_id);
     if ($payInfo['type'] == "RENEW_SCONFIG") {
         foreach ($files_detail as $file_detail) {
             /* $planId = (int) $file_detail['id'];
@@ -4411,32 +4418,31 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
         }
     } else {
 
+        sendMessage('2');
         for ($i = 1; $i <= $accountCount; $i++) {
+            sendMessage('3');
 
-            $serviceName = $cat_detail['title'];
             $token = RandomString(30);
 
             $linkCounter = 0;
 
             foreach ($files_detail as $file_detail) {
                 $planId = (int) $file_detail['id'];
-                $days = (int) $cat_detail['days'];
                 $date = time();
                 $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
                 $expire_date = $date + (86400 * $days);
                 $type = $file_detail['type'];
-                $volume = (float) $cat_detail['volume'];
                 $protocol = $file_detail['protocol'];
-                $price = $payInfo['price'];
                 $server_id = (int) $file_detail['server_id'];
                 $acount = (int) $file_detail['acount'];
                 $inbound_id = (int) $file_detail['inbound_id'];
-                $limitip = (int) $cat_detail['limit_ip'];
                 $netType = $file_detail['type'];
                 $rahgozar = $file_detail['rahgozar'];
                 $customPath = (int) $file_detail['custom_path'];
                 $customPort = (int) $file_detail['custom_port'];
                 $customSni = (int) $file_detail['custom_sni'];
+
+                sendMessage('Plan id: ' . $planId);
 
                 if ($acount == 0 and $inbound_id != 0) {
                     alert($mainValues['out_of_connection_capacity']);
@@ -4474,8 +4480,6 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
                 $panelUrl = $serverConfig['panel_url'];
                 $stmt->close();
 
-                $msg = $message_id;
-
                 $agent_bought = $payInfo['agent_bought'];
                 $eachPrice = $price / $accountCount;
 
@@ -4508,31 +4512,31 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
                 if ($inbound_id == 0) {
                     if ($serverType == "marzban") {
-                        $response = addMarzbanUser($server_id, $remark, $volume, $days, $fid);
+                        $response = addMarzbanUser($server_id, $remark, $volume, $days, $planId);
                         if (!$response->success) {
                             if ($response->msg == "User already exists") {
                                 $remark .= rand(1111, 99999);
-                                $response = addMarzbanUser($server_id, $remark, $volume, $days, $fid);
+                                $response = addMarzbanUser($server_id, $remark, $volume, $days, $planId);
                             }
                         }
                     } else {
-                        $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $fid);
+                        $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $planId);
                         if (!$response->success) {
                             if (strstr($response->msg, "Duplicate email"))
                                 $remark .= RandomString();
                             elseif (strstr($response->msg, "Port already exists"))
                                 $port = rand(1111, 65000);
 
-                            $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $fid);
+                            $response = addUser($server_id, $uniqid, $protocol, $port, $expire_microdate, $remark, $volume, $netType, 'none', $rahgozar, $planId);
                         }
                     }
                 } else {
-                    $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $fid);
+                    $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $planId);
                     if (!$response->success) {
                         if (strstr($response->msg, "Duplicate email"))
                             $remark .= RandomString();
 
-                        $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $fid);
+                        $response = addInboundAccount($server_id, $uniqid, $inbound_id, $expire_microdate, $remark, $volume, $limitip, null, $planId);
                     }
                 }
                 if (is_null($response)) {
@@ -4562,8 +4566,8 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
                 $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
-        	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,1, ?, 0, ?, ?);");
-                $stmt->bind_param("ssiiiisssisiiii", $uid, $token, $fid, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
+        	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
+                $stmt->bind_param("ssiiiisssisiiii", $uid, $token, $planId, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
                 $stmt->execute();
                 $order = $stmt->get_result();
                 $stmt->close();
@@ -4575,11 +4579,13 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
                     $stmt->close();
                 } else {
                     $stmt = $connection->prepare("UPDATE `server_plans` SET `acount` = `acount` - ? WHERE id=?");
-                    $stmt->bind_param("ii", $accountCount, $fid);
+                    $stmt->bind_param("ii", $accountCount, $planId);
                     $stmt->execute();
                     $stmt->close();
                 }
             }
+
+            delMessage($msg);
 
             include 'phpqrcode/qrlib.php';
 
@@ -4618,7 +4624,6 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
                 exit;
             }
 
-            delMessage($msg);
             if ($userInfo['refered_by'] != null) {
                 $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'INVITE_BANNER_AMOUNT'");
                 $stmt->execute();
@@ -4636,9 +4641,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
         }
     }
 
-
-
-    /* $stmt = $connection->prepare("UPDATE `pays` SET `state` = 'paid_with_wallet' WHERE `hash_id` = ?");
+    $stmt = $connection->prepare("UPDATE `pays` SET `state` = 'paid_with_wallet' WHERE `hash_id` = ?");
     $stmt->bind_param("s", $match[1]);
     $stmt->execute();
     $stmt->close();
@@ -4655,6 +4658,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
             ],
         ]
     ]);
+
     if ($payInfo['type'] == "RENEW_SCONFIG") {
         $msg = str_replace(
             ['TYPE', 'USER-ID', 'USERNAME', 'NAME', 'PRICE', 'REMARK', 'VOLUME', 'DAYS'],
@@ -4664,12 +4668,12 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
     } else {
         $msg = str_replace(
             ['SERVERNAME', 'TYPE', 'USER-ID', 'USERNAME', 'NAME', 'PRICE', 'REMARK', 'VOLUME', 'DAYS'],
-            [$serverTitle, 'کیف پول', $from_id, $username, $first_name, $price, $remark, $volume, $days],
+            [$serverName, 'کیف پول', $from_id, $username, $first_name, $price, $serverName, $volume, $days],
             $mainValues['buy_new_account_request']
         );
     }
 
-    sendMessage($msg, $keys, "html", $admin); */
+    sendMessage($msg, $keys, "html", $admin);
 }
 
 if (preg_match('/payWithCartToCart(.*)/', $data, $match)) {
