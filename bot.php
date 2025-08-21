@@ -4594,7 +4594,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
             $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
-            if (!$linkCounter > 0) {
+            if ($linkCounter > 0) {
 
                 $acc_text = "
 😍 سفارش جدید شما
