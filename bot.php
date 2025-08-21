@@ -1085,7 +1085,7 @@ if ($data == 'buyService' && ($from_id == $admin || $userInfo['isAdmin'] == true
         $buyType = "much";
 
     // $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `active`=1 ORDER BY `priority` ASC");
-    $stmt = $connection->prepare("SELECT `sc.*` FROM `server_categories` AS `sc` WHERE `sc.id` IN ( SELECT DISTINCT `sp.catid` FROM `server_plans` AS `sp` ) ORDER BY `sc.priority` ASC, `sc.id` ASC");
+    $stmt = $connection->prepare("SELECT `sc`.* FROM `server_categories` AS `sc` WHERE `sc`.id IN ( SELECT DISTINCT `sp`.catid FROM `server_plans` AS `sp` ) ORDER BY `sc`.priority ASC, `sc`.id ASC");
     $stmt->execute();
     $respd = $stmt->get_result();
     $stmt->close();
