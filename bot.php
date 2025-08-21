@@ -4592,6 +4592,8 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
             define('IMAGE_WIDTH', 540);
             define('IMAGE_HEIGHT', 540);
 
+            $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
+
             if (!$linkCounter > 0) {
 
                 $acc_text = "
