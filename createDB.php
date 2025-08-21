@@ -190,8 +190,6 @@ $connection->query("CREATE TABLE `server_info` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
 
-
-
 $connection->query("CREATE TABLE `server_plans` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fileid` varchar(250) NOT NULL,

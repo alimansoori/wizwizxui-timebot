@@ -1084,7 +1084,8 @@ if ($data == 'buyService' && ($from_id == $admin || $userInfo['isAdmin'] == true
     elseif ($data == "agentMuchBuy")
         $buyType = "much";
 
-    $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `active`=1 ORDER BY `priority` ASC");
+    // $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `active`=1 ORDER BY `priority` ASC");
+    $stmt = $connection->prepare("SELECT `sc.*` FROM `server_categories` AS `sc` WHERE `sc.id` IN ( SELECT DISTINCT `sp.catid` FROM `server_plans` AS `sp` ) ORDER BY `sc.priority` ASC, `sc.id` ASC");
     $stmt->execute();
     $respd = $stmt->get_result();
     $stmt->close();
@@ -4361,7 +4362,6 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
     $msg = $message_id;
 
-    sendMessage('Cat id: ' . $cat_id);
     if ($payInfo['type'] == "RENEW_SCONFIG") {
         foreach ($files_detail as $file_detail) {
             /* $planId = (int) $file_detail['id'];
@@ -4418,7 +4418,6 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
         }
     } else {
 
-        sendMessage('2');
         for ($i = 1; $i <= $accountCount; $i++) {
             sendMessage('3');
 
