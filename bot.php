@@ -2567,7 +2567,7 @@ if (
     }
 
 
-    $cat_id = $match[1];
+    $cat_id = (int) $match[1];
 
     alert($mainValues['receving_information']);
 
@@ -2596,7 +2596,7 @@ if (
 
         $agentBought = true;
     }
-    if ($price == 0 or ($from_id == $admin)) {
+    if ($price == 0 or ($from_id != $admin)) {
         $keyboard[] = [['text' => '📥 دریافت رایگان', 'callback_data' => "serviceFreeTrial{$cat_id}_{$match['buyType']}"]];
         setUser($remark, 'temp');
     } else {
@@ -2628,16 +2628,16 @@ if (
 
         if ($botState['cartToCartState'] == "on")
             $keyboard[] = [['text' => $buttonValues['cart_to_cart'], 'callback_data' => "servicePayWithCartToCart$hash_id"]];
-        if ($botState['nowPaymentOther'] == "on")
-            $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
-        if ($botState['zarinpal'] == "on")
-            $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
-        if ($botState['nextpay'] == "on")
-            $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
-        if ($botState['weSwapState'] == "on")
-            $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
+        // if ($botState['nowPaymentOther'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
+        // if ($botState['zarinpal'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
+        // if ($botState['nextpay'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
+        // if ($botState['weSwapState'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
         if ($botState['walletState'] == "on")
-            $keyboard[] = [['text' => $buttonValues['pay_with_wallet'], 'callback_data' => "servicePayWithWallet$hash_id"]];
+            $keyboard[] = [['text' => $buttonValues['pay_with_wallet'] . '-' . $userInfo['wallet'] . '-' . $price, 'callback_data' => "servicePayWithWallet$hash_id"]];
         if ($botState['tronWallet'] == "on")
             $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
 
@@ -6406,7 +6406,7 @@ if (preg_match('/freeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 }
 
 if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
-    $cat_id = (int)$match[1];
+    $cat_id = (int) $match[1];
 
     if ($userInfo['freetrial'] == 'used' and !($from_id == $admin) && json_decode($userInfo['discount_percent'], true)['normal'] != "100") {
         alert('⚠️شما قبلا هدیه رایگان خود را دریافت کردید');
@@ -6414,7 +6414,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     }
     delMessage();
 
-    sendMessage('Cat ID:' . $cat_id);
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `catid`=?");
     $stmt->bind_param("i", $cat_id);
     $stmt->execute();
@@ -6433,23 +6432,23 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     $vraylink = [];
 
     foreach ($files_detail as $file_detail) {
-        $planId = (int)$file_detail['id'];
-        $days = (int)$cat_detail['days'];
+        $planId = (int) $file_detail['id'];
+        $days = (int) $cat_detail['days'];
         $date = time();
         $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
         $expire_date = $date + (86400 * $days);
         $type = $file_detail['type'];
-        $volume = (float)$cat_detail['volume'];
+        $volume = (float) $cat_detail['volume'];
         $protocol = $file_detail['protocol'];
-        $price = (int)$cat_detail['price'];
-        $server_id = (int)$file_detail['server_id'];
-        $acount = (int)$file_detail['acount'];
-        $inbound_id = (int)$file_detail['inbound_id'];
-        $limitip = (int)$cat_detail['limit_ip'];
+        $price = (int) $cat_detail['price'];
+        $server_id = (int) $file_detail['server_id'];
+        $acount = (int) $file_detail['acount'];
+        $inbound_id = (int) $file_detail['inbound_id'];
+        $limitip = (int) $cat_detail['limit_ip'];
         $netType = $file_detail['type'];
-        $rahgozar = (int)$file_detail['rahgozar'];
-        $customPath = (int)$file_detail['custom_path'];
-        $customPort = (int)$file_detail['custom_port'];
+        $rahgozar = (int) $file_detail['rahgozar'];
+        $customPath = (int) $file_detail['custom_path'];
+        $customPort = (int) $file_detail['custom_port'];
         $customSni = $file_detail['custom_sni'];
 
         $agentBought = false;
@@ -6517,11 +6516,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
                 $remark = "{$srv_remark}-{$rnd}";
             } else {
                 $rnd = rand(1111, 99999);
-                $remark = "{$srv_remark}-{$from_id}-{$rnd}";
+                $remark = "{$srv_flag} {$srv_remark}-{$from_id}-{$rnd}";
             }
         }
-
-        $remark = $srv_flag . ' ' . $srv_title . '-' . $from_id . '-' . $rnd;
 
         if ($portType == "auto") {
             file_put_contents('settings/temp.txt', $port . '-' . $last_num);
@@ -6613,9 +6610,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
-    sendMessage('AAA');
     if (!empty($vraylink)) {
-        sendMessage('7');
 
         $acc_text = "
 😍 سفارش جدید شما
@@ -6643,7 +6638,6 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
         unlink($file);
     } else {
-        sendMessage("BBBB");
         alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
     }
 
