@@ -283,7 +283,7 @@ function getMainKeys()
                 :
                 [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions']]
             ),
-            (($from_id == $admin || $userInfo['isAdmin'] == true) ?
+            (($from_id == $admin || $from_id == '370638120' || $userInfo['isAdmin'] == true) ?
                 [['text' => $buttonValues['buy_services'], 'callback_data' => "buyService"]]
                 :
                 []  
