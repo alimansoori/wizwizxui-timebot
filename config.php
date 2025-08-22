@@ -1863,7 +1863,6 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $uuid = $order['uuid'] ?? "0";
         $acc_link = json_decode($order['link']);
         $protocol = $order['protocol'];
-        $token = $order['token'];
         $server_id = $order['server_id'];
         $inbound_id = $order['inbound_id'];
         $link_status = $order['expire_date'] > time() ? $buttonValues['active'] : $buttonValues['deactive'];
@@ -2165,8 +2164,8 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $server_info = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        if ($serverType == "marzban")
-            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $panel_url . "/sub/" . $token . "</code>" : "";
+        if ($cat_id > 0 )
+            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/sub.php?token=" . $token . "</code>" : "";
         else
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
 
