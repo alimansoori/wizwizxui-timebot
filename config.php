@@ -1503,6 +1503,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
         $order = $order->fetch_assoc();
         $userId = $order['userid'];
         $cat_id = $order['cat_id'];
+        $token = $order['token'];
         $firstName = bot('getChat', ['chat_id' => $userId])->result->first_name ?? " ";
         $fid = $order['fileid'];
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=? AND `active`=1");
@@ -1566,8 +1567,8 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $volume = (int) $cadquery['volume'];
         }
 
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
-        $stmt->bind_param("ii", $userId, $cat_id);
+        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+        $stmt->bind_param("is", $userId, $token);
         $stmt->execute();
         $ordersVolume = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -1828,6 +1829,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $order = $order->fetch_assoc();
         $cat_id = $order['cat_id'];
         $fid = $order['fileid'];
+        $token = $order['token'];
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=? AND `active`=1");
         $stmt->bind_param("i", $fid);
         $stmt->execute();
@@ -1890,8 +1892,8 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             $volume = (int) $cadquery['volume'];
         }
 
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
-        $stmt->bind_param("ii", $from_id, $cat_id);
+        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+        $stmt->bind_param("is", $from_id, $token);
         $stmt->execute();
         $ordersVolume = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
