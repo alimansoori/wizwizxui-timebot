@@ -337,7 +337,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         imagedestroy($backgroundImage);
                         imagedestroy($qrImage);
 
-                        sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
+                        $res = sendPhoto($botUrl . "/settings/" . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $user_id);
                         unlink($file);
 
 
