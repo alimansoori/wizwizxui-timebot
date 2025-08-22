@@ -286,7 +286,7 @@ function getMainKeys()
             (($from_id == $admin || $from_id == '370638120' || $userInfo['isAdmin'] == true) ?
                 [['text' => $buttonValues['buy_services'], 'callback_data' => "buyService"]]
                 :
-                []  
+                []
             )
         ]);
     }
@@ -1502,6 +1502,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
     } else {
         $order = $order->fetch_assoc();
         $userId = $order['userid'];
+        $cat_id = $order['cat_id'];
         $firstName = bot('getChat', ['chat_id' => $userId])->result->first_name ?? " ";
         $fid = $order['fileid'];
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=? AND `active`=1");
@@ -1551,6 +1552,16 @@ function getUserOrderDetailKeys($id, $offset = 0)
         $stmt->close();
         $serverType = $serverConfig['type'];
         $panelUrl = $serverConfig['panel_url'];
+
+        if ($cat_id > 0) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
+            $stmt->bind_param("i", $cat_id);
+            $stmt->execute();
+            $cadquery = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            $remark = $cadquery['title'];
+        }
 
         if ($serverType == "marzban") {
             $info = getMarzbanUser($server_id, $remark);
@@ -1791,8 +1802,8 @@ function getUserOrderDetailKeys($id, $offset = 0)
         ];
     }
 }
-        // $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
-        // $stmt = $connection->prepare("SELECT `t`.`id`, `o`.`token`, `c`.`title` AS `title`, `o`.`remark`, `t`.`order_count`, `t`.`total_amount` FROM (SELECT MAX(`id`) AS `id`,`token`, COUNT(*) AS `order_count`, SUM(`amount`) AS `total_amount` FROM `orders_list` WHERE `userid` = ? AND `status`= 1 AND `agent_bought` = 0  GROUP BY `token`) `t` JOIN `orders_list` `o` ON `o`.`id` = `t`.`id` LEFT JOIN `server_categories` `c` ON `o`.`cat_id` = `c`.`id` ORDER BY `t`.`id` DESC LIMIT ? OFFSET ?");
+// $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
+// $stmt = $connection->prepare("SELECT `t`.`id`, `o`.`token`, `c`.`title` AS `title`, `o`.`remark`, `t`.`order_count`, `t`.`total_amount` FROM (SELECT MAX(`id`) AS `id`,`token`, COUNT(*) AS `order_count`, SUM(`amount`) AS `total_amount` FROM `orders_list` WHERE `userid` = ? AND `status`= 1 AND `agent_bought` = 0  GROUP BY `token`) `t` JOIN `orders_list` `o` ON `o`.`id` = `t`.`id` LEFT JOIN `server_categories` `c` ON `o`.`cat_id` = `c`.`id` ORDER BY `t`.`id` DESC LIMIT ? OFFSET ?");
 
 function getOrderDetailKeys($from_id, $id, $offset = 0)
 {
@@ -1807,6 +1818,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         return null;
     } else {
         $order = $order->fetch_assoc();
+        $cat_id = $order['cat_id'];
         $fid = $order['fileid'];
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=? AND `active`=1");
         $stmt->bind_param("i", $fid);
@@ -1856,6 +1868,16 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $panel_url = $serverConfig['panel_url'];
 
         $found = false;
+
+        if ($cat_id > 0) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
+            $stmt->bind_param("i", $cat_id);
+            $stmt->execute();
+            $cadquery = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            $remark = $cadquery['title'];
+        }
 
         if ($serverType == "marzban") {
             $info = getMarzbanUser($server_id, $remark);
@@ -4678,10 +4700,9 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
                         $psting .= "&path=$path&host=$host";
                     $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus{$psting}#$remark";
                 } elseif ($netType == 'ws') {
-                    if ($rahgozar == true){
+                    if ($rahgozar == true) {
                         $outputlink = "$protocol://$uniqid@$server_ip:" . ($customPort != 0 ? $customPort : "443") . "?type=$netType&security=tls&path=" . rawurlencode($path . ($customPath == true ? "?ed=2048" : "")) . "&encryption=none&host=$host{$psting}#$remark";
-                    }
-                    else {
+                    } else {
                         $outputlink = "$protocol://$uniqid@$server_ip:$port?type=$netType&security=$tlsStatus&path=$path&host=$host{$psting}#$remark";
                     }
                 } elseif ($netType == 'kcp')
@@ -4889,7 +4910,7 @@ function updateConfig($server_id, $inboundId, $protocol, $netType = 'tcp', $secu
   "security": "tls",
   "tlsSettings": {
     "serverName": "' .
-                    (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
+                (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
                     . '",
     "certificates": [
       {
@@ -5071,13 +5092,13 @@ function updateConfig($server_id, $inboundId, $protocol, $netType = 'tcp', $secu
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-        )
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
     ));
 
     $response = curl_exec($curl);
@@ -5273,7 +5294,7 @@ function editInbound($server_id, $uniqid, $uuid, $protocol, $netType = 'tcp', $s
   "security": "tls",
   "tlsSettings": {
     "serverName": "' .
-                    (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
+                (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
                     . '",
     "certificates": [
       {
@@ -5574,13 +5595,13 @@ function editInbound($server_id, $uniqid, $uuid, $protocol, $netType = 'tcp', $s
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-        )
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
     ));
 
     $response = curl_exec($curl);
@@ -6131,13 +6152,13 @@ function getJson($server_id)
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-        ),
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            ),
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
     ));
@@ -6208,13 +6229,13 @@ function getNewCert($server_id)
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-        )
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
     ));
 
     $response = curl_exec($curl);
@@ -6396,7 +6417,7 @@ function addUser($server_id, $client_id, $protocol, $port, $expiryTime, $remark,
   "security": "tls",
   "tlsSettings": {
     "serverName": "' .
-                    (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
+                (!empty($sni) && ($serverType == "sanaei" || $serverType == "alireza") ? $sni : parse_url($panel_url, PHP_URL_HOST))
                     . '",
     "certificates": [
       {
@@ -6875,13 +6896,13 @@ function addUser($server_id, $client_id, $protocol, $port, $expiryTime, $remark,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-        )
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
     ));
     $response = curl_exec($curl);
     curl_close($curl);
