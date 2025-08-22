@@ -1564,14 +1564,18 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $name = $remark;
         }
 
-        if ($serverType == "marzban") {
-            $info = getMarzbanUser($server_id, $remark);
-            $enable = $info->status == "active" ? true : false;
-            $total = $info->data_limit;
-            $usedTraffic = $info->used_traffic;
+        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
+        $stmt->bind_param("ii", $userId, $cat_id);
+        $stmt->execute();
+        $ordersVolume = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
 
-            $leftgb = round(($total - $usedTraffic) / 1073741824, 2) . " GB";
-        } else {
+        $total_leftgb = 0;
+        foreach ($ordersVolume as $order) {
+            $inbound_id = $order["inbound_id"];
+            $server_id = $order["server_id"];
+            $uuid = $order["uuid"];
+
             $response = getJson($server_id)->obj;
             if ($inbound_id == 0) {
                 foreach ($response as $row) {
@@ -1611,8 +1615,11 @@ function getUserOrderDetailKeys($id, $offset = 0)
                     }
                 }
             }
-            $leftgb = round(($total - $up - $down) / 1073741824, 2) . " GB";
+            $total_leftgb += round(($total - $up - $down) / 1073741824, 2);
         }
+
+        $leftgb = $total_leftgb . " GB";
+
         $configLinks = "";
 
         $limit = 5;
@@ -1803,8 +1810,6 @@ function getUserOrderDetailKeys($id, $offset = 0)
         ];
     }
 }
-// $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
-// $stmt = $connection->prepare("SELECT `t`.`id`, `o`.`token`, `c`.`title` AS `title`, `o`.`remark`, `t`.`order_count`, `t`.`total_amount` FROM (SELECT MAX(`id`) AS `id`,`token`, COUNT(*) AS `order_count`, SUM(`amount`) AS `total_amount` FROM `orders_list` WHERE `userid` = ? AND `status`= 1 AND `agent_bought` = 0  GROUP BY `token`) `t` JOIN `orders_list` `o` ON `o`.`id` = `t`.`id` LEFT JOIN `server_categories` `c` ON `o`.`cat_id` = `c`.`id` ORDER BY `t`.`id` DESC LIMIT ? OFFSET ?");
 
 function getOrderDetailKeys($from_id, $id, $offset = 0)
 {
@@ -1882,85 +1887,85 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             $name = $remark;
         }
 
-        if ($serverType == "marzban") {
-            $info = getMarzbanUser($server_id, $remark);
-            if (isset($info->username)) {
-                $found = true;
-                $enable = $info->status == "active" ? true : false;
-                $total = $info->data_limit;
-                $usedTraffic = $info->used_traffic;
+        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
+        $stmt->bind_param("ii", $userId, $cat_id);
+        $stmt->execute();
+        $ordersVolume = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
 
-                $leftgb = round(($total - $usedTraffic) / 1073741824, 2) . " GB";
-            } else
-                $leftgb = "⚠️";
-        } else {
+        $total_leftgb = 0;
+        foreach ($ordersVolume as $order) {
+            $inbound_id = $order["inbound_id"];
+            $server_id = $order["server_id"];
+            $uuid = $order["uuid"];
+
             $response = getJson($server_id)->obj;
-            if ($response) {
-                if ($inbound_id == 0) {
-                    foreach ($response as $row) {
-                        $clients = json_decode($row->settings)->clients;
-                        if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                            $found = true;
-                            $total = $row->total;
-                            $up = $row->up;
-                            $down = $row->down;
-                            $enable = $row->enable;
-                            $expiryTime = $row->expiryTime;
+            if ($inbound_id == 0) {
+                foreach ($response as $row) {
+                    $clients = json_decode($row->settings)->clients;
+                    if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                        $found = true;
+                        $total = $row->total;
+                        $up = $row->up;
+                        $down = $row->down;
+                        $enable = $row->enable;
+                        $expiryTime = $row->expiryTime;
 
-                            $netType = json_decode($row->streamSettings)->network;
-                            $security = json_decode($row->streamSettings)->security;
+                        $netType = json_decode($row->streamSettings)->network;
+                        $security = json_decode($row->streamSettings)->security;
 
-                            $clientsStates = $row->clientStats;
+                        $clientsStates = $row->clientStats;
 
-                            $inboundEmail = $clients[0]->email;
-                            $allEmails = array_column($clientsStates, 'email');
-                            $clienEmailKey = array_search($inboundEmail, $allEmails);
+                        $inboundEmail = $clients[0]->email;
+                        $allEmails = array_column($clientsStates, 'email');
+                        $clienEmailKey = array_search($inboundEmail, $allEmails);
 
-                            $clientTotal = $clientsStates[$clienEmailKey]->total;
-                            $clientUp = $clientsStates[$clienEmailKey]->up;
-                            $clientDown = $clientsStates[$clienEmailKey]->down;
-                            $clientExpiryTime = $clientsStates[$clienEmailKey]->expiryTime;
+                        $clientTotal = $clientsStates[$clienEmailKey]->total;
+                        $clientUp = $clientsStates[$clienEmailKey]->up;
+                        $clientDown = $clientsStates[$clienEmailKey]->down;
+                        $clientExpiryTime = $clientsStates[$clienEmailKey]->expiryTime;
 
-                            if ($clientTotal != 0 && $clientTotal != null && $clientExpiryTime != 0 && $clientExpiryTime != null) {
-                                $up += $clientUp;
-                                $down += $clientDown;
-                                $total = $clientTotal;
-                            }
-
-                            break;
+                        if ($clientTotal != 0 && $clientTotal != null && $clientExpiryTime != 0 && $clientExpiryTime != null) {
+                            $up += $clientUp;
+                            $down += $clientDown;
+                            $total = $clientTotal;
                         }
+
+                        break;
                     }
-                } else {
-                    foreach ($response as $row) {
-                        if ($row->id == $inbound_id) {
-                            $netType = json_decode($row->streamSettings)->network;
-                            $security = json_decode($row->streamSettings)->security;
+                }
+            } else {
+                foreach ($response as $row) {
+                    if ($row->id == $inbound_id) {
+                        $netType = json_decode($row->streamSettings)->network;
+                        $security = json_decode($row->streamSettings)->security;
 
-                            $clientsStates = $row->clientStats;
-                            $clients = json_decode($row->settings)->clients;
-                            foreach ($clients as $key => $client) {
-                                if ($client->id == $uuid || $client->password == $uuid) {
-                                    $found = true;
-                                    $email = $client->email;
-                                    $emails = array_column($clientsStates, 'email');
-                                    $emailKey = array_search($email, $emails);
+                        $clientsStates = $row->clientStats;
+                        $clients = json_decode($row->settings)->clients;
+                        foreach ($clients as $key => $client) {
+                            if ($client->id == $uuid || $client->password == $uuid) {
+                                $found = true;
+                                $email = $client->email;
+                                $emails = array_column($clientsStates, 'email');
+                                $emailKey = array_search($email, $emails);
 
-                                    $total = $clientsStates[$emailKey]->total;
-                                    $up = $clientsStates[$emailKey]->up;
-                                    $enable = $clientsStates[$emailKey]->enable;
-                                    if (!$client->enable)
-                                        $enable = false;
-                                    $down = $clientsStates[$emailKey]->down;
-                                    break;
-                                }
+                                $total = $clientsStates[$emailKey]->total;
+                                $up = $clientsStates[$emailKey]->up;
+                                $enable = $clientsStates[$emailKey]->enable;
+                                if (!$client->enable)
+                                    $enable = false;
+                                $down = $clientsStates[$emailKey]->down;
+                                break;
                             }
                         }
                     }
                 }
-                $leftgb = round(($total - $up - $down) / 1073741824, 2) . " GB";
-            } else
-                $leftgb = "⚠️";
+            }
+            $$total_leftgb += round(($total - $up - $down) / 1073741824, 2);
         }
+
+        $leftgb = $total_leftgb . " GB";
+
         $configLinks = "";
 
         $limit = 5;
