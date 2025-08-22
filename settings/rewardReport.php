@@ -67,13 +67,13 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
         $stmt = $connection->prepare("SELECT * FROM `users` WHERE `userid` = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
-        $userinfo = $stmt->get_result()->fetch_assoc();
+        $userInfo = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
 
-        if ($userinfo['is_agent'] == 1 && ($botState['cartToCartAutoAcceptType'] ?? 2) == 1)
+        if ($userInfo['is_agent'] == 1 && ($botState['cartToCartAutoAcceptType'] ?? 2) == 1)
             continue;
-        elseif ($userinfo['is_agent'] != 1 && ($botState['cartToCartAutoAcceptType'] ?? 2) == 0)
+        elseif ($userInfo['is_agent'] != 1 && ($botState['cartToCartAutoAcceptType'] ?? 2) == 0)
             continue;
 
         $agentBought = $payInfo['agent_bought'];
@@ -355,7 +355,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         exit;
                     }
 
-                    sendMessage("HHH...", null, null, $user_id);
+                    sendMessage("HHH...". $userInfo['refered_by'], null, null, $user_id);
                     if ($userInfo['refered_by'] != null) {
                         sendMessage("III...", null, null, $user_id);
                         $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'INVITE_BANNER_AMOUNT'");
