@@ -103,6 +103,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
             if ($cat_id > 0) {
 
+                sendMessage("شما در حال خرید اشتراک هستید، لطفا منتظر بمانید...", null, null, $user_id);
+
                 $stmt = $connection->prepare("SELECT SUM(`acount`) AS `total_acount` FROM `server_plans` WHERE `catid` = ?");
                 $stmt->bind_param("i", $cat_id);
                 $stmt->execute();
@@ -150,6 +152,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                     $linkCounter = 0;
 
                     foreach ($files_detail as $file_detail) {
+
+                        sendMessage("AAA...", null, null, $user_id);
                         if ($volume == 0 && $days == 0) {
                             $volume = $cat_detail['volume'];
                             $days = $cat_detail['days'];
@@ -205,6 +209,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $remark = "{$srv_flag} {$srv_remark}-{$user_id}-{$rnd}";
                         }
 
+                        sendMessage("BBB...", null, null, $user_id);
+
                         if (!empty($description))
                             $remark = $description;
                         if ($portType == "auto") {
@@ -243,6 +249,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             }
                         }
 
+                        sendMessage("CCC...", null, null, $user_id);
+
                         if (is_null($response)) {
                             sendMessage('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...', null, null, $admin);
                             continue;
@@ -268,6 +276,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $linkCounter += 1;
                         }
 
+                        sendMessage("DDD...", null, null, $user_id);
+
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
         	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
@@ -289,6 +299,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $stmt->close();
                         }
 
+                        sendMessage("EEE...", null, null, $user_id);
+
                         ////
                     }
 
@@ -298,7 +310,10 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
+                    sendMessage("FFF...", null, null, $user_id);
                     if ($linkCounter > 0) {
+
+                        sendMessage("GGG...", null, null, $user_id);
 
                         $acc_text = "
 😍 سفارش جدید شما
@@ -325,6 +340,8 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML");
                         unlink($file);
+
+
                     } else {
                         alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
 
@@ -338,6 +355,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         exit;
                     }
 
+                    sendMessage("HHH...", null, null, $user_id);
                     if ($userInfo['refered_by'] != null) {
                         $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'INVITE_BANNER_AMOUNT'");
                         $stmt->execute();
