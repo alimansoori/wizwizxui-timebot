@@ -8870,9 +8870,9 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     $page_first_result = ($page - 1) * $results_per_page;
 
     if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
-        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 ORDER BY `o`.`id` DESC LIMIT ? OFFSET ?");
+        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 ORDER BY `o`.`id` DESC LIMIT ?, ?");
     else
-        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 AND `o`.`agent_bought` = 0 ORDER BY `o`.`id` DESC LIMIT ? OFFSET ?");
+        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 AND `o`.`agent_bought` = 0 ORDER BY `o`.`id` DESC LIMIT ?, ?");
     $stmt->bind_param("iii", $from_id, $page_first_result, $results_per_page);
     $stmt->execute();
     $orders = $stmt->get_result();
@@ -8882,7 +8882,7 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
         alert($mainValues['you_dont_have_config']);
         exit;
     }
-    
+
     $keyboard = [];
     while ($cat = $orders->fetch_assoc()) {
         $id = $cat['id'];
