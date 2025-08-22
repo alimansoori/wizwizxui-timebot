@@ -102,7 +102,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
             if ($cat_id > 0) {
 
-                sendMessage("شما در حال خرید اشتراک هستید، لطفا منتظر بمانید...", null, null, $user_id);
+                sendMessage($cat_id, null, null, $user_id);
 
                 $stmt = $connection->prepare("SELECT SUM(`acount`) AS `total_acount` FROM `server_plans` WHERE `catid` = ?");
                 $stmt->bind_param("i", $cat_id);
@@ -278,9 +278,9 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         sendMessage("DDD...", null, null, $user_id);
 
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
-        	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
-        	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
-                        $stmt->bind_param("ssiiiisssisiiii", $user_id, $token, $plan_id, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
+                    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
+                    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
+                        $stmt->bind_param("ssiiiisssisiiii", $user_id, $token, $plan_id, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agentBought);
                         $stmt->execute();
                         $order = $stmt->get_result();
                         $stmt->close();
