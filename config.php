@@ -1780,7 +1780,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
 
 
         $enable = $enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
-        $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message']);
+        $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message2']);
 
         $keyboard[] = [['text' => $buttonValues['back_button'], 'callback_data' => "managePanel"]];
         return [
@@ -2136,7 +2136,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         else
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
 
-        $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message']);
+        $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message2']);
 
 
         if ($found) {
