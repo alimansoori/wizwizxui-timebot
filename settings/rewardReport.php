@@ -57,7 +57,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
     while ($payInfo = $info->fetch_assoc()) {
         $time = time();
-        $uid = $from_id;
         $rowId = $payInfo['id'];
         $price = $payInfo['price'];
         $user_id = $payInfo['user_id'];
@@ -281,7 +280,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
         	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
-                        $stmt->bind_param("ssiiiisssisiiii", $uid, $token, $plan_id, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
+                        $stmt->bind_param("ssiiiisssisiiii", $user_id, $token, $plan_id, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
                         $stmt->execute();
                         $order = $stmt->get_result();
                         $stmt->close();
