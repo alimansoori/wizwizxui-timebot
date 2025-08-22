@@ -1562,6 +1562,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
 
             $remark = $cadquery['title'];
             $name = $remark;
+            $volume = (int) $cadquery['volume'];
         }
 
         $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
@@ -1615,10 +1616,10 @@ function getUserOrderDetailKeys($id, $offset = 0)
                     }
                 }
             }
-            $total_leftgb += round(($total - $up - $down) / 1073741824, 2);
+            $total_leftgb += round(($up + $down) / 1073741824, 2);
         }
 
-        $leftgb = $total_leftgb . " GB";
+        $leftgb = $volume -$total_leftgb . " GB";
 
         $configLinks = "";
 
@@ -1883,8 +1884,8 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             $stmt->close();
 
             $remark = $cadquery['title'];
-
             $name = $remark;
+            $volume = (int)$cadquery['volume'];
         }
 
         $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
@@ -1961,10 +1962,10 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                     }
                 }
             }
-            $total_leftgb += round(($total - $up - $down) / 1073741824, 2);
+            $total_leftgb += round(($up + $down) / 1073741824, 2);
         }
 
-        $leftgb = $total_leftgb . " GB";
+        $leftgb = $volume - $total_leftgb . " GB";
 
         $configLinks = "";
 
