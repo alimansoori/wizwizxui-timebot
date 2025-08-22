@@ -1516,6 +1516,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
 
         if ($respd) {
             $respd = $respd->fetch_assoc();
+            $volume = (int) $respd['volume'];
 
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
             $stmt->bind_param("i", $respd['catid']);
@@ -1619,7 +1620,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $total_leftgb += round(($up + $down) / 1073741824, 2);
         }
 
-        $leftgb = $volume -$total_leftgb . " GB";
+        $leftgb = $volume - $total_leftgb . " GB";
 
         $configLinks = "";
 
@@ -1837,6 +1838,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
 
         if ($respd) {
             $respd = $respd->fetch_assoc();
+            $volume = (int) $respd['volume'];
 
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
             $stmt->bind_param("i", $respd['catid']);
@@ -1885,7 +1887,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
 
             $remark = $cadquery['title'];
             $name = $remark;
-            $volume = (int)$cadquery['volume'];
+            $volume = (int) $cadquery['volume'];
         }
 
         $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
