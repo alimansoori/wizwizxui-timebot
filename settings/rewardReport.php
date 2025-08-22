@@ -357,18 +357,21 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                     sendMessage("HHH...", null, null, $user_id);
                     if ($userInfo['refered_by'] != null) {
+                        sendMessage("III...", null, null, $user_id);
                         $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'INVITE_BANNER_AMOUNT'");
                         $stmt->execute();
                         $inviteAmount = $stmt->get_result()->fetch_assoc()['value'] ?? 0;
                         $stmt->close();
                         $inviterId = $userInfo['refered_by'];
 
+                        sendMessage("JJJ...", null, null, $user_id);
                         $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` + ? WHERE `userid` = ?");
                         $stmt->bind_param("ii", $inviteAmount, $inviterId);
                         $stmt->execute();
                         $stmt->close();
 
                         sendMessage("تبریک یکی از زیر مجموعه های شما خرید انجام داد شما مبلغ " . number_format($inviteAmount) . " تومان جایزه دریافت کردید", null, null, $inviterId);
+                        sendMessage("KKK...", null, null, $user_id);
                     }
                 }
 
