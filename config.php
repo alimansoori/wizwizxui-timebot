@@ -1888,7 +1888,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         }
 
         $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `cat_id`=?");
-        $stmt->bind_param("ii", $userId, $cat_id);
+        $stmt->bind_param("ii", $from_id, $cat_id);
         $stmt->execute();
         $ordersVolume = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -1961,7 +1961,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                     }
                 }
             }
-            $$total_leftgb += round(($total - $up - $down) / 1073741824, 2);
+            $total_leftgb += round(($total - $up - $down) / 1073741824, 2);
         }
 
         $leftgb = $total_leftgb . " GB";
