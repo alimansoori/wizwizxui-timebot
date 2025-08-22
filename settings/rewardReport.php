@@ -102,8 +102,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
             if ($cat_id > 0) {
 
-                sendMessage($cat_id, null, null, $user_id);
-
                 $stmt = $connection->prepare("SELECT SUM(`acount`) AS `total_acount` FROM `server_plans` WHERE `catid` = ?");
                 $stmt->bind_param("i", $cat_id);
                 $stmt->execute();
@@ -153,7 +151,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                     foreach ($files_detail as $file_detail) {
 
-                        sendMessage("AAA...", null, null, $user_id);
                         if ($volume == 0 && $days == 0) {
                             $volume = $cat_detail['volume'];
                             $days = $cat_detail['days'];
@@ -209,8 +206,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $remark = "{$srv_flag} {$srv_remark}-{$user_id}-{$rnd}";
                         }
 
-                        sendMessage("BBB...", null, null, $user_id);
-
                         if (!empty($description))
                             $remark = $description;
                         if ($portType == "auto") {
@@ -249,8 +244,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             }
                         }
 
-                        sendMessage("CCC...", null, null, $user_id);
-
                         if (is_null($response)) {
                             sendMessage('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...', null, null, $admin);
                             continue;
@@ -276,8 +269,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $linkCounter += 1;
                         }
 
-                        sendMessage("DDD...", null, null, $user_id);
-
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
                     (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
                     VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
@@ -298,10 +289,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                             $stmt->execute();
                             $stmt->close();
                         }
-
-                        sendMessage("EEE...", null, null, $user_id);
-
-                        ////
                     }
 
                     include '../phpqrcode/qrlib.php';
@@ -310,10 +297,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
 
-                    sendMessage("FFF...", null, null, $user_id);
                     if ($linkCounter > 0) {
-
-                        sendMessage("GGG...", null, null, $user_id);
 
                         $acc_text = "
 😍 سفارش جدید شما
@@ -351,27 +335,22 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         $stmt->close();
 
                         sendMessage("✅ مبلغ " . number_format($eachPrice) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، خطا داد.", null, null, $admin);
-
                         exit;
                     }
 
-                    sendMessage("HHH...". $userInfo['refered_by'], null, null, $user_id);
                     if ($userInfo['refered_by'] != null) {
-                        sendMessage("III...", null, null, $user_id);
                         $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'INVITE_BANNER_AMOUNT'");
                         $stmt->execute();
                         $inviteAmount = $stmt->get_result()->fetch_assoc()['value'] ?? 0;
                         $stmt->close();
                         $inviterId = $userInfo['refered_by'];
 
-                        sendMessage("JJJ...", null, null, $user_id);
                         $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` + ? WHERE `userid` = ?");
                         $stmt->bind_param("ii", $inviteAmount, $inviterId);
                         $stmt->execute();
                         $stmt->close();
 
                         sendMessage("تبریک یکی از زیر مجموعه های شما خرید انجام داد شما مبلغ " . number_format($inviteAmount) . " تومان جایزه دریافت کردید", null, null, $inviterId);
-                        sendMessage("KKK...", null, null, $user_id);
                     }
                 }
 

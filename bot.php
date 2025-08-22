@@ -5619,7 +5619,7 @@ if (preg_match('/serviceAccept(.*)/', $data, $match) and $text != $buttonValues[
                 $stmt->close();
 
                 sendMessage(str_replace(["REMARK", "VOLUME", "DAYS"], [$remark, $volume, $days], $mainValues['sent_config_to_user']), getMainKeys());
-                
+
                 $decrement = 1;
                 if ($inbound_id == 0) {
                     $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` - ? WHERE `id`=?");
@@ -8857,9 +8857,9 @@ if (preg_match('/^wizwizplanrial(\d+)/', $userInfo['step'], $match) && ($from_id
 if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(changeAgentOrder|changeOrdersPage)(\d+)/', $data, $match)) && ($botState['sellState'] == "on" || $from_id == $admin)) {
     $results_per_page = 50;
     if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `status`=1");
+        $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 GROUP BY `token`");
     else
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0");
+        $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
     $stmt->bind_param("i", $from_id);
     $stmt->execute();
     $number_of_result = $stmt->get_result()->num_rows;
@@ -8870,19 +8870,19 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     $page_first_result = ($page - 1) * $results_per_page;
 
     if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `status`=1 ORDER BY `id` DESC LIMIT ?, ?");
+        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 ORDER BY `o`.`id` DESC LIMIT ? OFFSET ?");
     else
-        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 ORDER BY `id` DESC LIMIT ?, ?");
+        $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 AND `o`.`agent_bought` = 0 ORDER BY `o`.`id` DESC LIMIT ? OFFSET ?");
     $stmt->bind_param("iii", $from_id, $page_first_result, $results_per_page);
     $stmt->execute();
     $orders = $stmt->get_result();
     $stmt->close();
 
-
     if ($orders->num_rows == 0) {
         alert($mainValues['you_dont_have_config']);
         exit;
     }
+    
     $keyboard = [];
     while ($cat = $orders->fetch_assoc()) {
         $id = $cat['id'];

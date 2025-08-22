@@ -1791,6 +1791,9 @@ function getUserOrderDetailKeys($id, $offset = 0)
         ];
     }
 }
+        // $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
+        // $stmt = $connection->prepare("SELECT `t`.`id`, `o`.`token`, `c`.`title` AS `title`, `o`.`remark`, `t`.`order_count`, `t`.`total_amount` FROM (SELECT MAX(`id`) AS `id`,`token`, COUNT(*) AS `order_count`, SUM(`amount`) AS `total_amount` FROM `orders_list` WHERE `userid` = ? AND `status`= 1 AND `agent_bought` = 0  GROUP BY `token`) `t` JOIN `orders_list` `o` ON `o`.`id` = `t`.`id` LEFT JOIN `server_categories` `c` ON `o`.`cat_id` = `c`.`id` ORDER BY `t`.`id` DESC LIMIT ? OFFSET ?");
+
 function getOrderDetailKeys($from_id, $id, $offset = 0)
 {
     global $connection, $botState, $mainValues, $buttonValues, $botUrl;
