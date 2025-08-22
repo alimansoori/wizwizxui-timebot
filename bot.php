@@ -2596,7 +2596,7 @@ if (
 
         $agentBought = true;
     }
-    if ($price == 0 or ($from_id != $admin)) {
+    if ($price == 0 or ($from_id == $admin)) {
         $keyboard[] = [['text' => '📥 دریافت رایگان', 'callback_data' => "serviceFreeTrial{$cat_id}_{$match['buyType']}"]];
         setUser($remark, 'temp');
     } else {
