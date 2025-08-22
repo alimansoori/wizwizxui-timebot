@@ -143,6 +143,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                 $stmt->execute();
                 $cat_detail = $stmt->get_result()->fetch_assoc();
                 $limitip = (int) $cat_detail['limit_ip'];
+                $serviceName = $cat_detail['title'];
                 $stmt->close();
 
                 for ($i = 1; $i <= $accountCount; $i++) {
@@ -326,9 +327,11 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                         $ecc = 'L';
                         $pixel_Size = 11;
                         $frame_Size = 0;
-                        QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_size);
 
-                        $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
+                        QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_Size);
+                        addBorderImage($file);
+
+                        $backgroundImage = imagecreatefromjpeg("QRCode.jpg");
                         $qrImage = imagecreatefrompng($file);
 
                         $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
@@ -339,8 +342,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
 
                         $res = sendPhoto($botUrl . "/settings/" . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $user_id);
                         unlink($file);
-
-
                     } else {
                         alert("❌ مشکلی در تولید لینک اتصال پیش آمده است. لطفاً با مدیر تماس بگیرید.");
 
