@@ -8884,10 +8884,25 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     }
 
     $keyboard = [];
-    while ($cat = $orders->fetch_assoc()) {
-        $id = $cat['id'];
-        $remark = $cat['remark'];
-        $keyboard[] = ['text' => "$remark", 'callback_data' => "orderDetails$id"];
+    while ($order = $orders->fetch_assoc()) {
+        $id = $order['id'];
+        $remark = $order['remark'];
+        $plan_id = $order['fileid'];
+        $cat_id = $order['cat_id'];
+
+        if ($cat_id > 0) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
+            $stmt->bind_param("i", $cat_id);
+            $stmt->execute();
+            $catquery = $stmt->get_result()->fetch_assoc();
+            $cat_title = $catquery['title'];
+            $stmt->close();
+            
+            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "orderDetails$id"];
+        } elseif ($plan_id > 0) {
+            $keyboard[] = ['text' => "$remark", 'callback_data' => "orderDetails$id"];
+        }
+
     }
     $keyboard = array_chunk($keyboard, 1);
 
