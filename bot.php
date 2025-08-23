@@ -2646,8 +2646,8 @@ if (
         //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
         // if ($botState['weSwapState'] == "on")
         //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
-        if ($botState['tronWallet'] == "on" and $price != 0)
-            $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
+        // if ($botState['tronWallet'] == "on" and $price != 0)
+        //     $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
 
         if (!preg_match('/^discountSelectService/', $userInfo['step']) and $price != 0)
             $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
@@ -7258,9 +7258,9 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
 
             $discounts = json_decode($userInfo['discount_percent'], true);
             if ($botState['agencyPlanDiscount'] == "on")
-                $discount = $discounts['plans'][$cat_id] ?? $discounts['normal'];
+                $discount = $discounts['plans'][$planId] ?? $discounts['normal'];
             else
-                $discount = $discounts['servers'][$cat_id] ?? $discounts['normal'];
+                $discount = $discounts['normal'];
             $price -= floor($price * $discount / 100);
         }
 
@@ -8897,7 +8897,7 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
             $catquery = $stmt->get_result()->fetch_assoc();
             $cat_title = $catquery['title'];
             $stmt->close();
-            
+
             $keyboard[] = ['text' => "$cat_title", 'callback_data' => "orderDetails$id"];
         } elseif ($plan_id > 0) {
             $keyboard[] = ['text' => "$remark", 'callback_data' => "orderDetails$id"];
@@ -9408,7 +9408,9 @@ if (preg_match('/changeAccProtocol(\d+)_(\d+)_(.*)/', $data, $match)) {
     $keys = getOrderDetailKeys($from_id, $oid);
     editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
 }
+
 if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg_match('/renewAccount(\d+)/', $data, $match) && $text != $buttonValues['cancel']) {
+
     if (preg_match('/^discountRenew/', $userInfo['step'])) {
         $rowId = $match[2];
 
@@ -9501,25 +9503,45 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         exit();
     }
     $order = $order->fetch_assoc();
+    $token = $order['token'];
+    $user_id = $order['userid'];
+    $cat_id = $order['cat_id'] ?? 0;
+
+    if ($cat_id > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $cat_id);
+        $stmt->execute();
+        $catData = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if ($catData) {
+            $price = $catData['price'];
+        }
+    }
+
     $serverId = $order['server_id'];
     $fid = $order['fileid'];
     $agentBought = $order['agent_bought'];
-
 
     $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
     $stmt->bind_param("i", $fid);
     $stmt->execute();
     $respd = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    $price = $respd['price'];
+
+    if ($cat_id <= 0)
+        $price = $respd['price'];
+
     if ($agentBought == true) {
         $discounts = json_decode($userInfo['discount_percent'], true);
-        if ($botState['agencyPlanDiscount'] == "on")
+        if ($botState['agencyPlanDiscount'] == "on") {
             $discount = $discounts['plans'][$fid] ?? $discounts['normal'];
-        else
+        } else {
             $discount = $discounts['servers'][$serverId] ?? $discounts['normal'];
+        }
         $price -= floor($price * $discount / 100);
     }
+
     if (!preg_match('/^discountRenew/', $userInfo['step'])) {
         $hash_id = RandomString();
         $stmt = $connection->prepare("DELETE FROM `pays` WHERE `user_id` = ? AND `type` = 'RENEW_ACCOUNT' AND `state` = 'pending'");
@@ -9528,41 +9550,50 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         $stmt->close();
 
         $time = time();
-        $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `user_id`, `type`, `plan_id`, `volume`, `day`, `price`, `request_date`, `state`)
-                                    VALUES (?, ?, 'RENEW_ACCOUNT', ?, '0', '0', ?, ?, 'pending')");
-        $stmt->bind_param("siiii", $hash_id, $from_id, $oid, $price, $time);
+        $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `user_id`, `type`, `plan_id`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`)
+                                    VALUES (?, ?, 'RENEW_ACCOUNT', ?, ?, '0', '0', ?, ?, 'pending')");
+        $stmt->bind_param("siiii", $hash_id, $from_id, $oid, $cat_id, $price, $time);
         $stmt->execute();
         $rowId = $stmt->insert_id;
         $stmt->close();
     } else
         $price = $afterDiscount;
 
-    if ($price == 0)
+    /* if ($price == 0)
         $price = "رایگان";
     else
-        $price .= " تومان";
+        $price .= " تومان"; */
     $keyboard = array();
-    if ($botState['cartToCartState'] == "on")
-        $keyboard[] = [['text' => "💳 کارت به کارت مبلغ $price", 'callback_data' => "payRenewWithCartToCart$hash_id"]];
-    if ($botState['nowPaymentOther'] == "on")
-        $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
-    if ($botState['zarinpal'] == "on")
-        $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
-    if ($botState['nextpay'] == "on")
-        $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
-    if ($botState['weSwapState'] == "on")
-        $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "payWithWeSwap" . $hash_id]];
-    if ($botState['walletState'] == "on")
-        $keyboard[] = [['text' => "پرداخت با موجودی مبلغ $price", 'callback_data' => "payRenewWithWallet$hash_id"]];
-    if ($botState['tronWallet'] == "on")
-        $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "payWithTronWallet" . $hash_id]];
 
-    if (!preg_match('/^discountRenew/', $userInfo['step']))
+    $inventoryTxt = $buttonValues['pay_with_wallet'] . ' ' . '(موجودی شما' . ' = ' . number_format($userInfo['wallet']) . ' تومان)';
+    if ($botState['walletState'] == "on") {
+        if ($price == 0) {
+            $inventoryTxt = 'دریافت رایگان';
+        } elseif ($userInfo['wallet'] < $price) {
+            $inventoryTxt = $buttonValues['pay_with_wallet'] . '(موجودی شما ناکافی = ' . number_format($userInfo['wallet']) . ' تومان)';
+        }
+        $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "payRenewWithWallet$hash_id"]];
+    }
+
+    if ($botState['cartToCartState'] == "on" and $price != 0)
+        $keyboard[] = [['text' => "💳 کارت به کارت مبلغ $price", 'callback_data' => "payRenewWithCartToCart$hash_id"]];
+    // if ($botState['nowPaymentOther'] == "on")
+    //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
+    // if ($botState['zarinpal'] == "on")
+    //     $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
+    // if ($botState['nextpay'] == "on")
+    //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
+    // if ($botState['weSwapState'] == "on")
+    //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "payWithWeSwap" . $hash_id]];
+    // if ($botState['walletState'] == "on")
+    //     $keyboard[] = [['text' => "پرداخت با موجودی مبلغ $price", 'callback_data' => "payRenewWithWallet$hash_id"]];
+    // if ($botState['tronWallet'] == "on")
+    //     $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "payWithTronWallet" . $hash_id]];
+
+    if (!preg_match('/^discountRenew/', $userInfo['step']) and $price != 0)
         $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountRenew_" . $match[1] . "_" . $rowId]];
 
     $keyboard[] = [['text' => $buttonValues['cancel'], 'callback_data' => "mainMenu"]];
-
-
 
     sendMessage("لطفا با یکی از روش های زیر اکانت خود را تمدید کنید :", json_encode([
         'inline_keyboard' => $keyboard
