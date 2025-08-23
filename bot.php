@@ -9320,75 +9320,88 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
+    $token = $order['token'];
+    $cat_id = $order['cat_id'];
+    $user_id = $order['userid'];
 
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
-    $inboundId = $order['inbound_id'];
-    $server_id = $order['server_id'];
-    $file_id = $order['fileid'];
-
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=?");
-    $stmt->bind_param("i", $file_id);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $user_id, $token);
     $stmt->execute();
-    $file_detail = $stmt->get_result()->fetch_assoc();
-
-    $rahgozar = $order['rahgozar'];
-    $customPath = $file_detail['custom_path'];
-    $customPort = $file_detail['custom_port'];
-    $customSni = $file_detail['custom_sni'];
-
-    $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id`=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_config = $stmt->get_result()->fetch_assoc();
-    $serverType = $server_config['type'];
-    $netType = $file_detail['type'];
-    $protocol = $file_detail['protocol'];
-    $security = $server_config['security'];
-
-    if ($serverType == "marzban") {
-        $info = getMarzbanUser($server_id, $remark);
-        $vraylink = $info->links;
-    } else {
-        $response = getJson($server_id)->obj;
-        if ($inboundId == 0) {
-            foreach ($response as $row) {
-                $clients = json_decode($row->settings)->clients;
-                if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                    $inboundRemark = $row->remark;
-                    $iId = $row->id;
-                    $port = $row->port;
-                    $protocol = $row->protocol;
-                    $netType = json_decode($row->streamSettings)->network;
-                    break;
-                }
-            }
-        } else {
-            foreach ($response as $row) {
-                if ($row->id == $inboundId) {
-                    $iId = $row->id;
-                    $inboundRemark = $row->remark;
-                    $port = $row->port;
-                    $protocol = $row->protocol;
-                    $netType = json_decode($row->streamSettings)->network;
-                    break;
-                }
-            }
-        }
-
-        if ($botState['updateConnectionState'] == "robot") {
-            updateConfig($server_id, $iId, $protocol, $netType, $security, $rahgozar);
-        }
-        $vraylink = getConnectionLink($server_id, $uuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
-
-    }
-    $vray_link = json_encode($vraylink);
-    $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=? WHERE `id`=?");
-    $stmt->bind_param("si", $vray_link, $oid);
-    $stmt->execute();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $keys = getOrderDetailKeys($from_id, $oid);
-    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+
+    foreach ($orders as $order) {
+        $order_id = $order['id'];
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $file_id = $order['fileid'];
+
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=?");
+        $stmt->bind_param("i", $file_id);
+        $stmt->execute();
+        $file_detail = $stmt->get_result()->fetch_assoc();
+
+        $rahgozar = $order['rahgozar'];
+        $customPath = $file_detail['custom_path'];
+        $customPort = $file_detail['custom_port'];
+        $customSni = $file_detail['custom_sni'];
+
+        $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id`=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_config = $stmt->get_result()->fetch_assoc();
+        $serverType = $server_config['type'];
+        $netType = $file_detail['type'];
+        $protocol = $file_detail['protocol'];
+        $security = $server_config['security'];
+
+        if ($serverType == "marzban") {
+            $info = getMarzbanUser($server_id, $remark);
+            $vraylink = $info->links;
+        } else {
+            $response = getJson($server_id)->obj;
+            if ($inboundId == 0) {
+                foreach ($response as $row) {
+                    $clients = json_decode($row->settings)->clients;
+                    if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                        $inboundRemark = $row->remark;
+                        $iId = $row->id;
+                        $port = $row->port;
+                        $protocol = $row->protocol;
+                        $netType = json_decode($row->streamSettings)->network;
+                        break;
+                    }
+                }
+            } else {
+                foreach ($response as $row) {
+                    if ($row->id == $inboundId) {
+                        $iId = $row->id;
+                        $inboundRemark = $row->remark;
+                        $port = $row->port;
+                        $protocol = $row->protocol;
+                        $netType = json_decode($row->streamSettings)->network;
+                        break;
+                    }
+                }
+            }
+
+            if ($botState['updateConnectionState'] == "robot") {
+                updateConfig($server_id, $iId, $protocol, $netType, $security, $rahgozar);
+            }
+            $vraylink = getConnectionLink($server_id, $uuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
+        }
+
+        $vray_link = json_encode($vraylink);
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=? WHERE `id`=?");
+        $stmt->bind_param("si", $vray_link, $order_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $keys = getOrderDetailKeys($from_id, $order_id);
+        editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+    }
 }
 
 if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
@@ -9835,6 +9848,7 @@ if (preg_match('/payRenewWithCartToCart(.*)/', $userInfo['step'], $match) and $t
         $stmt->close();
 
         $oid = $payInfo['plan_id'];
+        $cat_id = $payInfo['cat_id'];
 
         $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
         $stmt->bind_param("i", $oid);
@@ -9855,6 +9869,19 @@ if (preg_match('/payRenewWithCartToCart(.*)/', $userInfo['step'], $match) and $t
         $price = $payInfo['price'];
         $volume = $respd['volume'];
         $days = $respd['days'];
+
+        if ($cat_id > 0) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+            $stmt->bind_param("i", $cat_id);
+            $stmt->execute();
+            $catQuery = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            $remark = $catQuery['title'];
+            $days = $catQuery['days'];
+            $volume = $catQuery['volume'];
+            // $price = $catQuery['price'];
+        }
 
         sendMessage($mainValues['renew_order_sent'], $removeKeyboard);
         sendMessage($mainValues['reached_main_menu'], getMainKeys());
@@ -9903,66 +9930,102 @@ if (preg_match('/approveRenewAcc(.*)/', $data, $match) && ($from_id == $admin ||
 
     $uid = $payInfo['user_id'];
     $oid = $payInfo['plan_id'];
+    $cat_id = $payInfo['cat_id'];
+    $price = $payInfo['price'];
+
+    if ($cat_id > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $cat_id);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $serviceName = $catQuery['title'];
+        $days = $catQuery['days'];
+        $volume = $catQuery['volume'];
+        // $price = $catQuery['price'];
+    }
+
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
     $stmt->bind_param("i", $oid);
     $stmt->execute();
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    $fid = $order['fileid'];
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
-    $server_id = $order['server_id'];
-    $inbound_id = $order['inbound_id'];
-    $expire_date = $order['expire_date'];
-    $expire_date = ($expire_date > $time) ? $expire_date : $time;
+    $token = $order["token"];
 
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
-    $stmt->bind_param("i", $fid);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid` = ? AND `token` = ?");
+    $stmt->bind_param("is", $uid, $token);
     $stmt->execute();
-    $respd = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $name = $respd['title'];
-    $days = $respd['days'];
-    $volume = $respd['volume'];
-    $price = $payInfo['price'];
+
+    foreach ($orders as $order) {
+        $order_id = $order['id'];
+        $fid = $order['fileid'];
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
+        $server_id = $order['server_id'];
+        $inbound_id = $order['inbound_id'];
+        $expire_date = $order['expire_date'];
+        $expire_date = ($expire_date > $time) ? $expire_date : $time;
+
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
+        $stmt->bind_param("i", $fid);
+        $stmt->execute();
+        $respd = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $name = $respd['title'];
+
+        if ($cat_id <= 0) {
+            $days = $respd['days'];
+            $volume = $respd['volume'];
+        }
+
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
+        if ($serverType == "marzban") {
+            $response = editMarzbanConfig($server_id, ['remark' => $remark, 'days' => $days, 'volume' => $volume]);
+        } else {
+            if ($inbound_id > 0)
+                $response = editClientTraffic($server_id, $inbound_id, $uuid, $volume, $days, "renew");
+            else
+                $response = editInboundTraffic($server_id, $uuid, $volume, $days, "renew");
+        }
+
+        if (is_null($response)) {
+            alert('🔻مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید', true);
+            sendMessage("approveRenewAcc: ServerId: $server_id, InboundId: $inbound_id, UUID: $uuid, Volume: $volume, Days: $days, UserId: $uid", null, null, $admin);
+            exit;
+        }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
+        $newExpire = $time + $days * 86400;
+        $stmt->bind_param("ii", $newExpire, $order_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
+        $stmt->bind_param("iiisii", $uid, $server_id, $inbound_id, $remark, $price, $time);
+        $stmt->execute();
+        $stmt->close();
+    }
 
 
     unset($markup[count($markup) - 1]);
     $markup[] = [['text' => "✅", 'callback_data' => "wizwizch"]];
     $keys = json_encode(['inline_keyboard' => array_values($markup)], 488);
 
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    $serverType = $server_info['type'];
-
-
     editKeys($keys);
 
-    if ($serverType == "marzban") {
-        $response = editMarzbanConfig($server_id, ['remark' => $remark, 'days' => $days, 'volume' => $volume]);
-    } else {
-        if ($inbound_id > 0)
-            $response = editClientTraffic($server_id, $inbound_id, $uuid, $volume, $days, "renew");
-        else
-            $response = editInboundTraffic($server_id, $uuid, $volume, $days, "renew");
+    if ($cat_id > 0) {
+        $remark = $serviceName;
     }
 
-    if (is_null($response)) {
-        alert('🔻مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید', true);
-        exit;
-    }
-    $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
-    $newExpire = $time + $days * 86400;
-    $stmt->bind_param("ii", $newExpire, $oid);
-    $stmt->execute();
-    $stmt->close();
-    $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
-    $stmt->bind_param("iiisii", $uid, $server_id, $inbound_id, $remark, $price, $time);
-    $stmt->execute();
-    $stmt->close();
     sendMessage(str_replace(["REMARK", "VOLUME", "DAYS"], [$remark, $volume, $days], $mainValues['renewed_config_to_user']), getMainKeys(), null, null);
     sendMessage("✅سرویس $remark با موفقیت تمدید شد", null, null, $uid);
     exit;
@@ -9978,6 +10041,7 @@ if (preg_match('/decRenewAcc(.*)/', $data, $match) && ($from_id == $admin || $us
 
     $uid = $payInfo['user_id'];
     $oid = $payInfo['plan_id'];
+    $cat_id = $payInfo['cat_id'];
 
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
     $stmt->bind_param("i", $oid);
@@ -10061,7 +10125,7 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
 
         $days = $catQuery['days'];
         $volume = $catQuery['volume'];
-        $price = $catQuery['price'];
+        // $price = $catQuery['price'];
         $cat_title = $catQuery['title'];
     }
 
@@ -10154,7 +10218,7 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
     $msg = str_replace(['TYPE', "USER-ID", "USERNAME", "NAME", "PRICE", "REMARK", "VOLUME", "DAYS"], ['کیف پول', $from_id, $username, $first_name, $price, $remark, $volume, $days], $mainValues['renew_account_request_message']);
 
     sendMessage($msg, $keys, "html", $admin);
-    
+
     exit;
 }
 
