@@ -3635,6 +3635,8 @@ if (preg_match('/^showQr(Sub|Config)(\d+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
+    $token = $order["token"];
+
     include 'phpqrcode/qrlib.php';
     define('IMAGE_WIDTH', 540);
     define('IMAGE_HEIGHT', 540);
@@ -3661,31 +3663,38 @@ if (preg_match('/^showQr(Sub|Config)(\d+)/', $data, $match)) {
         unlink($file);
     } elseif ($match[1] == "Config") {
 
+        $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+        $stmt->bind_param("is", $from_id, $token);
+        $stmt->execute();
+        $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
 
+        foreach ($orders as $order) {
+            $vraylink = json_decode($order['link'], true);
+            define('IMAGE_WIDTH', 540);
+            define('IMAGE_HEIGHT', 540);
 
-        $vraylink = json_decode($order['link'], true);
-        define('IMAGE_WIDTH', 540);
-        define('IMAGE_HEIGHT', 540);
-        foreach ($vraylink as $vray_link) {
-            $file = RandomString() . ".png";
-            $ecc = 'L';
-            $pixel_Size = 11;
-            $frame_Size = 0;
+            foreach ($vraylink as $vray_link) {
+                $file = RandomString() . ".png";
+                $ecc = 'L';
+                $pixel_Size = 11;
+                $frame_Size = 0;
 
-            QRcode::png($vray_link, $file, $ecc, $pixel_Size, $frame_Size);
-            addBorderImage($file);
+                QRcode::png($vray_link, $file, $ecc, $pixel_Size, $frame_Size);
+                addBorderImage($file);
 
-            $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
-            $qrImage = imagecreatefrompng($file);
+                $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
+                $qrImage = imagecreatefrompng($file);
 
-            $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
-            imagecopy($backgroundImage, $qrImage, 300, 300, 0, 0, $qrSize['width'], $qrSize['height']);
-            imagepng($backgroundImage, $file);
-            imagedestroy($backgroundImage);
-            imagedestroy($qrImage);
+                $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
+                imagecopy($backgroundImage, $qrImage, 300, 300, 0, 0, $qrSize['width'], $qrSize['height']);
+                imagepng($backgroundImage, $file);
+                imagedestroy($backgroundImage);
+                imagedestroy($qrImage);
 
-            sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $uid);
-            unlink($file);
+                sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $uid);
+                unlink($file);
+            }
         }
     }
 }
@@ -9424,7 +9433,7 @@ if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
     $stmt->close();
 
     $newToken = RandomString(30);
-    
+
     foreach ($orders as $order) {
         $order_id = $order["id"];
         $date = jdate("Y-m-d H:i", $order['date']);
