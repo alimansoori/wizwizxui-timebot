@@ -9331,7 +9331,6 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
     $stmt->close();
 
     foreach ($orders as $order) {
-        sendMessage('AAA ...', null, null, $admin);
         $order_id = $order['id'];
         $remark = $order['remark'];
         $uuid = $order['uuid'] ?? "0";
@@ -9343,8 +9342,6 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $file_detail = $stmt->get_result()->fetch_assoc();
-
-        sendMessage('BBB ...', null, null, $admin);
 
         $rahgozar = $order['rahgozar'];
         $customPath = $file_detail['custom_path'];
@@ -9359,8 +9356,6 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
         $netType = $file_detail['type'];
         $protocol = $file_detail['protocol'];
         $security = $server_config['security'];
-
-        sendMessage('CCC ...', null, null, $admin);
 
         if ($serverType == "marzban") {
             $info = getMarzbanUser($server_id, $remark);
@@ -9398,15 +9393,12 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
             $vraylink = getConnectionLink($server_id, $uuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
         }
 
-        sendMessage('DDD ...', null, null, $admin);
-
         $vray_link = json_encode($vraylink);
         $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=? WHERE `id`=?");
         $stmt->bind_param("si", $vray_link, $order_id);
         $stmt->execute();
         $stmt->close();
 
-        sendMessage('EEE ...', null, null, $admin);
         $keys = getOrderDetailKeys($from_id, $order_id);
         editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
     }
@@ -9422,77 +9414,86 @@ if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
+    $token = $order["token"];
+    $user_id = $order["userid"];
 
-    $date = jdate("Y-m-d H:i", $order['date']);
-    $expire_date = jdate("Y-m-d H:i", $order['expire_date']);
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
-    $inboundId = $order['inbound_id'];
-    $acc_link = $order['link'];
-    $server_id = $order['server_id'];
-    $rahgozar = $order['rahgozar'];
-
-    $file_id = $order['fileid'];
-
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=?");
-    $stmt->bind_param("i", $file_id);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $user_id, $token);
     $stmt->execute();
-    $file_detail = $stmt->get_result()->fetch_assoc();
-    $customPath = $file_detail['custom_path'];
-    $customPort = $file_detail['custom_port'];
-    $customSni = $file_detail['custom_sni'];
-
-
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    $serverType = $server_info['type'];
+    foreach ($orders as $order) {
+        $order_id = $order["id"];
+        $date = jdate("Y-m-d H:i", $order['date']);
+        $expire_date = jdate("Y-m-d H:i", $order['expire_date']);
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $acc_link = $order['link'];
+        $server_id = $order['server_id'];
+        $rahgozar = $order['rahgozar'];
+        $file_id = $order['fileid'];
 
-    if ($serverType == "marzban") {
-        $res = renewMarzbanUUID($server_id, $remark);
-        $vraylink = $res->links;
-        $newUuid = $newToken = str_replace("/sub/", "", $res->subscription_url);
-    } else {
-        $response = getJson($server_id)->obj;
-        if ($inboundId == 0) {
-            foreach ($response as $row) {
-                $clients = json_decode($row->settings)->clients;
-                if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                    $port = $row->port;
-                    $protocol = $row->protocol;
-                    $netType = json_decode($row->streamSettings)->network;
-                    break;
-                }
-            }
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=?");
+        $stmt->bind_param("i", $file_id);
+        $stmt->execute();
+        $file_detail = $stmt->get_result()->fetch_assoc();
+        $customPath = $file_detail['custom_path'];
+        $customPort = $file_detail['custom_port'];
+        $customSni = $file_detail['custom_sni'];
 
-            $update_response = renewInboundUuid($server_id, $uuid);
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $serverType = $server_info['type'];
+
+        if ($serverType == "marzban") {
+            $res = renewMarzbanUUID($server_id, $remark);
+            $vraylink = $res->links;
+            $newUuid = $newToken = str_replace("/sub/", "", $res->subscription_url);
         } else {
-            foreach ($response as $row) {
-                if ($row->id == $inboundId) {
-                    $port = $row->port;
-                    $protocol = $row->protocol;
-                    $netType = json_decode($row->streamSettings)->network;
-                    break;
+            $response = getJson($server_id)->obj;
+            if ($inboundId == 0) {
+                foreach ($response as $row) {
+                    $clients = json_decode($row->settings)->clients;
+                    if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                        $port = $row->port;
+                        $protocol = $row->protocol;
+                        $netType = json_decode($row->streamSettings)->network;
+                        break;
+                    }
                 }
+
+                $update_response = renewInboundUuid($server_id, $uuid);
+            } else {
+                foreach ($response as $row) {
+                    if ($row->id == $inboundId) {
+                        $port = $row->port;
+                        $protocol = $row->protocol;
+                        $netType = json_decode($row->streamSettings)->network;
+                        break;
+                    }
+                }
+                $update_response = renewClientUuid($server_id, $inboundId, $uuid);
             }
-            $update_response = renewClientUuid($server_id, $inboundId, $uuid);
+            $newUuid = $update_response->newUuid;
+            $vraylink = getConnectionLink($server_id, $newUuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
+            $newToken = RandomString(30);
         }
-        $newUuid = $update_response->newUuid;
-        $vraylink = getConnectionLink($server_id, $newUuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
-        $newToken = RandomString(30);
+
+        $vray_link = json_encode($vraylink);
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=?, `uuid` = ?, `token` = ? WHERE `id`=?");
+        $stmt->bind_param("sssi", $vray_link, $newUuid, $newToken, $order_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $keys = getOrderDetailKeys($from_id, $order_id);
+        editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
     }
-
-
-    $vray_link = json_encode($vraylink);
-    $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=?, `uuid` = ?, `token` = ? WHERE `id`=?");
-    $stmt->bind_param("sssi", $vray_link, $newUuid, $newToken, $oid);
-    $stmt->execute();
-    $stmt->close();
-    $keys = getOrderDetailKeys($from_id, $oid);
-    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
 }
 
 if (preg_match('/changeUserConfigState(\d+)/', $data, $match)) {
