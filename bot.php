@@ -10564,6 +10564,17 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
     $remark = $order['remark'];
+    $cat_id = $order['cat_id'];
+
+    if ($cat_id > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $cat_id);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $remark = $catQuery['title'];
+    }
 
     editText($message_id, "آیا از حذف کانفیگ $remark مطمئن هستید؟", json_encode([
         'inline_keyboard' => [
@@ -10583,65 +10594,93 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $stmt->execute();
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    $inbound_id = $order['inbound_id'];
-    $server_id = $order['server_id'];
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
-    $fileid = $order['fileid'];
 
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ?");
-    $stmt->bind_param("i", $fileid);
+    $token = $order["token"];
+    $user_id = $order["userid"];
+    $catId = $order["cat_id"];
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid` = ? AND `token` = ?");
+    $stmt->bind_param("is", $user_id, $token);
     $stmt->execute();
-    $planDetail = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $volume = $planDetail['volume'];
-    $days = $planDetail['days'];
 
-    $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
-    $stmt->bind_param('i', $server_id);
-    $stmt->execute();
-    $serverConfig = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    $serverType = $serverConfig['type'];
+    $usage = 0;
+    foreach ($orders as $order) {
+        $orderId = $order["id"];
+        $inbound_id = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
+        $fileid = $order['fileid'];
 
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ?");
+        $stmt->bind_param("i", $fileid);
+        $stmt->execute();
+        $planDetail = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $volume = $planDetail['volume'];
+        $days = $planDetail['days'];
 
-    if ($serverType != "marzban") {
+        $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
+        $stmt->bind_param('i', $server_id);
+        $stmt->execute();
+        $serverConfig = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $serverConfig['type'];
+
         if ($inbound_id > 0)
             $res = deleteClient($server_id, $inbound_id, $uuid, 1);
         else
             $res = deleteInbound($server_id, $uuid, 1);
 
-        $leftMb = sumerize($res['total'] - $res['up'] - $res['down']);
+        if ($catId <= 0) {
+            $leftMb = sumerize($res['total'] - $res['up'] - $res['down']);
+        }
+
+        $usage += round(($res['up'] + $res['down']) / 1073741824, 2);
+
         $expiryDay = $res['expiryTime'] != 0 ?
             floor(
                 (substr($res['expiryTime'], 0, -3) - time()) / (60 * 60 * 24)
             )
             :
             "نامحدود";
-    } else {
-        $configInfo = getMarzbanUser($server_id, $remark);
-        deleteMarzban($server_id, $remark);
-        $leftMb = sumerize($configInfo->data_limit - $configInfo->used_traffic);
-        $expiryDay = $configInfo->expire != 0 ?
-            floor(($configInfo->expire - time()) / 86400) : "نامحدود";
+
+        if (is_numeric($expiryDay)) {
+            if ($expiryDay < 0)
+                $expiryDay = 0;
+        }
+
+        $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $vray_link = json_encode($vray_link);
+        $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
+        $stmt->bind_param("i", $orderId);
+        $stmt->execute();
+        $stmt->close();
     }
 
 
-    if (is_numeric($expiryDay)) {
-        if ($expiryDay < 0)
-            $expiryDay = 0;
+    if ($catId > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $catId);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $remark = $catQuery["title"];
+        $volume = $catQuery["volume"];
+        $days = $catQuery["days"];
+
+        $leftMb = $usage . ' GB';
     }
 
-    $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $stmt->close();
 
-    $vray_link = json_encode($vray_link);
-    $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
-    $stmt->bind_param("i", $oid);
-    $stmt->execute();
-    $stmt->close();
+
 
     editText($message_id, "کانفیگ $remark با موفقیت حذف شد", json_encode([
         'inline_keyboard' => [
@@ -10671,6 +10710,18 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $stmt->close();
     $remark = $order['remark'];
 
+    $catId = $order['cat_id'];
+
+    if ($catId > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $catId);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $remark = $catQuery["title"];
+    }
+
     editText($message_id, "آیا از حذف کانفیگ $remark مطمئن هستید؟", json_encode([
         'inline_keyboard' => [
             [['text' => "بلی", 'callback_data' => "yesDeleteUserConfig" . $match[1]], ['text' => "نخیر", 'callback_data' => "noDontDelete"]]
@@ -10684,41 +10735,61 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
     $userId = $order['userid'];
-    $inbound_id = $order['inbound_id'];
-    $server_id = $order['server_id'];
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
+    $token = $order['token'];
+    $catId = $order['cat_id'];
 
-    $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
-    $stmt->bind_param('i', $server_id);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid` = ? AND `token` = ?");
+    $stmt->bind_param("is", $userId, $token);
     $stmt->execute();
-    $serverConfig = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $serverType = $serverConfig['type'];
 
+    foreach ($orders as $order) {
+        $orderId = $order["id"];
+        $inbound_id = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
 
-    if ($serverType != "marzban") {
-        if ($inbound_id > 0)
-            $res = deleteClient($server_id, $inbound_id, $uuid, 1);
-        else
-            $res = deleteInbound($server_id, $uuid, 1);
-    } else {
-        $res = deleteMarzban($server_id, $remark);
+        $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
+        $stmt->bind_param('i', $server_id);
+        $stmt->execute();
+        $serverConfig = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $serverConfig['type'];
+
+        if ($serverType != "marzban") {
+            if ($inbound_id > 0)
+                $res = deleteClient($server_id, $inbound_id, $uuid, 1);
+            else
+                $res = deleteInbound($server_id, $uuid, 1);
+        } else {
+            $res = deleteMarzban($server_id, $remark);
+        }
+
+        $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $vray_link = json_encode($vray_link);
+        $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
+        $stmt->bind_param("i", $orderId);
+        $stmt->execute();
+        $stmt->close();
     }
 
+    if ($catId > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $catId);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-    $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $stmt->close();
+        $remark = $catQuery["title"];
+    }
 
-    $vray_link = json_encode($vray_link);
-    $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
-    $stmt->bind_param("i", $oid);
-    $stmt->execute();
-    $stmt->close();
-
-    editText($message_id, "کانفیگ $remark با موفقیت حذف شد", json_encode([
+    editText($message_id, "سرویس $remark با موفقیت حذف شد", json_encode([
         'inline_keyboard' => [
             [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]
         ]
