@@ -1795,7 +1795,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
         $stmt->close();
 
         if ($cat_id > 0)
-            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/sub.php?token=" . $token . "</code>" : "";
+            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
         else
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
 
@@ -2165,7 +2165,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $stmt->close();
 
         if ($cat_id > 0 )
-            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/sub.php?token=" . $token . "</code>" : "";
+            $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
         else
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
 

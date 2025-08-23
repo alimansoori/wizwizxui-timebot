@@ -295,7 +295,7 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                     define('IMAGE_WIDTH', 540);
                     define('IMAGE_HEIGHT', 540);
 
-                    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
+                    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
                     if ($linkCounter > 0) {
 

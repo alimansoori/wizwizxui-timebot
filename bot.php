@@ -4684,7 +4684,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
             define('IMAGE_WIDTH', 540);
             define('IMAGE_HEIGHT', 540);
 
-            $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
+            $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
             if ($linkCounter > 0) {
 
@@ -5741,7 +5741,7 @@ if (preg_match('/serviceAccept(.*)/', $data, $match) and $text != $buttonValues[
             define('IMAGE_WIDTH', 540);
             define('IMAGE_HEIGHT', 540);
 
-            $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
+            $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
             if ($linkCounter > 0) {
 
@@ -7557,7 +7557,7 @@ if (preg_match('/serviceFreeTrial(\d+)_(?<buyType>\w+)/', $data, $match)) {
     define('IMAGE_WIDTH', 540);
     define('IMAGE_HEIGHT', 540);
 
-    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/sub.php?token=" . $token : "";
+    $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
     if (!empty($vraylink)) {
 
