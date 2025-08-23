@@ -10026,6 +10026,7 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
     }
     $payInfo = $payInfo->fetch_assoc();
     $hash_id = $payInfo['hash_id'];
+    $price = $payInfo['price'];
 
     if ($payInfo['state'] == "paid_with_wallet")
         exit();
@@ -10036,6 +10037,8 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
     $stmt->close();
 
     $oid = $payInfo['plan_id'];
+    $cat_id = $payInfo['cat_id'];
+    $user_id = $payInfo['user_id'];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
     $stmt->bind_param("i", $oid);
     $stmt->execute();
@@ -10049,67 +10052,92 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
     }
     $order = $order->fetch_assoc();
 
-    $fid = $order['fileid'];
-    $remark = $order['remark'];
-    $uuid = $order['uuid'] ?? "0";
-    $server_id = $order['server_id'];
-    $inbound_id = $order['inbound_id'];
-    $expire_date = $order['expire_date'];
-    $expire_date = ($expire_date > $time) ? $expire_date : $time;
+    if ($cat_id > 0) {
+        $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+        $stmt->bind_param("i", $cat_id);
+        $stmt->execute();
+        $catQuery = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
-    $stmt->bind_param("i", $fid);
-    $stmt->execute();
-    $respd = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    $name = $respd['title'];
-    $days = $respd['days'];
-    $volume = $respd['volume'];
-    $price = $payInfo['price'];
-
-    $userwallet = $userInfo['wallet'];
-
-    if ($userwallet < $price) {
-        $needamount = $price - $userwallet;
-        alert("💡موجودی کیف پول (" . number_format($userwallet) . " تومان) کافی نیست لطفا به مقدار " . number_format($needamount) . " تومان شارژ کنید ", true);
-        exit;
+        $days = $catQuery['days'];
+        $volume = $catQuery['volume'];
+        $price = $catQuery['price'];
+        $cat_title = $catQuery['title'];
     }
 
+    $token = $order['token'];
 
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid` = ? AND `token` = ?");
+    $stmt->bind_param("is", $user_id, $token);
     $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $serverType = $server_info['type'];
 
-    if ($serverType == "marzban") {
-        $response = editMarzbanConfig($server_id, ['remark' => $remark, 'days' => $days, 'volume' => $volume]);
-    } else {
+    $errCount = 0;
+    foreach ($orders as $order) {
+        $order_id = $order['id'];
+        $fid = $order['fileid'];
+        $remark = $order['remark'];
+        $uuid = $order['uuid'] ?? "0";
+        $server_id = $order['server_id'];
+        $inbound_id = $order['inbound_id'];
+        $expire_date = $order['expire_date'];
+        $expire_date = ($expire_date > $time) ? $expire_date : $time;
+
+        $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
+        $stmt->bind_param("i", $fid);
+        $stmt->execute();
+        $respd = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $name = $respd['title'];
+
+        if ($cat_id <= 0) {
+            $days = $respd['days'];
+            $volume = $respd['volume'];
+        }
+
+        $userwallet = $userInfo['wallet'];
+
+        if ($userwallet < $price) {
+            $needamount = $price - $userwallet;
+            alert("💡موجودی کیف پول (" . number_format($userwallet) . " تومان) کافی نیست لطفا به مقدار " . number_format($needamount) . " تومان شارژ کنید ", true);
+            exit;
+        }
+
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
         if ($inbound_id > 0)
             $response = editClientTraffic($server_id, $inbound_id, $uuid, $volume, $days, "renew");
         else
             $response = editInboundTraffic($server_id, $uuid, $volume, $days, "renew");
-    }
 
-    if (is_null($response)) {
-        alert('🔻مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید', true);
-        exit;
+        if (is_null($response)) {
+            alert('🔻مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید', true);
+            sendMessage("10119 => Error server $server_id, inbound_id=$inbound_id, User = $user_id", null, null, $admin);
+            exit;
+        }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
+        $newExpire = $time + $days * 86400;
+        $stmt->bind_param("ii", $newExpire, $order_id);
+        $stmt->execute();
+        $stmt->close();
+        $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
+        $stmt->bind_param("iiisii", $from_id, $server_id, $inbound_id, $remark, $price, $time);
+        $stmt->execute();
+        $stmt->close();
     }
-    $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
-    $newExpire = $time + $days * 86400;
-    $stmt->bind_param("ii", $newExpire, $oid);
-    $stmt->execute();
-    $stmt->close();
-    $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
-    $stmt->bind_param("iiisii", $from_id, $server_id, $inbound_id, $remark, $price, $time);
-    $stmt->execute();
-    $stmt->close();
 
     $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` - ? WHERE `userid` = ?");
     $stmt->bind_param("ii", $price, $from_id);
     $stmt->execute();
     $stmt->close();
+
     editText($message_id, "✅سرویس $remark با موفقیت تمدید شد", getMainKeys());
     $keys = json_encode([
         'inline_keyboard' => [
@@ -10118,9 +10146,15 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
             ],
         ]
     ]);
+
+    if ($cat_id > 0) {
+        $remark = $cat_title;
+    }
+
     $msg = str_replace(['TYPE', "USER-ID", "USERNAME", "NAME", "PRICE", "REMARK", "VOLUME", "DAYS"], ['کیف پول', $from_id, $username, $first_name, $price, $remark, $volume, $days], $mainValues['renew_account_request_message']);
 
     sendMessage($msg, $keys, "html", $admin);
+    
     exit;
 }
 
