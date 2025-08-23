@@ -9560,7 +9560,7 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         $time = time();
         $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `user_id`, `type`, `plan_id`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`)
                                     VALUES (?, ?, 'RENEW_ACCOUNT', ?, ?, '0', '0', ?, ?, 'pending')");
-        $stmt->bind_param("siiii", $hash_id, $from_id, $oid, $cat_id, $price, $time);
+        $stmt->bind_param("siiiii", $hash_id, $from_id, $oid, $cat_id, $price, $time);
         $stmt->execute();
         $rowId = $stmt->insert_id;
         $stmt->close();
@@ -9579,8 +9579,6 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         }
         $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "payRenewWithWallet$hash_id"]];
     }
-
-    sendMessage(txt: 'JJJJ ....');
 
     if ($botState['cartToCartState'] == "on" and $price != 0) {
         $price = number_format($price) . " تومان";
