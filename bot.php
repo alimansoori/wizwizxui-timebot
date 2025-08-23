@@ -9423,6 +9423,8 @@ if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
     $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
+    $newToken = RandomString(30);
+    
     foreach ($orders as $order) {
         $order_id = $order["id"];
         $date = jdate("Y-m-d H:i", $order['date']);
@@ -9482,7 +9484,6 @@ if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
             }
             $newUuid = $update_response->newUuid;
             $vraylink = getConnectionLink($server_id, $newUuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
-            $newToken = RandomString(30);
         }
 
         $vray_link = json_encode($vraylink);
