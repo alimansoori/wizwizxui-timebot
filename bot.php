@@ -9411,6 +9411,7 @@ if (preg_match('/changeAccProtocol(\d+)_(\d+)_(.*)/', $data, $match)) {
 
 if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg_match('/renewAccount(\d+)/', $data, $match) && $text != $buttonValues['cancel']) {
 
+    sendMessage('AAAA ....');
     if (preg_match('/^discountRenew/', $userInfo['step'])) {
         $rowId = $match[2];
 
@@ -9490,6 +9491,7 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
     } else
         delMessage();
 
+    sendMessage('BBBB ....');
     $oid = $match[1];
 
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
@@ -9502,6 +9504,8 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         sendMessage($mainValues['config_not_found'], getMainKeys());
         exit();
     }
+
+    sendMessage(txt: 'CCCC ....');
     $order = $order->fetch_assoc();
     $token = $order['token'];
     $user_id = $order['userid'];
@@ -9519,6 +9523,8 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         }
     }
 
+    sendMessage(txt: 'DDDD ....');
+
     $serverId = $order['server_id'];
     $fid = $order['fileid'];
     $agentBought = $order['agent_bought'];
@@ -9529,6 +9535,7 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
     $respd = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
+    sendMessage('EEEE ....');
     if ($cat_id <= 0)
         $price = $respd['price'];
 
@@ -9542,6 +9549,7 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         $price -= floor($price * $discount / 100);
     }
 
+    sendMessage('FFFF ....');
     if (!preg_match('/^discountRenew/', $userInfo['step'])) {
         $hash_id = RandomString();
         $stmt = $connection->prepare("DELETE FROM `pays` WHERE `user_id` = ? AND `type` = 'RENEW_ACCOUNT' AND `state` = 'pending'");
@@ -9559,12 +9567,9 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
     } else
         $price = $afterDiscount;
 
-    /* if ($price == 0)
-        $price = "رایگان";
-    else
-        $price .= " تومان"; */
     $keyboard = array();
 
+    sendMessage(txt: 'HHHH ....');
     $inventoryTxt = $buttonValues['pay_with_wallet'] . ' ' . '(موجودی شما' . ' = ' . number_format($userInfo['wallet']) . ' تومان)';
     if ($botState['walletState'] == "on") {
         if ($price == 0) {
@@ -9575,8 +9580,12 @@ if (preg_match('/^discountRenew(\d+)_(\d+)/', $userInfo['step'], $match) || preg
         $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "payRenewWithWallet$hash_id"]];
     }
 
-    if ($botState['cartToCartState'] == "on" and $price != 0)
+    sendMessage(txt: 'JJJJ ....');
+
+    if ($botState['cartToCartState'] == "on" and $price != 0) {
+        $price = number_format($price) . " تومان";
         $keyboard[] = [['text' => "💳 کارت به کارت مبلغ $price", 'callback_data' => "payRenewWithCartToCart$hash_id"]];
+    }
     // if ($botState['nowPaymentOther'] == "on")
     //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
     // if ($botState['zarinpal'] == "on")
