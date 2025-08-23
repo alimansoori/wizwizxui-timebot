@@ -9331,6 +9331,7 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
     $stmt->close();
 
     foreach ($orders as $order) {
+        sendMessage('AAA ...', null, null, $admin);
         $order_id = $order['id'];
         $remark = $order['remark'];
         $uuid = $order['uuid'] ?? "0";
@@ -9342,6 +9343,8 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $file_detail = $stmt->get_result()->fetch_assoc();
+
+        sendMessage('BBB ...', null, null, $admin);
 
         $rahgozar = $order['rahgozar'];
         $customPath = $file_detail['custom_path'];
@@ -9356,6 +9359,8 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
         $netType = $file_detail['type'];
         $protocol = $file_detail['protocol'];
         $security = $server_config['security'];
+
+        sendMessage('CCC ...', null, null, $admin);
 
         if ($serverType == "marzban") {
             $info = getMarzbanUser($server_id, $remark);
@@ -9393,12 +9398,15 @@ if (preg_match('/updateConfigConnectionLink(\d+)/', $data, $match)) {
             $vraylink = getConnectionLink($server_id, $uuid, $protocol, $remark, $port, $netType, $inboundId, $rahgozar, $customPath, $customPort, $customSni);
         }
 
+        sendMessage('DDD ...', null, null, $admin);
+
         $vray_link = json_encode($vraylink);
         $stmt = $connection->prepare("UPDATE `orders_list` SET `link`=? WHERE `id`=?");
         $stmt->bind_param("si", $vray_link, $order_id);
         $stmt->execute();
         $stmt->close();
 
+        sendMessage('EEE ...', null, null, $admin);
         $keys = getOrderDetailKeys($from_id, $order_id);
         editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
     }
