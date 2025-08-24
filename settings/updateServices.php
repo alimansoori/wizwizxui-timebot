@@ -5,6 +5,8 @@ include_once 'jdf.php';
 
 $rateLimit = $botState['rateLimitUpdateServices'] ?? 0;
 
+exit();
+
 if (time() < $rateLimit)
     exit();
 
