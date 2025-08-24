@@ -9157,9 +9157,9 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match) or preg_match('/(chang
             $cat_title = $catquery['title'];
             $stmt->close();
 
-            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "userOrderDetails$id"];
+            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "userServiceDetails". $id. "_". $userId];
         } elseif ($plan_id > 0) {
-            $keyboard[] = ['text' => "$remark", 'callback_data' => "userOrderDetails$id"];
+            $keyboard[] = ['text' => "$remark", 'callback_data' => "userServiceDetails". $id. "_". $userId];
         }
 
     }
@@ -9177,10 +9177,6 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match) or preg_match('/(chang
     if ($next > 0 and $page != $number_of_page)
         $buttons[] = ['text' => "➡", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeUserAgentOrder") ? "changeUserAgentOrder$next" : "changeUserOrdersPage$next")];
     $keyboard[] = $buttons;
-    if ($data == "agentConfigsList" || $match[1] == "changeUserAgentOrder")
-        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchAgentConfig"]];
-    else
-        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchMyConfig"]];
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
 
     if (isset($data)) {
@@ -9250,6 +9246,15 @@ if (($userInfo['step'] == "searchUsersConfig" && $text != $buttonValues['cancel'
 
 if (preg_match('/^orderDetails(\d+)(_|)(?<offset>\d+|)/', $data, $match) && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
     $keys = getOrderDetailKeys($from_id, $match[1], !empty($match['offset']) ? $match['offset'] : 0);
+    if ($keys == null) {
+        alert($mainValues['no_order_found']);
+        exit;
+    } else
+        editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+}
+
+if (preg_match('/^userServiceDetails(\d+)_(\d+)(_|)(?<offset>\d+|)/', $data, $match) && (($from_id == $admin || $userInfo['isAdmin'] == true))) {
+    $keys = getOrderDetailKeys($match[2], $match[1], !empty($match['offset']) ? $match['offset'] : 0);
     if ($keys == null) {
         alert($mainValues['no_order_found']);
         exit;
