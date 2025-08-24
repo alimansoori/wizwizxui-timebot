@@ -9633,6 +9633,12 @@ if (preg_match('/changeUserConfigStateEnable(\d+)/', $data, $match)) {
             sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
             sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
         }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `status`=? WHERE `id`=?");
+        $one = 1;
+        $stmt->bind_param("si", $one, $oid);
+        $stmt->execute();
+        $stmt->close();
     }
 
     $keys = getUserOrderDetailKeys($oid);
@@ -9688,6 +9694,12 @@ if (preg_match('/changeUserConfigStateDisable(\d+)/', $data, $match)) {
             sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
             sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
         }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `status`=? WHERE `id`=?");
+        $zero = 0;
+        $stmt->bind_param("si", $zero, $oid);
+        $stmt->execute();
+        $stmt->close();
     }
 
     $keys = getUserOrderDetailKeys($oid);
