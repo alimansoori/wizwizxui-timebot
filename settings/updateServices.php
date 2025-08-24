@@ -27,4 +27,13 @@ $stmt->bind_param("s", $newData);
 $stmt->execute();
 $stmt->close();
 
+$stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `status` = 1");
+$stmt->execute();
+$allActiveOrders = $stmt->get_result();
+$stmt->close();
+
+if ($allActiveOrders->num_rows > 0) {
+    $order = $allActiveOrders->fetch_assoc();
+}
+
 ?>

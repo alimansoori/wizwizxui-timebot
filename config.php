@@ -1337,8 +1337,8 @@ function getUserInfoKeys($userId)
                     ['text' => "نام", 'callback_data' => "wizwizch"]
                 ],
                 [
-                    ['text' => $boughtService ?? " ", 'callback_data' => "userServicesList". $userId],
-                    ['text' => "سرویس ها", 'callback_data' => "userServicesList". $userId]
+                    ['text' => $boughtService ?? " ", 'callback_data' => "userServicesList" . $userId],
+                    ['text' => "سرویس ها", 'callback_data' => "userServicesList" . $userId]
                 ],
                 [
                     ['text' => $totalBoughtPrice ?? " ", 'callback_data' => "wizwizch"],
@@ -2207,7 +2207,19 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             array_push($keyboard, $temp);
 
         }
-        $keyboard[] = [['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]];
+
+        if ($from_id == $admin || $userInfo['isAdmin'] == true) {
+            $keyboard[] = [
+                ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $id : "changeUserConfigStateEnable" . $id)],
+                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
+            ];
+        } else {
+            $keyboard[] = [
+                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
+            ];
+        }
+
+
 
         $keyboard[] = [['text' => $buttonValues['back_button'], 'callback_data' => ($agentBought == true ? "agentConfigsList" : "mySubscriptions")]];
         return [
