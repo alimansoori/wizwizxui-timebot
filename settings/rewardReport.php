@@ -623,62 +623,98 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
             $stmt->execute();
             $order = $stmt->get_result()->fetch_assoc();
             $stmt->close();
-            $plan_id = $order['fileid'];
-            $remark = $order['remark'];
-            $uuid = $order['uuid'] ?? "0";
-            $server_id = $order['server_id'];
-            $inbound_id = $order['inbound_id'];
-            $expire_date = $order['expire_date'];
-            $expire_date = ($expire_date > $time) ? $expire_date : $time;
 
-            $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
-            $stmt->bind_param("i", $plan_id);
-            $stmt->execute();
-            $respd = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
-            $name = $respd['title'];
-            $days = $respd['days'];
-            $volume = $respd['volume'];
+            $token = $order["token"];
+            $userId = $order["userid"];
+            $catId = $order["cat_id"];
+
             $price = $payInfo['price'];
 
-            $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-            $stmt->bind_param("i", $server_id);
-            $stmt->execute();
-            $server_info = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
-            $serverType = $server_info['type'];
-
-            if ($serverType == "marzban") {
-                $response = editMarzbanConfig($server_id, ['remark' => $remark, 'days' => $days, 'volume' => $volume]);
-            } else {
-                if ($inbound_id > 0)
-                    $response = editClientTraffic($server_id, $inbound_id, $uuid, $volume, $days, "renew");
-                else
-                    $response = editInboundTraffic($server_id, $uuid, $volume, $days, "renew");
-            }
-
-            if (is_null($response)) {
-                sendMessage('پرداخت شما با موفقیت انجام شد ولی مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید، مبلغ ' . number_format($price) . " تومان به کیف پول شما اضافه شد", null, null, $user_id);
-
-                $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` + ? WHERE `userid` = ?");
-                $stmt->bind_param("ii", $price, $user_id);
+            if ($catId > 0) {
+                $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+                $stmt->bind_param("i", $catId);
                 $stmt->execute();
+                $catQuery = $stmt->get_result()->fetch_assoc();
                 $stmt->close();
 
-                sendMessage("✅ مبلغ " . number_format($price) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست کانفیگش رو تمدید کنه، ولی اتصال به سرور برقرار نبود", null, null, $admin);
-                exit;
+                $days = $catQuery["days"];
+                $volume = $catQuery["volume"];
+                $serviceName = $catQuery["title"];
             }
-            $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
-            $newExpire = $time + $days * 86400;
-            $stmt->bind_param("ii", $newExpire, $oid);
+
+            $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid` = ? AND `token` = ?");
+            $stmt->bind_param("is", $userId, $token);
             $stmt->execute();
-            $stmt->close();
-            $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
-            $stmt->bind_param("iiisii", $user_id, $server_id, $inbound_id, $remark, $price, $time);
-            $stmt->execute();
+            $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             $stmt->close();
 
+            foreach ($orders as $order) {
+                $orderId = $order["id"];
+                $plan_id = $order['fileid'];
+                $remark = $order['remark'];
+                $uuid = $order['uuid'] ?? "0";
+                $server_id = $order['server_id'];
+                $inbound_id = $order['inbound_id'];
+                $expire_date = $order['expire_date'];
+                $expire_date = ($expire_date > $time) ? $expire_date : $time;
+
+                $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ? AND `active` = 1");
+                $stmt->bind_param("i", $plan_id);
+                $stmt->execute();
+                $respd = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+                $name = $respd['title'];
+
+                if ($catId <= 0) {
+                    $days = $respd['days'];
+                    $volume = $respd['volume'];
+                }
+
+                $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+                $stmt->bind_param("i", $server_id);
+                $stmt->execute();
+                $server_info = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+                $serverType = $server_info['type'];
+
+                if ($serverType == "marzban") {
+                    $response = editMarzbanConfig($server_id, ['remark' => $remark, 'days' => $days, 'volume' => $volume]);
+                } else {
+                    if ($inbound_id > 0)
+                        $response = editClientTraffic($server_id, $inbound_id, $uuid, $volume, $days, "renew");
+                    else
+                        $response = editInboundTraffic($server_id, $uuid, $volume, $days, "renew");
+                }
+
+                if (is_null($response)) {
+                    sendMessage('پرداخت شما با موفقیت انجام شد ولی مشکل فنی در اتصال به سرور. لطفا به مدیریت اطلاع بدید، مبلغ ' . number_format($price) . " تومان به کیف پول شما اضافه شد", null, null, $user_id);
+
+                    $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` + ? WHERE `userid` = ?");
+                    $stmt->bind_param("ii", $price, $user_id);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    sendMessage("✅ مبلغ " . number_format($price) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست کانفیگش رو تمدید کنه، ولی اتصال به سرور برقرار نبود", null, null, $admin);
+                    exit;
+                }
+
+                $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
+                $newExpire = $time + $days * 86400;
+                $stmt->bind_param("ii", $newExpire, $orderId);
+                $stmt->execute();
+                $stmt->close();
+                $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
+                $stmt->bind_param("iiisii", $user_id, $server_id, $inbound_id, $remark, $price, $time);
+                $stmt->execute();
+                $stmt->close();
+            }
+
+            if ($catId > 0) {
+                $remark = $serviceName;
+            }
+
             sendMessage("✅سرویس $remark با موفقیت تمدید شد", getMainKeys(), null, $user_id);
+
         } elseif (preg_match('/^INCREASE_DAY_(\d+)_(\d+)/', $payType, $increaseInfo)) {
             $orderId = $increaseInfo[1];
 
@@ -801,7 +837,6 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                 sendMessage("✅ مبلغ " . number_format($price) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست حجم کانفیگشو افزایش بده", null, null, $admin);
             }
         } elseif ($payType == "RENEW_SCONFIG") {
-            $user_id = $user_id;
             $plan_id = $payInfo['plan_id'];
 
             $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id`=?");
