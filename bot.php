@@ -9118,7 +9118,7 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     exit;
 }
 
-if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admin)) {
+if ((preg_match('/userServicesList(\d+)/', $data, $match) or preg_match('/(changeUserAgentOrder|changeUserOrdersPage)(\d+)/', $data, $match)) && ($from_id == $admin)) {
     $userId = $match[1];
     $results_per_page = 50;
     $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 GROUP BY `token`");
@@ -9157,9 +9157,9 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admi
             $cat_title = $catquery['title'];
             $stmt->close();
 
-            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "orderDetails$id"];
+            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "userOrderDetails$id"];
         } elseif ($plan_id > 0) {
-            $keyboard[] = ['text' => "$remark", 'callback_data' => "orderDetails$id"];
+            $keyboard[] = ['text' => "$remark", 'callback_data' => "userOrderDetails$id"];
         }
 
     }
@@ -9172,12 +9172,12 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admi
 
     $buttons = [];
     if ($prev > 0)
-        $buttons[] = ['text' => "◀", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeAgentOrder") ? "changeAgentOrder$prev" : "changeOrdersPage$prev")];
+        $buttons[] = ['text' => "◀", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeUserAgentOrder") ? "changeUserAgentOrder$prev" : "changeUserOrdersPage$prev")];
 
     if ($next > 0 and $page != $number_of_page)
-        $buttons[] = ['text' => "➡", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeAgentOrder") ? "changeAgentOrder$next" : "changeOrdersPage$next")];
+        $buttons[] = ['text' => "➡", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeUserAgentOrder") ? "changeUserAgentOrder$next" : "changeUserOrdersPage$next")];
     $keyboard[] = $buttons;
-    if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
+    if ($data == "agentConfigsList" || $match[1] == "changeUserAgentOrder")
         $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchAgentConfig"]];
     else
         $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchMyConfig"]];
