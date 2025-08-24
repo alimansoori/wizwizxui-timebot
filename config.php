@@ -36,6 +36,7 @@ function sendMessage($txt, $key = null, $parse = "MarkDown", $ci = null, $msg = 
         'parse_mode' => $parse
     ]);
 }
+
 function editKeys($keys = null, $msgId = null, $ci = null)
 {
     global $from_id, $message_id;
