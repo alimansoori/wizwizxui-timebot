@@ -280,15 +280,15 @@ function getMainKeys()
             ] :
                 []),
             (($botState['sellState'] == "on" || $from_id == $admin || $userInfo['isAdmin'] == true) ?
-                [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions'], ['text' => $buttonValues['buy_subscriptions'], 'callback_data' => "buySubscription"]]
+                [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions'], ['text' => $buttonValues['buy_services'], 'callback_data' => "buyService"] /* ['text' => $buttonValues['buy_subscriptions'], 'callback_data' => "buySubscription"] */]
                 :
                 [['text' => $buttonValues['my_subscriptions'], 'callback_data' => 'mySubscriptions']]
             ),
-            (($from_id == $admin || $from_id == '370638120' || $userInfo['isAdmin'] == true) ?
+            /* (($from_id == $admin || $from_id == '370638120' || $userInfo['isAdmin'] == true) ?
                 [['text' => $buttonValues['buy_services'], 'callback_data' => "buyService"]]
                 :
                 []
-            )
+            ) */
         ]);
     }
     $mainKeys = array_merge($mainKeys, [
