@@ -1787,10 +1787,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                     ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                 ]
             );
-
-
         }
-
 
         $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `id`=?");
         $stmt->bind_param("i", $server_id);
@@ -2205,21 +2202,11 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             if ($botState['qrSubState'] == "on")
                 $temp[] = ['text' => $buttonValues['qr_sub'], 'callback_data' => "showQrSub" . $id];
             array_push($keyboard, $temp);
-
         }
 
-        if ($from_id == $admin || $userInfo['isAdmin'] == true) {
-            $keyboard[] = [
-                ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $id : "changeUserConfigStateEnable" . $id)],
-                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
-            ];
-        }/*  else {
-            $keyboard[] = [
-                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
-            ];
-        } */
-
-
+        $keyboard[] = [
+            ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
+        ];
 
         $keyboard[] = [['text' => $buttonValues['back_button'], 'callback_data' => ($agentBought == true ? "agentConfigsList" : "mySubscriptions")]];
         return [
