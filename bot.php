@@ -9121,7 +9121,7 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
 if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admin)) {
     $userId = $match[1];
     $results_per_page = 50;
-    $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
+    $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 GROUP BY `token`");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $number_of_result = $stmt->get_result()->num_rows;
@@ -9131,7 +9131,7 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admi
     $page = $match[2] ?? 1;
     $page_first_result = ($page - 1) * $results_per_page;
 
-    $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 AND `o`.`agent_bought` = 0 ORDER BY `o`.`id` DESC LIMIT ?, ?");
+    $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 ORDER BY `o`.`id` DESC LIMIT ?, ?");
     $stmt->bind_param("iii", $userId, $page_first_result, $results_per_page);
     $stmt->execute();
     $orders = $stmt->get_result();

@@ -1337,7 +1337,7 @@ function getUserInfoKeys($userId)
                     ['text' => "نام", 'callback_data' => "wizwizch"]
                 ],
                 [
-                    ['text' => $boughtService ?? " ", 'callback_data' => "wizwizch"],
+                    ['text' => $boughtService ?? " ", 'callback_data' => "userServicesList". $userId],
                     ['text' => "سرویس ها", 'callback_data' => "userServicesList". $userId]
                 ],
                 [
