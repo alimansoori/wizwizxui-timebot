@@ -50,10 +50,10 @@ $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `token` = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
 $result = $stmt->get_result();
-$orderList = $result->fetch_all(MYSQLI_ASSOC);
+$orders = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-if (!$orderList || count($orderList) === 0) {
+if (!$orders || count($orders) === 0) {
     echo "Wrong token";
     exit();
 }
@@ -61,6 +61,7 @@ if (!$orderList || count($orderList) === 0) {
 // --- Caches to avoid repetitive queries/calls --------------------------------
 $serverJsonCache = [];       // server_id => getJson(...)->obj
 $planCache = [];             // file_id  => server_plans row
+$serverInfoCache = [];             // server_id  => server_info row
 
 $allLinksFlat = [];          // for final base64 output (merged links of all orders)
 $accUsedBytes = 0;           // sum of (up+down) over all orders
@@ -68,18 +69,27 @@ $accTotalBytes = 0;          // sum of total over all orders
 $daysLeft = 0;
 
 // --- Process each order -------------------------------------------------------
-foreach ($orderList as $info) {
+foreach ($orders as $order) {
     // Extract basic fields from order
-    $remark = $info['remark'] ?? '';
-    $uuid = trim($info['uuid'] ?? ""); // هر سفارش uuid مخصوص خودش را دارد
-    $server_id = (int) ($info['server_id'] ?? 0);
-    $inbound_id = (int) ($info['inbound_id'] ?? 0);
-    $protocol = $info['protocol'] ?? '';
-    $rahgozar = $info['rahgozar'] ?? '';
-    $file_id = (int) ($info['fileid'] ?? 0);
+    $userId = $order['userid'] ?? '';
+    $remark = $order['remark'] ?? '';
+    $uuid = trim($order['uuid'] ?? "");
+    $server_id = (int) ($order['server_id'] ?? 0);
+    $inbound_id = (int) ($order['inbound_id'] ?? 0);
+    $protocol = $order['protocol'] ?? '';
+    $rahgozar = $order['rahgozar'] ?? '';
+    $file_id = (int) ($order['fileid'] ?? 0);
 
     if ($server_id === 0) {
         continue;
+    }
+
+    if (!isset($serverInfoCache[$server_id])) {
+        $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `id` = ?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $serverInfoCache[$server_id] = $stmt->get_result()->fetch_assoc() ?: [];
+        $stmt->close();
     }
 
     // ---- Fetch plan details (custom path/port/sni) --------------------------
@@ -94,6 +104,17 @@ foreach ($orderList as $info) {
     $customPath = $file_detail['custom_path'] ?? null;
     $customPort = $file_detail['custom_port'] ?? null;
     $customSni = $file_detail['custom_sni'] ?? null;
+
+    $server_info = $serverInfoCache[$server_id];
+    $serverRemark = $server_info['remark'] ?? null;
+    $serverFlag = $server_info['flag'] ?? null;
+
+    $rnd = rand(1111, 99999);
+    if ($botState['remark'] == "digits") {
+        $remark = "{$serverFlag} {$serverRemark}-{$rnd}";
+    } else {
+        $remark = "{$serverFlag} {$serverRemark}-{$userId}-{$rnd}";
+    }
 
     // ---- Pull inbounds JSON from panel (once per server) --------------------
     if (!isset($serverJsonCache[$server_id])) {
@@ -180,7 +201,7 @@ foreach ($orderList as $info) {
     $totalUsedGb = round(($up + $down) / 1073741824, 2) . " GB";
     $totalGb = round(($total) / 1073741824, 2) . " GB";
 
-    $expireTs = (int) ($info['expire_date'] ?? 0);
+    $expireTs = (int) ($order['expire_date'] ?? 0);
     $daysLeft = round(max(0, $expireTs - time()) / 86400, 1);
 
     // ---- Determine uniq id explicitly from this order's uuid ----------------
@@ -189,7 +210,7 @@ foreach ($orderList as $info) {
 
     // اگر uuid خالی بود (انتظار نمی‌رود)، از لینک ذخیره‌شده fallback می‌کنیم تا خراب نشود.
     if ($uniqid === null) {
-        $origLink = decodeFirstLinkFromJson($info['link'] ?? '') ?: '';
+        $origLink = decodeFirstLinkFromJson($order['link'] ?? '') ?: '';
         if ($origLink && preg_match('/^vmess:\/\//i', $origLink)) {
             $b64 = substr($origLink, strlen('vmess://'));
             $decoded = json_decode(base64_decode($b64));
@@ -247,7 +268,7 @@ foreach ($orderList as $info) {
         // Update only this specific row
         $stmt = $connection->prepare("UPDATE `orders_list` SET `link` = ?, `remark` = ? WHERE `id` = ?");
         $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $id = (int) $info['id'];
+        $id = (int) $order['id'];
         $stmt->bind_param("ssi", $newLinkJson, $remark, $id);
         $stmt->execute();
         $stmt->close();
