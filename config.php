@@ -1805,7 +1805,6 @@ function getUserOrderDetailKeys($id, $offset = 0)
 
 
         $enable = $hasEnable == true ? $buttonValues['active'] : $buttonValues['deactive'];
-
         $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message2']);
 
         $keyboard[] = [['text' => $buttonValues['back_button'], 'callback_data' => "managePanel"]];
@@ -2209,9 +2208,16 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
 
         }
 
-        $keyboard[] = [
-            ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
-        ];
+        if ($from_id == $admin || $userInfo['isAdmin'] == true) {
+            $keyboard[] = [
+                ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $id : "changeUserConfigStateEnable" . $id)],
+                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
+            ];
+        }/*  else {
+            $keyboard[] = [
+                ['text' => $buttonValues['delete_config'], 'callback_data' => "deleteMyConfig" . $id]
+            ];
+        } */
 
 
 

@@ -9157,9 +9157,9 @@ if ((preg_match('/userServicesList(\d+)/', $data, $match) or preg_match('/(chang
             $cat_title = $catquery['title'];
             $stmt->close();
 
-            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "userServiceDetails". $id];
+            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "userServiceDetails". $id. "_". $userId];
         } elseif ($plan_id > 0) {
-            $keyboard[] = ['text' => "$remark", 'callback_data' => "userServiceDetails". $id];
+            $keyboard[] = ['text' => "$remark", 'callback_data' => "userServiceDetails". $id. "_". $userId];
         }
 
     }
@@ -9253,8 +9253,8 @@ if (preg_match('/^orderDetails(\d+)(_|)(?<offset>\d+|)/', $data, $match) && ($bo
         editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
 }
 
-if (preg_match('/^userServiceDetails(\d+)(_|)(?<offset>\d+|)/', $data, $match) && (($from_id == $admin || $userInfo['isAdmin'] == true))) {
-    $keys = getUserOrderDetailKeys($match[1], isset($data) ? $match[2] : 0);
+if (preg_match('/^userServiceDetails(\d+)_(\d+)(_|)(?<offset>\d+|)/', $data, $match) && (($from_id == $admin || $userInfo['isAdmin'] == true))) {
+    $keys = getOrderDetailKeys($match[2], $match[1], !empty($match['offset']) ? $match['offset'] : 0);
     if ($keys == null) {
         alert($mainValues['no_order_found']);
         exit;
