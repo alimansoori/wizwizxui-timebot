@@ -7255,4 +7255,124 @@ function addUser($server_id, $client_id, $protocol, $port, $expiryTime, $remark,
     return json_decode($response);
 }
 
+function changeUserConfigStateEnable($orderId) {
+    global $connection, $admin, $mainValues, $message_id;
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id`=?");
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+    $order = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $userId = $order['userid'];
+    $token = $order['token'];
+    $catId = $order['cat_id'];
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $userId, $token);
+    $stmt->execute();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    foreach ($orders as $order) {
+        $oid = $order["id"];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
+
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
+        if ($inboundId == 0) {
+            if ($serverType == "marzban")
+                $update_response = changeMarzbanState($server_id, $remark);
+            else
+                $update_response = changeInboundState($server_id, $uuid);
+        } else {
+            $update_response = changeClientStateEnable($server_id, $inboundId, $uuid);
+        }
+
+        if ($update_response->success) {
+            alert($mainValues['please_wait_message']);
+        } else {
+            sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
+            sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
+        }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `status`=? WHERE `id`=?");
+        $one = 1;
+        $stmt->bind_param("si", $one, $oid);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    $keys = getUserOrderDetailKeys($orderId);
+    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+}
+
+function changeUserConfigStateDisable($orderId) {
+    global $connection, $admin, $mainValues, $message_id;
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id`=?");
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+    $order = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $userId = $order['userid'];
+    $token = $order['token'];
+    $catId = $order['cat_id'];
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $userId, $token);
+    $stmt->execute();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    foreach ($orders as $order) {
+        $orderId = $order["id"];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
+
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
+        if ($inboundId == 0) {
+            if ($serverType == "marzban")
+                $update_response = changeMarzbanState($server_id, $remark);
+            else
+                $update_response = changeInboundState($server_id, $uuid);
+        } else {
+            $update_response = changeClientStateDisable($server_id, $inboundId, $uuid);
+        }
+
+        if ($update_response->success) {
+            alert($mainValues['please_wait_message']);
+        } else {
+            sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
+            sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
+        }
+
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `status`=? WHERE `id`=?");
+        $zero = 0;
+        $stmt->bind_param("si", $zero, $oid);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    $keys = getUserOrderDetailKeys($orderId);
+    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+}
+
 ?>
