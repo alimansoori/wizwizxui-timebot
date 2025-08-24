@@ -1954,6 +1954,8 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                         $clients = json_decode($row->settings)->clients;
                         foreach ($clients as $key => $client) {
                             if ($client->id == $uuid || $client->password == $uuid) {
+                                sendMessage($uuid);
+
                                 $found = true;
                                 $email = $client->email;
                                 $emails = array_column($clientsStates, 'email');
