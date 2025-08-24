@@ -1338,7 +1338,7 @@ function getUserInfoKeys($userId)
                 ],
                 [
                     ['text' => $boughtService ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "سرویس ها", 'callback_data' => "wizwizch"]
+                    ['text' => "سرویس ها", 'callback_data' => "userServicesList". $userId]
                 ],
                 [
                     ['text' => $totalBoughtPrice ?? " ", 'callback_data' => "wizwizch"],
@@ -1708,7 +1708,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1722,7 +1722,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1738,7 +1738,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1750,7 +1750,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1769,7 +1769,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                                 ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                             ]),
                         [
-                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1783,7 +1783,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                     ['text' => " $protocol ☑️", 'callback_data' => "wizwizch"],
                 ],
                 [
-                    ['text' => ($enahasEnableble == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                    ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => ($hasEnable == true ? "changeUserConfigStateDisable" . $order['id'] : "changeUserConfigStateEnable" . $order['id'])],
                     ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                 ]
             );
@@ -1954,7 +1954,6 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                         $clients = json_decode($row->settings)->clients;
                         foreach ($clients as $key => $client) {
                             if ($client->id == $uuid || $client->password == $uuid) {
-                                sendMessage($uuid);
 
                                 $found = true;
                                 $email = $client->email;
@@ -2176,7 +2175,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $server_info = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        if ($cat_id > 0 )
+        if ($cat_id > 0)
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
         else
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
@@ -3318,6 +3317,331 @@ function changeClientState($server_id, $inbound_id, $uuid)
     return $response;
 
 }
+
+function changeClientStateEnable($server_id, $inbound_id, $uuid)
+{
+    global $connection;
+    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+    $stmt->bind_param("i", $server_id);
+    $stmt->execute();
+    $server_info = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    $panel_url = $server_info['panel_url'];
+    $serverType = $server_info['type'];
+
+    $response = getJson($server_id);
+    if (!$response)
+        return null;
+    $response = $response->obj;
+    $client_key = -1;
+    foreach ($response as $row) {
+        if ($row->id == $inbound_id) {
+            $settings = json_decode($row->settings, true);
+            $clients = $settings['clients'];
+
+            foreach ($clients as $key => $client) {
+                if ($client['id'] == $uuid || $client['password'] == $uuid) {
+                    $client_key = $key;
+                    $enable = $client['enable'];
+                    break;
+                }
+            }
+        }
+    }
+    if ($client_key == -1)
+        return null;
+
+    if (!isset($settings['clients'][$client_key]['subId']) && ($serverType == "sanaei" || $serverType == "alireza"))
+        $settings['clients'][$client_key]['subId'] = RandomString(16);
+    $settings['clients'][$client_key]['enable'] = true;
+
+    $editedClient = $settings['clients'][$client_key];
+    $settings['clients'] = array_values($settings['clients']);
+    $settings = json_encode($settings, 488);
+    $dataArr = array(
+        'up' => $row->up,
+        'down' => $row->down,
+        'total' => $row->total,
+        'remark' => $row->remark,
+        'enable' => 'true',
+        'expiryTime' => $row->expiryTime,
+        'listen' => '',
+        'port' => $row->port,
+        'protocol' => $row->protocol,
+        'settings' => $settings,
+        'streamSettings' => $row->streamSettings,
+        'sniffing' => $row->sniffing
+    );
+
+    $serverName = $server_info['username'];
+    $serverPass = $server_info['password'];
+
+    $loginUrl = $panel_url . '/login';
+
+    $postFields = array(
+        "username" => $serverName,
+        "password" => $serverPass
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $loginUrl);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postFields));
+    curl_setopt($curl, CURLOPT_HEADER, 1);
+    $response = curl_exec($curl);
+
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+    $cookies = array();
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
+    }
+
+    $loginResponse = json_decode($body, true);
+    if (!$loginResponse['success']) {
+        curl_close($curl);
+        return $loginResponse;
+    }
+
+    if ($serverType == "sanaei" || $serverType == "alireza") {
+
+        $newSetting = array();
+        $newSetting['clients'][] = $editedClient;
+        $newSetting = json_encode($newSetting);
+
+        $dataArr = array(
+            "id" => $inbound_id,
+            "settings" => $newSetting
+        );
+
+        if ($serverType == "sanaei")
+            $url = "$panel_url/panel/inbound/updateClient/" . rawurlencode($uuid);
+        else
+            $url = "$panel_url/xui/inbound/updateClient/" . rawurlencode($uuid);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $dataArr,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => array(
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
+        ));
+    } else {
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "$panel_url/xui/inbound/update/$inbound_id",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $dataArr,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => array(
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
+        ));
+    }
+
+    $response = curl_exec($curl);
+    $response = json_decode($response);
+    curl_close($curl);
+    return $response;
+
+}
+
+function changeClientStateDisable($server_id, $inbound_id, $uuid)
+{
+    global $connection;
+    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+    $stmt->bind_param("i", $server_id);
+    $stmt->execute();
+    $server_info = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    $panel_url = $server_info['panel_url'];
+    $serverType = $server_info['type'];
+
+    $response = getJson($server_id);
+    if (!$response)
+        return null;
+    $response = $response->obj;
+    $client_key = -1;
+    foreach ($response as $row) {
+        if ($row->id == $inbound_id) {
+            $settings = json_decode($row->settings, true);
+            $clients = $settings['clients'];
+
+            foreach ($clients as $key => $client) {
+                if ($client['id'] == $uuid || $client['password'] == $uuid) {
+                    $client_key = $key;
+                    $enable = $client['enable'];
+                    break;
+                }
+            }
+        }
+    }
+    if ($client_key == -1)
+        return null;
+
+    if (!isset($settings['clients'][$client_key]['subId']) && ($serverType == "sanaei" || $serverType == "alireza"))
+        $settings['clients'][$client_key]['subId'] = RandomString(16);
+    $settings['clients'][$client_key]['enable'] = false;
+
+    $editedClient = $settings['clients'][$client_key];
+    $settings['clients'] = array_values($settings['clients']);
+    $settings = json_encode($settings, 488);
+    $dataArr = array(
+        'up' => $row->up,
+        'down' => $row->down,
+        'total' => $row->total,
+        'remark' => $row->remark,
+        'enable' => 'true',
+        'expiryTime' => $row->expiryTime,
+        'listen' => '',
+        'port' => $row->port,
+        'protocol' => $row->protocol,
+        'settings' => $settings,
+        'streamSettings' => $row->streamSettings,
+        'sniffing' => $row->sniffing
+    );
+
+    $serverName = $server_info['username'];
+    $serverPass = $server_info['password'];
+
+    $loginUrl = $panel_url . '/login';
+
+    $postFields = array(
+        "username" => $serverName,
+        "password" => $serverPass
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $loginUrl);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postFields));
+    curl_setopt($curl, CURLOPT_HEADER, 1);
+    $response = curl_exec($curl);
+
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+    $cookies = array();
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
+    }
+
+    $loginResponse = json_decode($body, true);
+    if (!$loginResponse['success']) {
+        curl_close($curl);
+        return $loginResponse;
+    }
+
+    if ($serverType == "sanaei" || $serverType == "alireza") {
+
+        $newSetting = array();
+        $newSetting['clients'][] = $editedClient;
+        $newSetting = json_encode($newSetting);
+
+        $dataArr = array(
+            "id" => $inbound_id,
+            "settings" => $newSetting
+        );
+
+        if ($serverType == "sanaei")
+            $url = "$panel_url/panel/inbound/updateClient/" . rawurlencode($uuid);
+        else
+            $url = "$panel_url/xui/inbound/updateClient/" . rawurlencode($uuid);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $dataArr,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => array(
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
+        ));
+    } else {
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "$panel_url/xui/inbound/update/$inbound_id",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $dataArr,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => array(
+                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+                'Accept:  application/json, text/plain, */*',
+                'Accept-Language:  en-US,en;q=0.5',
+                'Accept-Encoding:  gzip, deflate',
+                'X-Requested-With:  XMLHttpRequest',
+                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            )
+        ));
+    }
+
+    $response = curl_exec($curl);
+    $response = json_decode($response);
+    curl_close($curl);
+    return $response;
+
+}
+
 function renewClientUuid($server_id, $inbound_id, $uuid)
 {
     global $connection;

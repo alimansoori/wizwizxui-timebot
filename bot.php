@@ -9118,6 +9118,80 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     exit;
 }
 
+if ((preg_match('/userServicesList(\d+)/', $data, $match)) && ($from_id == $admin)) {
+    $userId = $match[1];
+    $results_per_page = 50;
+    $stmt = $connection->prepare("SELECT `token` FROM `orders_list` WHERE `userid`=? AND `status`=1 AND `agent_bought` = 0 GROUP BY `token`");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $number_of_result = $stmt->get_result()->num_rows;
+    $stmt->close();
+
+    $number_of_page = ceil($number_of_result / $results_per_page);
+    $page = $match[2] ?? 1;
+    $page_first_result = ($page - 1) * $results_per_page;
+
+    $stmt = $connection->prepare("SELECT `o`.* FROM `orders_list` AS `o` JOIN ( SELECT `token`, MAX(`id`) AS `max_id` FROM `orders_list` WHERE `userid` = ? AND `status` = 1 GROUP BY `token`) `t` ON `t`.`max_id` = `o`.`id`WHERE `o`.`status`= 1 AND `o`.`agent_bought` = 0 ORDER BY `o`.`id` DESC LIMIT ?, ?");
+    $stmt->bind_param("iii", $userId, $page_first_result, $results_per_page);
+    $stmt->execute();
+    $orders = $stmt->get_result();
+    $stmt->close();
+
+    if ($orders->num_rows == 0) {
+        alert($mainValues['you_dont_have_config']);
+        exit;
+    }
+
+    $keyboard = [];
+    while ($order = $orders->fetch_assoc()) {
+        $id = $order['id'];
+        $remark = $order['remark'];
+        $plan_id = $order['fileid'];
+        $cat_id = $order['cat_id'];
+
+        if ($cat_id > 0) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
+            $stmt->bind_param("i", $cat_id);
+            $stmt->execute();
+            $catquery = $stmt->get_result()->fetch_assoc();
+            $cat_title = $catquery['title'];
+            $stmt->close();
+
+            $keyboard[] = ['text' => "$cat_title", 'callback_data' => "orderDetails$id"];
+        } elseif ($plan_id > 0) {
+            $keyboard[] = ['text' => "$remark", 'callback_data' => "orderDetails$id"];
+        }
+
+    }
+    $keyboard = array_chunk($keyboard, 1);
+
+    $prev = $page - 1;
+    $next = $page + 1;
+    $lastpage = ceil($number_of_page / $results_per_page);
+    $lpm1 = $lastpage - 1;
+
+    $buttons = [];
+    if ($prev > 0)
+        $buttons[] = ['text' => "◀", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeAgentOrder") ? "changeAgentOrder$prev" : "changeOrdersPage$prev")];
+
+    if ($next > 0 and $page != $number_of_page)
+        $buttons[] = ['text' => "➡", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeAgentOrder") ? "changeAgentOrder$next" : "changeOrdersPage$next")];
+    $keyboard[] = $buttons;
+    if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
+        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchAgentConfig"]];
+    else
+        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchMyConfig"]];
+    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
+
+    if (isset($data)) {
+        editText($message_id, $mainValues['select_one_to_show_detail'], json_encode(['inline_keyboard' => $keyboard]));
+    } else {
+        sendAction('typing');
+        sendMessage($mainValues['select_one_to_show_detail'], json_encode(['inline_keyboard' => $keyboard]));
+    }
+    exit;
+}
+
 if ($data == "searchAgentConfig" || $data == "searchMyConfig" || $data == "searchUsersConfig") {
     delMessage();
     sendMessage($mainValues['send_config_remark'], $cancelKey);
@@ -9506,7 +9580,7 @@ if (preg_match('/changAccountConnectionLink(\d+)/', $data, $match)) {
     }
 }
 
-if (preg_match('/changeUserConfigState(\d+)/', $data, $match)) {
+if (preg_match('/changeUserConfigStateEnable(\d+)/', $data, $match)) {
     alert($mainValues['please_wait_message']);
     $oid = $match[1];
 
@@ -9517,35 +9591,103 @@ if (preg_match('/changeUserConfigState(\d+)/', $data, $match)) {
     $stmt->close();
 
     $userId = $order['userid'];
-    $uuid = $order['uuid'] ?? "0";
-    $inboundId = $order['inbound_id'];
-    $server_id = $order['server_id'];
-    $remark = $order['remark'];
+    $token = $order['token'];
+    $catId = $order['cat_id'];
 
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $userId, $token);
     $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $serverType = $server_info['type'];
 
+    foreach ($orders as $order) {
+        $orderId = $order["id"];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
 
-    if ($inboundId == 0) {
-        if ($serverType == "marzban")
-            $update_response = changeMarzbanState($server_id, $remark);
-        else
-            $update_response = changeInboundState($server_id, $uuid);
-    } else {
-        $update_response = changeClientState($server_id, $inboundId, $uuid);
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
+        if ($inboundId == 0) {
+            if ($serverType == "marzban")
+                $update_response = changeMarzbanState($server_id, $remark);
+            else
+                $update_response = changeInboundState($server_id, $uuid);
+        } else {
+            $update_response = changeClientStateEnable($server_id, $inboundId, $uuid);
+        }
+
+        if ($update_response->success) {
+            alert($mainValues['please_wait_message']);
+        } else {
+            sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
+            sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
+        }
     }
 
-    if ($update_response->success) {
-        alert($mainValues['please_wait_message']);
+    $keys = getUserOrderDetailKeys($oid);
+    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
+}
 
-        $keys = getUserOrderDetailKeys($oid);
-        editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
-    } else
-        sendMessage("عملیه مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
+if (preg_match('/changeUserConfigStateDisable(\d+)/', $data, $match)) {
+    alert($mainValues['please_wait_message']);
+    $oid = $match[1];
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id`=?");
+    $stmt->bind_param("i", $oid);
+    $stmt->execute();
+    $order = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $userId = $order['userid'];
+    $token = $order['token'];
+    $catId = $order['cat_id'];
+
+    $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `userid`=? AND `token`=?");
+    $stmt->bind_param("is", $userId, $token);
+    $stmt->execute();
+    $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    foreach ($orders as $order) {
+        $orderId = $order["id"];
+        $uuid = $order['uuid'] ?? "0";
+        $inboundId = $order['inbound_id'];
+        $server_id = $order['server_id'];
+        $remark = $order['remark'];
+
+        $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+        $stmt->bind_param("i", $server_id);
+        $stmt->execute();
+        $server_info = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $serverType = $server_info['type'];
+
+        if ($inboundId == 0) {
+            if ($serverType == "marzban")
+                $update_response = changeMarzbanState($server_id, $remark);
+            else
+                $update_response = changeInboundState($server_id, $uuid);
+        } else {
+            $update_response = changeClientStateDisable($server_id, $inboundId, $uuid);
+        }
+
+        if ($update_response->success) {
+            alert($mainValues['please_wait_message']);
+        } else {
+            sendMessage("عملیات مورد نظر با مشکل روبرو شد\n" . $update_response->msg);
+            sendMessage("changeUserConfigState: userId: $userId, token: $token, server: $server_id, " . $update_response->msg, null, null, $admin);
+        }
+    }
+
+    $keys = getUserOrderDetailKeys($oid);
+    editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
 }
 
 if (preg_match('/changeAccProtocol(\d+)_(\d+)_(.*)/', $data, $match)) {
