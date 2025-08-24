@@ -1574,6 +1574,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
         $stmt->close();
 
         $total_leftgb = 0;
+        $hasEnable = false;
         foreach ($ordersVolume as $order) {
             $inbound_id = $order["inbound_id"];
             $server_id = $order["server_id"];
@@ -1611,6 +1612,8 @@ function getUserOrderDetailKeys($id, $offset = 0)
                                 $enable = $clientsStates[$emailKey]->enable;
                                 if (!$client->enable)
                                     $enable = false;
+                                else
+                                    $hasEnable = true;
                                 $down = $clientsStates[$emailKey]->down;
                                 break;
                             }
@@ -1705,7 +1708,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1719,7 +1722,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1735,7 +1738,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1747,7 +1750,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                         ],
                         [
-                            ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1766,7 +1769,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                                 ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => "wizwizch"],
                             ]),
                         [
-                            ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                            ['text' => ($hasEnable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                             ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                         ]
                     );
@@ -1780,7 +1783,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
                     ['text' => " $protocol ☑️", 'callback_data' => "wizwizch"],
                 ],
                 [
-                    ['text' => ($enable == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
+                    ['text' => ($enahasEnableble == true ? $buttonValues['disable_config'] : $buttonValues['enable_config']), 'callback_data' => "changeUserConfigState" . $order['id']],
                     ['text' => $buttonValues['delete_config'], 'callback_data' => "delUserConfig" . $order['id']],
                 ]
             );
@@ -1801,7 +1804,7 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $subLink = $botState['subLinkState'] == "on" ? "<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>" : "";
 
 
-        $enable = $enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
+        $enable = $hasEnable == true ? $buttonValues['active'] : $buttonValues['deactive'];
         $msg = str_replace(['STATE', 'NAME', 'CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message2']);
 
         $keyboard[] = [['text' => $buttonValues['back_button'], 'callback_data' => "managePanel"]];
@@ -1898,6 +1901,9 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         $stmt->close();
 
         $total_leftgb = 0;
+
+        $hasEnable = false;
+
         foreach ($ordersVolume as $order) {
             $inbound_id = $order["inbound_id"];
             $server_id = $order["server_id"];
@@ -1956,8 +1962,11 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                                 $total = $clientsStates[$emailKey]->total;
                                 $up = $clientsStates[$emailKey]->up;
                                 $enable = $clientsStates[$emailKey]->enable;
+
                                 if (!$client->enable)
                                     $enable = false;
+                                else
+                                    $hasEnable = true;
                                 $down = $clientsStates[$emailKey]->down;
                                 break;
                             }
@@ -2154,7 +2163,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
                     array_push($keyboard, $temp);
 
             }
-            $enable = $enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
+            $enable = $hasEnable == true ? $buttonValues['active'] : $buttonValues['deactive'];
         } else
             $enable = $mainValues['config_doesnt_exist'];
 
