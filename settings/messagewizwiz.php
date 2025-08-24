@@ -5,8 +5,6 @@ include_once 'jdf.php';
 
 $rateLimit = $botState['rateLimit'] ?? 0;
 
-sendMessage('mmmmm', null, null, $admin);
-
 if (time() > $rateLimit) {
     $rate = json_decode(curl_get_file_contents("https://api.pooleno.ir/v1/currency/short-name/trx?type=buy"), true);
     $botState['USDRate'] = round($rate['priceUsdt'], 2);
