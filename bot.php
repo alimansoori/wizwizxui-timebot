@@ -2739,7 +2739,7 @@ if (
         $msg = str_replace(['ACCOUNT-COUNT', 'TOTAL-PRICE', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$accountCount, $priceC, $name, $eachPrice, $desc], $mainValues['buy_much_subscription_detail']);
     } else
         $msg = str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $priceC, $desc], $mainValues['buy_subscription_detail']);
-    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard]), "HTML");
+    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
 }
 
 if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
@@ -3090,7 +3090,7 @@ if ((preg_match('/^discountCustomPlanDay(\d+)/', $userInfo['step'], $match) || p
         $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountCustom_" . $rowId]];
     $keyboard[] = [['text' => $buttonValues['cancel'], 'callback_data' => "mainMenu"]];
     $price = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
-    sendMessage(str_replace(['VOLUME', 'DAYS', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$volume, $days, $name, $price, $desc], $mainValues['buy_subscription_detail']), json_encode(['inline_keyboard' => $keyboard]), "HTML");
+    sendMessage(str_replace(['VOLUME', 'DAYS', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$volume, $days, $name, $price, $desc], $mainValues['buy_subscription_detail']), json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
     setUser();
 }
 
@@ -3358,7 +3358,7 @@ if (
         $msg = str_replace(['ACCOUNT-COUNT', 'TOTAL-PRICE', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$accountCount, $priceC, $name, $eachPrice, $desc], $mainValues['buy_much_subscription_detail']);
     } else
         $msg = str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $priceC, $desc], $mainValues['buy_subscription_detail']);
-    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard]), "HTML");
+    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
 }
 
 if (preg_match('/payCustomWithWallet(.*)/', $data, $match)) {
@@ -8158,7 +8158,7 @@ if (preg_match('/sConfigRenewPlan(\d+)_(\d+)/', $data, $match) && ($botState['se
         $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "payWithTronWallet" . $hash_id]];
 
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
-    sendMessage(str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $price, $desc], $mainValues['buy_subscription_detail']), json_encode(['inline_keyboard' => $keyboard]), "HTML");
+    sendMessage(str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $price, $desc], $mainValues['buy_subscription_detail']), json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
 }
 
 if (preg_match('/sConfigUpdate(\d+)/', $data, $match)) {
