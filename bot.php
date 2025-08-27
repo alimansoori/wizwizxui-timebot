@@ -2879,10 +2879,11 @@ if (preg_match('/^haveDiscount(.+?)_(.*)/', $data, $match)) {
         setUser('discountCustomPlanDay' . $match[2]);
     elseif ($match[1] == "SelectPlan")
         setUser('discountSelectPlan' . $match[2]);
-    elseif ($match[1] == "SelectServie")
+    elseif ($match[1] == "SelectService")
         setUser('discountSelectService' . $match[2]);
     elseif ($match[1] == "Renew")
         setUser('discountRenew' . $match[2]);
+
 }
 
 if ($data == "getTestAccount") {
