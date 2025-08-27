@@ -57,13 +57,32 @@ if ($allActiveTokens->num_rows > 0) {
 $detailsStmt->close();
 $stmt->close();
 
+$catCache = [];
+$serverJsonCache = [];
+
 foreach ($ordersByToken as $token => $orders) {
+
+
     foreach ($orders as $order) {
         $inbound_id = $order["inbound_id"];
         $server_id = $order["server_id"];
         $uuid = $order["uuid"];
+        $catId = $order["cat_id"];
 
-        $response = getJson($server_id)->obj;
+        if (!isset($catCache[$catId])) {
+            $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
+            $stmt->bind_param("i", $catId);
+            $stmt->execute();
+            $catCache[$catId] = $stmt->get_result()->fetch_assoc() ?: [];
+            $stmt->close();
+        }
+        $cat_detail = $catCache[$catId];
+        $volume = (int)$cat_detail['volume'];
+
+        if (!isset($serverJsonCache[$server_id])) {
+            $serverJsonCache[$server_id] = getJson($server_id)->obj; // external helper
+        }
+        $response = $serverJsonCache[$server_id];
 
         if (!$response->success) {
             sendMessage("Error fetching data for server ID: {$server_id}", null, null, $admin);
@@ -113,7 +132,7 @@ foreach ($ordersByToken as $token => $orders) {
         $total_leftgb += round(($up + $down) / 1073741824, 2);
     }
 
-    $leftgb = $volume - $total_leftgb . " GB";
+    $leftgb = ($volume - $total_leftgb) . " GB";
 
     sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}", null, 'HTML', $admin);
 }
