@@ -8,9 +8,7 @@ $rateLimit = $botState['rateLimitUsageServices'] ?? 0;
 if (time() < $rateLimit)
     exit();
 
-sendMessage("🤖 Start", null, null, $admin);
-
-$botState['rateLimitUsageServices'] = strtotime("+12 hour");
+$botState['rateLimitUsageServices'] = strtotime("+1 hour");
 
 $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");
 $stmt->execute();
@@ -140,6 +138,32 @@ foreach ($ordersByToken as $token => $orders) {
 
     $leftgb = ($volume - $total_leftgb);
 
+    if ($leftgb < 0) {
+        foreach ($orders as $order) {
+            changeUserConfigStateDisable($order["id"]);
+        }
+
+        sendMessage("
+        ⚠️ **کاربر عزیز**  
+
+سرویس ({$serviceName}) شما به دلیل **پایان یافتن حجم خریداری‌شده** موقتاً غیرفعال گردید.  
+لطفاً برای استفاده‌ی بدون وقفه، نسبت به **تمدید سرویس** خود اقدام نمایید.  
+
+📌 راهنمای تمدید را می‌توانید در بخش **[آموزش اتصال](https://t.me/FilterBeshcan/123)** مشاهده کنید.  
+
+🙏 از اعتماد و همراهی شما با **فیلتربشکن** سپاسگزاریم.  
+
+        ", null, 'MarkDown', $admin);
+
+        sendMessage("
+        📢 **گزارش سیستم**
+
+پیغام هشدار **قطع اتصال** برای کاربر شماره `{$userId}` با موفقیت ارسال شد ✅
+        ", null, 'MarkDown', $admin);
+
+        continue;
+    }
+
     if ($leftgb < 2) {
         sendMessage("
     ⚠️ **هشدار میزان مصرف سرویس** ⚠️
@@ -157,13 +181,10 @@ foreach ($ordersByToken as $token => $orders) {
         sendMessage("
         📢 **گزارش سیستم**
 
-پیغام هشدار **کمبود حجم** برای کاربر شماره `#{$userId}` با موفقیت ارسال شد ✅
+پیغام هشدار **کمبود حجم** برای کاربر شماره `{$userId}` با موفقیت ارسال شد ✅
         ", null, 'MarkDown', $admin);
     }
 
 }
-
-sendMessage("🤖 END", null, null, $admin);
-
 
 ?>
