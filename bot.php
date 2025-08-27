@@ -3144,15 +3144,15 @@ if (
 }
 
 if (
-    (preg_match('/^discountSelectService(\d+)_(\d+)_(\d+)/', $userInfo['step'], $match) ||
+    (preg_match('/^discountSelectService(\d+)_(\d+)/', $userInfo['step'], $match) ||
         preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
-        preg_match('/enterServiceName(\d+)_(\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
+        preg_match('/enterServiceName(\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
         preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $data, $match)) &&
     ($botState['sellState'] == "on" || $from_id == $admin) &&
     $text != $buttonValues['cancel']
 ) {
     if (preg_match('/^discountSelectService/', $userInfo['step'])) {
-        $rowId = $match[3];
+        $rowId = $match[2];
 
         $time = time();
         $stmt = $connection->prepare("SELECT * FROM `discounts` WHERE (`expire_date` > $time OR `expire_date` = 0) AND (`expire_count` > 0 OR `expire_count` = -1) AND `hash_id` = ?");
@@ -3232,7 +3232,7 @@ if (
 
     if ($botState['remark'] == "manual" && preg_match('/^selectService/', $data) && $match['buyType'] != "much") {
         sendMessage($mainValues['customer_custome_plan_name'], $cancelKey);
-        setUser('enterServiceName' . $match[1] . "_" . $match[2] . "_" . $match['buyType']);
+        setUser('enterServiceName' . $match[1] . "_" . $match['buyType']);
         exit();
     }
 
@@ -3267,7 +3267,6 @@ if (
             exit();
         }
     }
-
 
     $cat_id = (int) $match[1];
 
@@ -3352,7 +3351,7 @@ if (
         //     $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
 
         if (!preg_match('/^discountSelectService/', $userInfo['step']) and $price != 0)
-            $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
+            $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $rowId]];
 
     }
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "buyService"]];
