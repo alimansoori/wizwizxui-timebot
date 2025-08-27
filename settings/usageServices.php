@@ -10,7 +10,7 @@ if (time() < $rateLimit)
 
 sendMessage("🤖 Start", null, null, $admin);
 
-$botState['rateLimitUsageServices'] = strtotime("+1 hour");
+$botState['rateLimitUsageServices'] = strtotime("+12 hour");
 
 $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");
 $stmt->execute();
@@ -27,7 +27,6 @@ $stmt->bind_param("s", $newData);
 $stmt->execute();
 $stmt->close();
 
-// 1) ابتدا توکن‌های یکتا
 $stmt = $connection->prepare("SELECT DISTINCT `token` FROM `orders_list` WHERE `status` = 1 AND `token` <> ''");
 $stmt->execute();
 $allActiveTokens = $stmt->get_result();
@@ -62,7 +61,7 @@ $serverJsonCache = [];
 
 foreach ($ordersByToken as $token => $orders) {
 
-
+    $total_leftgb = 0;
     foreach ($orders as $order) {
         $inbound_id = $order["inbound_id"];
         $server_id = $order["server_id"];
@@ -77,17 +76,20 @@ foreach ($ordersByToken as $token => $orders) {
             $stmt->close();
         }
         $cat_detail = $catCache[$catId];
-        $volume = (int)$cat_detail['volume'];
+        $volume = (int) $cat_detail['volume'];
 
         if (!isset($serverJsonCache[$server_id])) {
-            $serverJsonCache[$server_id] = getJson($server_id)->obj; // external helper
-        }
-        $response = $serverJsonCache[$server_id];
+            $res_server = getJson($server_id);
 
-        if (!$response->success) {
-            sendMessage("Error fetching data for server ID: {$server_id}", null, null, $admin);
-            continue;
+            if (!$res_server->success) {
+                sendMessage("Error fetching data for server ID: {$server_id}", null, null, $admin);
+                continue;
+            }
+
+            $serverJsonCache[$server_id] = $res_server->obj;
         }
+
+        $response = $serverJsonCache[$server_id];
 
         if ($inbound_id == 0) {
             foreach ($response as $row) {
