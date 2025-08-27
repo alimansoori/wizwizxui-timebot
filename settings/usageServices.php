@@ -58,12 +58,64 @@ $detailsStmt->close();
 $stmt->close();
 
 foreach ($ordersByToken as $token => $orders) {
-    sendMessage("Token: {$token}\nTotal Orders: " . count($orders), null, 'HTML', $admin);
-    // echo "<h3>Token: {$token}</h3>";
-    // echo "Total Orders: " . count($orders) . "<br>";
-    /* foreach ($orders as $order) {
-        echo "Order ID: {$order['id']} - User: {$order['userid']} - Amount: {$order['amount']}<br>";
-    } */
+    foreach ($orders as $order) {
+        $inbound_id = $order["inbound_id"];
+        $server_id = $order["server_id"];
+        $uuid = $order["uuid"];
+
+        $response = getJson($server_id)->obj;
+
+        if (!$response->success) {
+            sendMessage("Error fetching data for server ID: {$server_id}", null, null, $admin);
+            continue;
+        }
+
+        if ($inbound_id == 0) {
+            foreach ($response as $row) {
+                $clients = json_decode($row->settings)->clients;
+                if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                    $total = $row->total;
+                    $up = $row->up;
+                    $enable = $row->enable;
+                    $down = $row->down;
+                    $netType = json_decode($row->streamSettings)->network;
+                    $security = json_decode($row->streamSettings)->security;
+                    break;
+                }
+            }
+        } else {
+            foreach ($response as $row) {
+                if ($row->id == $inbound_id) {
+                    $netType = json_decode($row->streamSettings)->network;
+                    $security = json_decode($row->streamSettings)->security;
+                    $clientsStates = $row->clientStats;
+                    $clients = json_decode($row->settings)->clients;
+                    foreach ($clients as $key => $client) {
+                        if ($client->id == $uuid || $client->password == $uuid) {
+                            $email = $client->email;
+                            $emails = array_column($clientsStates, 'email');
+                            $emailKey = array_search($email, $emails);
+
+                            $total = $clientsStates[$emailKey]->total;
+                            $up = $clientsStates[$emailKey]->up;
+                            $enable = $clientsStates[$emailKey]->enable;
+                            if (!$client->enable)
+                                $enable = false;
+                            else
+                                $hasEnable = true;
+                            $down = $clientsStates[$emailKey]->down;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        $total_leftgb += round(($up + $down) / 1073741824, 2);
+    }
+
+    $leftgb = $volume - $total_leftgb . " GB";
+
+    sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}", null, 'HTML', $admin);
 }
 
 sendMessage("🤖 END", null, null, $admin);
