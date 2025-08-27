@@ -82,7 +82,7 @@ foreach ($ordersByToken as $token => $orders) {
             $res_server = getJson($server_id);
 
             if (!$res_server->success) {
-                sendMessage("Error fetching data for server ID: {$server_id}", null, null, $admin);
+                sendMessage("Error fetching data for server ID: {$server_id}, {$res_server->success}", null, null, $admin);
                 continue;
             }
 
