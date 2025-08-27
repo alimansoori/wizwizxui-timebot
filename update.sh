@@ -202,7 +202,7 @@ do
 			sleep 1
 			
 			(crontab -l | grep -v "messagewizwiz.php") | crontab -
-			(crontab -l | grep -v "updateServices.php") | crontab -
+			(crontab -l | grep -v "usageServices.php") | crontab -
 			(crontab -l | grep -v "rewardReport.php") | crontab -
 			(crontab -l | grep -v "warnusers.php") | crontab -
 			(crontab -l | grep -v "backupnutif.php") | crontab -
