@@ -2531,6 +2531,8 @@ if (
     if (preg_match('/^discountSelectService/', $userInfo['step'])) {
         $rowId = $match[3];
 
+        sendMessage($userInfo['step']);
+
         $time = time();
         $stmt = $connection->prepare("SELECT * FROM `discounts` WHERE (`expire_date` > $time OR `expire_date` = 0) AND (`expire_count` > 0 OR `expire_count` = -1) AND `hash_id` = ?");
         $stmt->bind_param("s", $text);
