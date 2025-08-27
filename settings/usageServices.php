@@ -62,6 +62,7 @@ $serverJsonCache = [];
 foreach ($ordersByToken as $token => $orders) {
 
     $total_leftgb = 0;
+    $userId = null;
     foreach ($orders as $order) {
         $inbound_id = $order["inbound_id"];
         $server_id = $order["server_id"];
@@ -139,7 +140,7 @@ foreach ($ordersByToken as $token => $orders) {
 
     $leftgb = ($volume - $total_leftgb);
 
-    if ($leftgb < 8) {
+    if ($leftgb < 2) {
         sendMessage("
     ⚠️ **هشدار میزان مصرف سرویس** ⚠️
 
@@ -153,9 +154,12 @@ foreach ($ordersByToken as $token => $orders) {
 
     ", null, 'MarkDown', $admin);
 
-        sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'MarkDown', $admin);
-    }
+        sendMessage("
+        📢 **گزارش سیستم**
 
+پیغام هشدار **کمبود حجم** برای کاربر شماره `#{$userId}` با موفقیت ارسال شد ✅
+        ", null, 'MarkDown', $admin);
+    }
 
 }
 
