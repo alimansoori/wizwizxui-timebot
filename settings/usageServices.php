@@ -134,7 +134,7 @@ foreach ($ordersByToken as $token => $orders) {
 
     $leftgb = ($volume - $total_leftgb) . " GB";
 
-    sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}", null, 'HTML', $admin);
+    sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'HTML', $admin);
 }
 
 sendMessage("🤖 END", null, null, $admin);
