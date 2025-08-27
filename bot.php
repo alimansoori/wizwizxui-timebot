@@ -2884,6 +2884,9 @@ if (preg_match('/^haveDiscount(.+?)_(.*)/', $data, $match)) {
     elseif ($match[1] == "Renew")
         setUser('discountRenew' . $match[2]);
 
+    sendMessage($data);
+    sendMessage($match[1]);
+    sendMessage($match[2]);
 }
 
 if ($data == "getTestAccount") {
