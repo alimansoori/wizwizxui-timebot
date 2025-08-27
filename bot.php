@@ -2884,9 +2884,6 @@ if (preg_match('/^haveDiscount(.+?)_(.*)/', $data, $match)) {
     elseif ($match[1] == "Renew")
         setUser('discountRenew' . $match[2]);
 
-    sendMessage($data);
-    sendMessage($match[1]);
-    sendMessage($match[2]);
 }
 
 if ($data == "getTestAccount") {
@@ -9105,10 +9102,10 @@ if (($data == 'mySubscriptions' || $data == "agentConfigsList" or preg_match('/(
     if ($next > 0 and $page != $number_of_page)
         $buttons[] = ['text' => "➡", 'callback_data' => (($data == "agentConfigsList" || $match[1] == "changeAgentOrder") ? "changeAgentOrder$next" : "changeOrdersPage$next")];
     $keyboard[] = $buttons;
-    if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
+    /* if ($data == "agentConfigsList" || $match[1] == "changeAgentOrder")
         $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchAgentConfig"]];
     else
-        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchMyConfig"]];
+        $keyboard[] = [['text' => $buttonValues['search_agent_config'], 'callback_data' => "searchMyConfig"]]; */
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
 
     if (isset($data)) {
