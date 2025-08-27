@@ -67,6 +67,7 @@ foreach ($ordersByToken as $token => $orders) {
         $server_id = $order["server_id"];
         $uuid = $order["uuid"];
         $catId = $order["cat_id"];
+        $userId = $order["userid"];
 
         if (!isset($catCache[$catId])) {
             $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
@@ -134,9 +135,27 @@ foreach ($ordersByToken as $token => $orders) {
         $total_leftgb += round(($up + $down) / 1073741824, 2);
     }
 
-    $leftgb = ($volume - $total_leftgb) . " GB";
+    $leftgb = ($volume - $total_leftgb);
 
-    sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'HTML', $admin);
+    if ($leftgb < 8) {
+        sendMessage("
+    ⚠️ **هشدار میزان مصرف سرویس** ⚠️
+
+کاربر عزیز،  
+از سرویس شما تنها **{$leftgb} GB گیگابایت** باقی مانده است.  
+برای جلوگیری از **قطع شدن اتصال**، لطفاً هرچه سریع‌تر نسبت به **تمدید سرویس** خود اقدام کنید.  
+
+📌 آموزش کامل تمدید و مدیریت سرویس را می‌توانید در بخش **[آموزش تمدید سرویس](https://t.me/FilterBeshcan/123)** مشاهده کنید.  
+
+🙏 از همراهی شما با فیلتربشکن سپاسگزاریم.  
+
+    ", null, 'HTML', $admin);
+
+
+        sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'HTML', $admin);
+    }
+
+
 }
 
 sendMessage("🤖 END", null, null, $admin);
