@@ -2520,231 +2520,6 @@ if ($userInfo['step'] == "forwardToAll" && ($from_id == $admin || $userInfo['isA
     ]));
 }
 
-if (
-    (preg_match('/^discountSelectService(\d+)_(\d+)_(\d+)/', $userInfo['step'], $match) ||
-        preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
-        preg_match('/enterServiceName(\d+)_(\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
-        preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $data, $match)) &&
-    ($botState['sellState'] == "on" || $from_id == $admin) &&
-    $text != $buttonValues['cancel']
-) {
-    sendMessage('SSS');
-    if (preg_match('/^discountSelectService/', $userInfo['step'])) {
-        $rowId = $match[3];
-
-        sendMessage($userInfo['step']);
-
-        $time = time();
-        $stmt = $connection->prepare("SELECT * FROM `discounts` WHERE (`expire_date` > $time OR `expire_date` = 0) AND (`expire_count` > 0 OR `expire_count` = -1) AND `hash_id` = ?");
-        $stmt->bind_param("s", $text);
-        $stmt->execute();
-        $list = $stmt->get_result();
-        $stmt->close();
-
-        $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `id` = ?");
-        $stmt->bind_param("i", $rowId);
-        $stmt->execute();
-        $payInfo = $stmt->get_result()->fetch_assoc();
-        $hash_id = $payInfo['hash_id'];
-        $afterDiscount = $payInfo['price'];
-        $stmt->close();
-
-        if ($list->num_rows > 0) {
-            $discountInfo = $list->fetch_assoc();
-            $amount = $discountInfo['amount'];
-            $type = $discountInfo['type'];
-            $count = $discountInfo['expire_count'];
-            $canUse = $discountInfo['can_use'];
-            $usedBy = !is_null($discountInfo['used_by']) ? json_decode($discountInfo['used_by'], true) : array();
-            $userUsedCount = array_count_values($usedBy)[$from_id];
-            if ($canUse > $userUsedCount) {
-                $usedBy[] = $from_id;
-                $encodeUsedBy = json_encode($usedBy);
-
-                if ($count != -1)
-                    $query = "UPDATE `discounts` SET `expire_count` = `expire_count` - 1, `used_by` = ? WHERE `id` = ?";
-                else
-                    $query = "UPDATE `discounts` SET `used_by` = ? WHERE `id` = ?";
-
-                $stmt = $connection->prepare($query);
-                $stmt->bind_param("si", $encodeUsedBy, $discountInfo['id']);
-                $stmt->execute();
-                $stmt->close();
-
-                if ($type == "percent") {
-                    $discount = $afterDiscount * $amount / 100;
-                    $afterDiscount -= $discount;
-                    $discount = number_format($discount) . " تومان";
-                } else {
-                    $afterDiscount -= $amount;
-                    $discount = number_format($amount) . " تومان";
-                }
-                if ($afterDiscount < 0)
-                    $afterDiscount = 0;
-
-                $stmt = $connection->prepare("UPDATE `pays` SET `price` = ? WHERE `id` = ?");
-                $stmt->bind_param("ii", $afterDiscount, $rowId);
-                $stmt->execute();
-                $stmt->close();
-                sendMessage(str_replace("AMOUNT", $discount, $mainValues['valid_discount_code']));
-                $keys = json_encode([
-                    'inline_keyboard' => [
-                        [
-                            ['text' => "❤️", "callback_data" => "wizwizch"]
-                        ],
-                    ]
-                ]);
-                sendMessage(
-                    str_replace(['USERID', 'USERNAME', "NAME", "AMOUNT", "DISCOUNTCODE"], [$from_id, $username, $first_name, $discount, $text], $mainValues['used_discount_code'])
-                    ,
-                    $keys,
-                    null,
-                    $admin
-                );
-            } else
-                sendMessage($mainValues['not_valid_discount_code']);
-        } else
-            sendMessage($mainValues['not_valid_discount_code']);
-        setUser();
-    } elseif (isset($data))
-        delMessage();
-
-
-    if ($botState['remark'] == "manual" && preg_match('/^selectService/', $data) && $match['buyType'] != "much") {
-        sendMessage($mainValues['customer_custome_plan_name'], $cancelKey);
-        setUser('enterServiceName' . $match[1] . "_" . $match[2] . "_" . $match['buyType']);
-        exit();
-    }
-
-    $remark = "";
-    if (preg_match("/selectService(\d+)_(\w+)/", $userInfo['step'])) {
-        if ($match['buyType'] == "much") {
-            if (is_numeric($text)) {
-                if ($text > 0) {
-                    $accountCount = $text;
-                    setUser();
-                } else {
-                    sendMessage($mainValues['send_positive_number']);
-                    exit();
-                }
-            } else {
-                sendMessage($mainValues['send_only_number']);
-                exit();
-            }
-        }
-    } elseif (preg_match("/enterServiceName(\d+)_(\d+)/", $userInfo['step'])) {
-        if (preg_match('/^[a-z]+[0-9]+$/', $text)) {
-            $remark = $text;
-            setUser();
-        } else {
-            sendMessage($mainValues['incorrect_config_name']);
-            exit();
-        }
-    } else {
-        if ($match['buyType'] == "much") {
-            setUser($data);
-            sendMessage($mainValues['enter_account_amount'], $cancelKey);
-            exit();
-        }
-    }
-
-
-    $cat_id = (int) $match[1];
-
-    alert($mainValues['receving_information']);
-
-    $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
-    $stmt->bind_param("i", $cat_id);
-    $stmt->execute();
-    $catInfo = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $name = $catInfo['title'];
-    $desc = $catInfo['descr'];
-    // $sid = $respd['server_id'];
-    $keyboard = array();
-    $price = $catInfo['price'];
-    if (isset($accountCount))
-        $price *= $accountCount;
-
-    $agentBought = false;
-    if ($userInfo['is_agent'] == true && ($match['buyType'] == "one" || $match['buyType'] == "much")) {
-        $discounts = json_decode($userInfo['discount_percent'], true);
-        if ($botState['agencyPlanDiscount'] == "on")
-            $discount = $discounts['plans'][$cat_id] ?? $discounts['normal'];
-        else
-            $discount = $discounts['servers'][$cat_id] ?? $discounts['normal'];
-        $price -= floor($price * $discount / 100);
-
-        $agentBought = true;
-    }
-    if ($price == 0 or ($from_id == $admin)) {
-        $keyboard[] = [['text' => '📥 دریافت رایگان', 'callback_data' => "serviceFreeTrial{$cat_id}_{$match['buyType']}"]];
-        setUser($remark, 'temp');
-    } else {
-        $token = base64_encode("{$from_id}.{$cat_id}");
-
-        if (!preg_match('/^discountSelectService/', $userInfo['step'])) {
-            $hash_id = RandomString();
-            $stmt = $connection->prepare("DELETE FROM `pays` WHERE `user_id` = ? AND `type` = 'BUY_SUB' AND `state` = 'pending'");
-            $stmt->bind_param("i", $from_id);
-            $stmt->execute();
-            $stmt->close();
-
-            $time = time();
-            if (isset($accountCount)) {
-                $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `user_id`, `type`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`, `agent_bought`, `agent_count`)
-                                            VALUES (?, ?, 'BUY_SUB', ?, '0', '0', ?, ?, 'pending', ?, ?)");
-                $stmt->bind_param("siiiiii", $hash_id, $from_id, $cat_id, $price, $time, $agentBought, $accountCount);
-            } else {
-                $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `description`, `user_id`, `type`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`, `agent_bought`)
-                                            VALUES (?, ?, ?, 'BUY_SUB', ?, '0', '0', ?, ?, 'pending', ?)");
-                $stmt->bind_param("ssiiiii", $hash_id, $remark, $from_id, $cat_id, $price, $time, $agentBought);
-            }
-            $stmt->execute();
-            $rowId = $stmt->insert_id;
-            $stmt->close();
-        } else {
-            $price = $afterDiscount;
-        }
-
-        $inventoryTxt = $buttonValues['pay_with_wallet'] . ' ' . '(موجودی شما' . ' = ' . number_format($userInfo['wallet']) . ' تومان)';
-        if ($botState['walletState'] == "on") {
-            if ($price == 0) {
-                $inventoryTxt = 'دریافت رایگان';
-            } elseif ($userInfo['wallet'] < $price) {
-                $inventoryTxt = $buttonValues['pay_with_wallet'] . '(موجودی شما ناکافی = ' . number_format($userInfo['wallet']) . ' تومان)';
-            }
-            $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "servicePayWithWallet$hash_id"]];
-        }
-
-        if ($botState['cartToCartState'] == "on" and $price != 0)
-            $keyboard[] = [['text' => $buttonValues['cart_to_cart'], 'callback_data' => "servicePayWithCartToCart$hash_id"]];
-        // if ($botState['nowPaymentOther'] == "on")
-        //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
-        // if ($botState['zarinpal'] == "on")
-        //     $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
-        // if ($botState['nextpay'] == "on")
-        //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
-        // if ($botState['weSwapState'] == "on")
-        //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
-        // if ($botState['tronWallet'] == "on" and $price != 0)
-        //     $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
-
-        if (!preg_match('/^discountSelectService/', $userInfo['step']) and $price != 0)
-            $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
-
-    }
-    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "buyService"]];
-    $priceC = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
-    if (isset($accountCount)) {
-        $eachPrice = number_format($price / $accountCount) . " تومان";
-        $msg = str_replace(['ACCOUNT-COUNT', 'TOTAL-PRICE', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$accountCount, $priceC, $name, $eachPrice, $desc], $mainValues['buy_much_subscription_detail']);
-    } else
-        $msg = str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $priceC, $desc], $mainValues['buy_subscription_detail']);
-    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
-}
-
 if (preg_match('/selectServer(?<serverId>\d+)_(?<buyType>\w+)/', $data, $match) && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
     $sid = $match['serverId'];
 
@@ -3355,6 +3130,228 @@ if (
 
     }
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "selectCategory{$call_id}_{$sid}_{$match['buyType']}"]];
+    $priceC = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
+    if (isset($accountCount)) {
+        $eachPrice = number_format($price / $accountCount) . " تومان";
+        $msg = str_replace(['ACCOUNT-COUNT', 'TOTAL-PRICE', 'PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$accountCount, $priceC, $name, $eachPrice, $desc], $mainValues['buy_much_subscription_detail']);
+    } else
+        $msg = str_replace(['PLAN-NAME', 'PRICE', 'DESCRIPTION'], [$name, $priceC, $desc], $mainValues['buy_subscription_detail']);
+    sendMessage($msg, json_encode(['inline_keyboard' => $keyboard])/* , "HTML" */);
+}
+
+if (
+    (preg_match('/^discountSelectService(\d+)_(\d+)_(\d+)/', $userInfo['step'], $match) ||
+        preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
+        preg_match('/enterServiceName(\d+)_(\d+)_(?<buyType>\w+)/', $userInfo['step'], $match) ||
+        preg_match('/selectService(?<serviceId>\d+)_(?<buyType>\w+)/', $data, $match)) &&
+    ($botState['sellState'] == "on" || $from_id == $admin) &&
+    $text != $buttonValues['cancel']
+) {
+    if (preg_match('/^discountSelectService/', $userInfo['step'])) {
+        $rowId = $match[3];
+
+        $time = time();
+        $stmt = $connection->prepare("SELECT * FROM `discounts` WHERE (`expire_date` > $time OR `expire_date` = 0) AND (`expire_count` > 0 OR `expire_count` = -1) AND `hash_id` = ?");
+        $stmt->bind_param("s", $text);
+        $stmt->execute();
+        $list = $stmt->get_result();
+        $stmt->close();
+
+        $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `id` = ?");
+        $stmt->bind_param("i", $rowId);
+        $stmt->execute();
+        $payInfo = $stmt->get_result()->fetch_assoc();
+        $hash_id = $payInfo['hash_id'];
+        $afterDiscount = $payInfo['price'];
+        $stmt->close();
+
+        if ($list->num_rows > 0) {
+            $discountInfo = $list->fetch_assoc();
+            $amount = $discountInfo['amount'];
+            $type = $discountInfo['type'];
+            $count = $discountInfo['expire_count'];
+            $canUse = $discountInfo['can_use'];
+            $usedBy = !is_null($discountInfo['used_by']) ? json_decode($discountInfo['used_by'], true) : array();
+            $userUsedCount = array_count_values($usedBy)[$from_id];
+            if ($canUse > $userUsedCount) {
+                $usedBy[] = $from_id;
+                $encodeUsedBy = json_encode($usedBy);
+
+                if ($count != -1)
+                    $query = "UPDATE `discounts` SET `expire_count` = `expire_count` - 1, `used_by` = ? WHERE `id` = ?";
+                else
+                    $query = "UPDATE `discounts` SET `used_by` = ? WHERE `id` = ?";
+
+                $stmt = $connection->prepare($query);
+                $stmt->bind_param("si", $encodeUsedBy, $discountInfo['id']);
+                $stmt->execute();
+                $stmt->close();
+
+                if ($type == "percent") {
+                    $discount = $afterDiscount * $amount / 100;
+                    $afterDiscount -= $discount;
+                    $discount = number_format($discount) . " تومان";
+                } else {
+                    $afterDiscount -= $amount;
+                    $discount = number_format($amount) . " تومان";
+                }
+                if ($afterDiscount < 0)
+                    $afterDiscount = 0;
+
+                $stmt = $connection->prepare("UPDATE `pays` SET `price` = ? WHERE `id` = ?");
+                $stmt->bind_param("ii", $afterDiscount, $rowId);
+                $stmt->execute();
+                $stmt->close();
+                sendMessage(str_replace("AMOUNT", $discount, $mainValues['valid_discount_code']));
+                $keys = json_encode([
+                    'inline_keyboard' => [
+                        [
+                            ['text' => "❤️", "callback_data" => "wizwizch"]
+                        ],
+                    ]
+                ]);
+                sendMessage(
+                    str_replace(['USERID', 'USERNAME', "NAME", "AMOUNT", "DISCOUNTCODE"], [$from_id, $username, $first_name, $discount, $text], $mainValues['used_discount_code'])
+                    ,
+                    $keys,
+                    null,
+                    $admin
+                );
+            } else
+                sendMessage($mainValues['not_valid_discount_code']);
+        } else
+            sendMessage($mainValues['not_valid_discount_code']);
+        setUser();
+    } elseif (isset($data))
+        delMessage();
+
+
+    if ($botState['remark'] == "manual" && preg_match('/^selectService/', $data) && $match['buyType'] != "much") {
+        sendMessage($mainValues['customer_custome_plan_name'], $cancelKey);
+        setUser('enterServiceName' . $match[1] . "_" . $match[2] . "_" . $match['buyType']);
+        exit();
+    }
+
+    $remark = "";
+    if (preg_match("/selectService(\d+)_(\w+)/", $userInfo['step'])) {
+        if ($match['buyType'] == "much") {
+            if (is_numeric($text)) {
+                if ($text > 0) {
+                    $accountCount = $text;
+                    setUser();
+                } else {
+                    sendMessage($mainValues['send_positive_number']);
+                    exit();
+                }
+            } else {
+                sendMessage($mainValues['send_only_number']);
+                exit();
+            }
+        }
+    } elseif (preg_match("/enterServiceName(\d+)_(\d+)/", $userInfo['step'])) {
+        if (preg_match('/^[a-z]+[0-9]+$/', $text)) {
+            $remark = $text;
+            setUser();
+        } else {
+            sendMessage($mainValues['incorrect_config_name']);
+            exit();
+        }
+    } else {
+        if ($match['buyType'] == "much") {
+            setUser($data);
+            sendMessage($mainValues['enter_account_amount'], $cancelKey);
+            exit();
+        }
+    }
+
+
+    $cat_id = (int) $match[1];
+
+    alert($mainValues['receving_information']);
+
+    $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id`=?");
+    $stmt->bind_param("i", $cat_id);
+    $stmt->execute();
+    $catInfo = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $name = $catInfo['title'];
+    $desc = $catInfo['descr'];
+    // $sid = $respd['server_id'];
+    $keyboard = array();
+    $price = $catInfo['price'];
+    if (isset($accountCount))
+        $price *= $accountCount;
+
+    $agentBought = false;
+    if ($userInfo['is_agent'] == true && ($match['buyType'] == "one" || $match['buyType'] == "much")) {
+        $discounts = json_decode($userInfo['discount_percent'], true);
+        if ($botState['agencyPlanDiscount'] == "on")
+            $discount = $discounts['plans'][$cat_id] ?? $discounts['normal'];
+        else
+            $discount = $discounts['servers'][$cat_id] ?? $discounts['normal'];
+        $price -= floor($price * $discount / 100);
+
+        $agentBought = true;
+    }
+    if ($price == 0 or ($from_id == $admin)) {
+        $keyboard[] = [['text' => '📥 دریافت رایگان', 'callback_data' => "serviceFreeTrial{$cat_id}_{$match['buyType']}"]];
+        setUser($remark, 'temp');
+    } else {
+        $token = base64_encode("{$from_id}.{$cat_id}");
+
+        if (!preg_match('/^discountSelectService/', $userInfo['step'])) {
+            $hash_id = RandomString();
+            $stmt = $connection->prepare("DELETE FROM `pays` WHERE `user_id` = ? AND `type` = 'BUY_SUB' AND `state` = 'pending'");
+            $stmt->bind_param("i", $from_id);
+            $stmt->execute();
+            $stmt->close();
+
+            $time = time();
+            if (isset($accountCount)) {
+                $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `user_id`, `type`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`, `agent_bought`, `agent_count`)
+                                            VALUES (?, ?, 'BUY_SUB', ?, '0', '0', ?, ?, 'pending', ?, ?)");
+                $stmt->bind_param("siiiiii", $hash_id, $from_id, $cat_id, $price, $time, $agentBought, $accountCount);
+            } else {
+                $stmt = $connection->prepare("INSERT INTO `pays` (`hash_id`, `description`, `user_id`, `type`, `cat_id`, `volume`, `day`, `price`, `request_date`, `state`, `agent_bought`)
+                                            VALUES (?, ?, ?, 'BUY_SUB', ?, '0', '0', ?, ?, 'pending', ?)");
+                $stmt->bind_param("ssiiiii", $hash_id, $remark, $from_id, $cat_id, $price, $time, $agentBought);
+            }
+            $stmt->execute();
+            $rowId = $stmt->insert_id;
+            $stmt->close();
+        } else {
+            $price = $afterDiscount;
+        }
+
+        $inventoryTxt = $buttonValues['pay_with_wallet'] . ' ' . '(موجودی شما' . ' = ' . number_format($userInfo['wallet']) . ' تومان)';
+        if ($botState['walletState'] == "on") {
+            if ($price == 0) {
+                $inventoryTxt = 'دریافت رایگان';
+            } elseif ($userInfo['wallet'] < $price) {
+                $inventoryTxt = $buttonValues['pay_with_wallet'] . '(موجودی شما ناکافی = ' . number_format($userInfo['wallet']) . ' تومان)';
+            }
+            $keyboard[] = [['text' => $inventoryTxt, 'callback_data' => "servicePayWithWallet$hash_id"]];
+        }
+
+        if ($botState['cartToCartState'] == "on" and $price != 0)
+            $keyboard[] = [['text' => $buttonValues['cart_to_cart'], 'callback_data' => "servicePayWithCartToCart$hash_id"]];
+        // if ($botState['nowPaymentOther'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['now_payment_gateway'], 'url' => $botUrl . "pay/?nowpayment&hash_id=" . $hash_id]];
+        // if ($botState['zarinpal'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['zarinpal_gateway'], 'url' => $botUrl . "pay/?zarinpal&hash_id=" . $hash_id]];
+        // if ($botState['nextpay'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['nextpay_gateway'], 'url' => $botUrl . "pay/?nextpay&hash_id=" . $hash_id]];
+        // if ($botState['weSwapState'] == "on")
+        //     $keyboard[] = [['text' => $buttonValues['weswap_gateway'], 'callback_data' => "servicePayWithWeSwap" . $hash_id]];
+        // if ($botState['tronWallet'] == "on" and $price != 0)
+        //     $keyboard[] = [['text' => $buttonValues['tron_gateway'], 'callback_data' => "servicePayWithTronWallet" . $hash_id]];
+
+        if (!preg_match('/^discountSelectService/', $userInfo['step']) and $price != 0)
+            $keyboard[] = [['text' => " 🎁 نکنه کد تخفیف داری؟ ", 'callback_data' => "haveDiscountSelectService_" . $match[1] . "_" . $match[2] . "_" . $rowId]];
+
+    }
+    $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "buyService"]];
     $priceC = ($price == 0) ? 'رایگان' : number_format($price) . ' تومان ';
     if (isset($accountCount)) {
         $eachPrice = number_format($price / $accountCount) . " تومان";
