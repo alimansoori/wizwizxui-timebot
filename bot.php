@@ -2528,6 +2528,7 @@ if (
     ($botState['sellState'] == "on" || $from_id == $admin) &&
     $text != $buttonValues['cancel']
 ) {
+    sendMessage('SSS');
     if (preg_match('/^discountSelectService/', $userInfo['step'])) {
         $rowId = $match[3];
 
