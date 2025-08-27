@@ -76,8 +76,10 @@ foreach ($ordersByToken as $token => $orders) {
             $catCache[$catId] = $stmt->get_result()->fetch_assoc() ?: [];
             $stmt->close();
         }
+
         $cat_detail = $catCache[$catId];
         $volume = (int) $cat_detail['volume'];
+        $serviceName = $cat_detail['title'];
 
         if (!isset($serverJsonCache[$server_id])) {
             $res_server = getJson($server_id);
@@ -142,17 +144,16 @@ foreach ($ordersByToken as $token => $orders) {
     ⚠️ **هشدار میزان مصرف سرویس** ⚠️
 
 کاربر عزیز،  
-از سرویس شما تنها **{$leftgb} GB گیگابایت** باقی مانده است.  
+از سرویس ({$serviceName}) شما تنها **{$leftgb} گیگابایت** باقی مانده است.  
 برای جلوگیری از **قطع شدن اتصال**، لطفاً هرچه سریع‌تر نسبت به **تمدید سرویس** خود اقدام کنید.  
 
 📌 آموزش کامل تمدید و مدیریت سرویس را می‌توانید در بخش **[آموزش تمدید سرویس](https://t.me/FilterBeshcan/123)** مشاهده کنید.  
 
 🙏 از همراهی شما با فیلتربشکن سپاسگزاریم.  
 
-    ", null, 'HTML', $admin);
+    ", null, 'MarkDown', $admin);
 
-
-        sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'HTML', $admin);
+        sendMessage("Token: {$token}\nTotal Orders: " . count($orders) . "\nLeft GB: {$leftgb}" . "\nVolume: {$volume} GB", null, 'MarkDown', $admin);
     }
 
 
