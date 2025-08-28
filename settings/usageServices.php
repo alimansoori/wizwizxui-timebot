@@ -143,7 +143,7 @@ foreach ($ordersByToken as $token => $orders) {
             changeUserConfigStateDisable($order["id"]);
         }
 
-        sendMessage("
+        /* sendMessage("
         ⚠️ **کاربر عزیز**  
 
 سرویس ({$serviceName}) شما به دلیل **پایان یافتن حجم خریداری‌شده** موقتاً غیرفعال گردید.  
@@ -159,12 +159,12 @@ foreach ($ordersByToken as $token => $orders) {
         📢 **گزارش سیستم**
 
 پیغام هشدار **قطع اتصال** برای کاربر شماره `{$userId}` با موفقیت ارسال شد ✅
-        ", null, 'MarkDown', $admin);
+        ", null, 'MarkDown', $admin); */
 
         continue;
     }
 
-    if ($leftgb < 2) {
+    /* if ($leftgb < 2) {
         sendMessage("
     ⚠️ **هشدار میزان مصرف سرویس** ⚠️
 
@@ -183,7 +183,7 @@ foreach ($ordersByToken as $token => $orders) {
 
 پیغام هشدار **کمبود حجم** برای کاربر شماره `{$userId}` با موفقیت ارسال شد ✅
         ", null, 'MarkDown', $admin);
-    }
+    } */
 
 }
 
