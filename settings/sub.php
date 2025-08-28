@@ -167,7 +167,7 @@ if (!strictTokenIsValid($token)) {
 }
 
 // --- Fetch all orders with this token (select only what we use) ------------
-$stmt = $connection->prepare("SELECT id, userid, remark, uuid, server_id, inbound_id, up_down, protocol, rahgozar, fileid, link, expire_date FROM orders_list WHERE token = ?");
+$stmt = $connection->prepare("SELECT id, userid, remark, uuid, server_id, inbound_id, cat_id, up_down, protocol, rahgozar, fileid, link, expire_date FROM orders_list WHERE token = ?");
 $stmt->bind_param('s', $token);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -184,6 +184,7 @@ if (!$orders || count($orders) === 0) {
 $serverIds = [];
 $fileIds = [];
 $uuidsPerServer = [];
+$catId = 0;
 
 foreach ($orders as $o) {
     $catId = (int) $o['cat_id'];
@@ -243,7 +244,7 @@ if (!empty($links)) {
     $randomId = uuidv4_random();
     $daysHeader = $minDaysLeft !== null ? $minDaysLeft : 0;
 
-    $headerRemarkText = '📊 مصرف شما: ' . $usage . ' گیگابایت از ' . $catId . ' گیگابایت 📊';
+    $headerRemarkText = '📊 مصرف شما: ' . $usage . ' گیگابایت از ' . $volume . ' گیگابایت 📊';
     $usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#'
         . rawurlencode($headerRemarkText);
 
