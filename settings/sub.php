@@ -184,7 +184,6 @@ if (!$orders || count($orders) === 0) {
 $serverIds = [];
 $fileIds = [];
 $uuidsPerServer = [];
-$catId = 0;
 
 foreach ($orders as $o) {
     $catId = (int) $o['cat_id'];
