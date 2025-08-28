@@ -231,7 +231,7 @@ foreach ($orders as $o) {
     $expireTs = (int) ($o['expire_date'] ?? 0);
     if ($expireTs > 0) {
         $daysLeft = (int) max(0, $expireTs - time());
-        $daysLeft = round($daysLeft / 86400, 1);
+        $daysLeft = round($daysLeft / 86400, 2);
         $minDaysLeft = ($minDaysLeft === null) ? $daysLeft : min($minDaysLeft, $daysLeft);
     }
 }
@@ -243,7 +243,7 @@ if (!empty($links)) {
     $randomId = uuidv4_random();
     $daysHeader = $minDaysLeft !== null ? $minDaysLeft : 0;
 
-    $headerRemarkText = '📊 مصرف شما: ' . $$usage . ' از ' . $volume . ' 📊';
+    $headerRemarkText = '📊 مصرف شما: ' . $usage . ' گیگابایت از ' . $volume . ' گیگابایت 📊';
     $usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#'
         . rawurlencode($headerRemarkText);
 
