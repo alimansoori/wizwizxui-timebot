@@ -187,7 +187,8 @@ $uuidsPerServer = [];
 $catId = 0;
 
 foreach ($orders as $o) {
-    $catId = (int) ($o['cat_id'] ?? 0);
+    $catId = (int) $o['cat_id'];
+    break;
 }
 
 $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
