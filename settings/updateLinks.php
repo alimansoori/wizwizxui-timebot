@@ -402,14 +402,14 @@ foreach ($ordersByToken as $token => $orders) {
 
     $updStmt->close();
 
-    $leftgb = ($accTotal - $$accUsed);
+    $leftgb = ($accTotal - $accUsed);
 
     sendMessage("Token: " . $token . " Usage: " . $leftgb, null, null, $admin);
 
-    if ($leftgb < 0) {
+    /* if ($leftgb < 0) {
         foreach ($orders as $order) {
             changeUserConfigStateDisable($order["id"]);
         }
-    }
+    } */
 
 }
