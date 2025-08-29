@@ -148,6 +148,14 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
                 ]
             ]);
 
+            sendMessage(
+                str_replace(["FULLNAME", "USERNAME", "USERID"], ["<a href='tg://user?id=$from_id'>$first_name</a>", $username, $from_id], $mainValues['new_member_joined'])
+                ,
+                $keys,
+                "html",
+                $admin
+            );
+
             $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
 
             if ($firstTimeArrivalGift > 0) {
@@ -166,17 +174,9 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
 با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
 
                 ", getMainKeys());
+
+                exit();
             }
-
-            sendMessage(
-                str_replace(["FULLNAME", "USERNAME", "USERID"], ["<a href='tg://user?id=$from_id'>$first_name</a>", $username, $from_id], $mainValues['new_member_joined'])
-                ,
-                $keys,
-                "html",
-                $admin
-            );
-
-            exit();
         }
 
         sendMessage($mainValues['start_message'], getMainKeys(), 'MarkDown');
