@@ -206,6 +206,8 @@ foreach ($ordersByToken as $token => $orders) {
     $uuidsPerServer = [];
     $catId = 0;
 
+    sendMessage($token, null, "MarkDown", $admin);
+
     foreach ($orders as $o) {
         $sid = (int) ($o['server_id'] ?? 0);
         $fid = (int) ($o['fileid'] ?? 0);
@@ -393,7 +395,7 @@ foreach ($ordersByToken as $token => $orders) {
         );
 
         if (is_array($vraylink)) {
-            if ($userId == "203506302") {
+            if ($userId == 203506302) {
                 sendMessage($vraylink, null, "MarkDown", $admin);
             }
             // Persist per-row update using reused statement
