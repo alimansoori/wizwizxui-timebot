@@ -4565,7 +4565,6 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
             $token = RandomString(30);
 
-            sendMessage($token, null, null, $admin);
             $linkCounter = 0;
 
             foreach ($files_detail as $file_detail) {
@@ -10702,6 +10701,7 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $stmt->close();
 
     $usage = 0;
+    $orderIds = [];
     foreach ($orders as $order) {
         $orderId = $order["id"];
         $inbound_id = $order['inbound_id'];
@@ -10748,7 +10748,11 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
                 $expiryDay = 0;
         }
 
-        $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
+        if ($orderId > 0) {
+            $orderIds[] = $orderId;
+        }
+
+        /* $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` + 1 WHERE `id` = ?");
         $stmt->bind_param("i", $server_id);
         $stmt->execute();
         $stmt->close();
@@ -10757,8 +10761,30 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
         $stmt->bind_param("i", $orderId);
         $stmt->execute();
-        $stmt->close();
+        $stmt->close(); */
 
+    }
+
+    if (!empty($orderIds)) {
+        $chunks = array_chunk($orderIds, 100);
+
+        $connection->begin_transaction();
+        try {
+            foreach ($chunks as $batch) {
+                $placeholders = implode(',', array_fill(0, count($batch), '?'));
+                $sql = "DELETE FROM `orders_list` WHERE `id` IN ($placeholders)";
+
+                $stmt = $connection->prepare($sql);
+                $types = str_repeat('i', count($batch));
+                $stmt->bind_param($types, ...$batch);
+                $stmt->execute();
+                $stmt->close();
+            }
+            $connection->commit();
+        } catch (Throwable $e) {
+            $connection->rollback();
+            throw $e;
+        }
     }
 
     if ($catId > 0) {
