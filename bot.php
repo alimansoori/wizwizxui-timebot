@@ -10668,7 +10668,7 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $remark = $catQuery['title'];
     }
 
-    editText($message_id, "آیا از حذف کانفیگ $remark مطمئن هستید؟", json_encode([
+    editText($message_id, "آیا از حذف سرویس $remark مطمئن هستید؟", json_encode([
         'inline_keyboard' => [
             [['text' => "بلی", 'callback_data' => "yesDeleteConfig" . $match[1]], ['text' => "نخیر", 'callback_data' => "noDontDelete"]]
         ]
@@ -10680,6 +10680,11 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         ]
     ]));
 } elseif (preg_match('/^yesDeleteConfig(\d+)/', $data, $match)) {
+
+    delMessage();
+    
+    alert($mainValues['please_wait_message']);
+
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
     $stmt->bind_param("i", $oid);
@@ -10771,9 +10776,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $leftMb = $usage . ' GB';
     }
 
-
-
-
     editText($message_id, "کانفیگ $remark با موفقیت حذف شد", json_encode([
         'inline_keyboard' => [
             [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]
@@ -10789,10 +10791,11 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 🎈 نام سرویس: $remark
 🔋حجم سرویس: $volume گیگ
 ⏰ مدت زمان سرویس: $days روز
-❌ حجم باقی مانده: $leftMb
+❌ حجم باقی مانده: ($volume - $usage) گیگ   
 📆 روز باقیمانده: $expiryDay روز
 ", null, "html", $admin);
     exit();
+
 } elseif (preg_match('/^delUserConfig(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
@@ -10814,11 +10817,12 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $remark = $catQuery["title"];
     }
 
-    editText($message_id, "آیا از حذف کانفیگ $remark مطمئن هستید؟", json_encode([
+    editText($message_id, "آیا از حذف سرویس $remark مطمئن هستید؟", json_encode([
         'inline_keyboard' => [
             [['text' => "بلی", 'callback_data' => "yesDeleteUserConfig" . $match[1]], ['text' => "نخیر", 'callback_data' => "noDontDelete"]]
         ]
     ]));
+
 } elseif (preg_match('/^yesDeleteUserConfig(\d+)/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
