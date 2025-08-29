@@ -57,7 +57,7 @@ if (strstr($text, "/start ")) {
             $first_name = !empty($first_name) ? $first_name : " ";
             $username = !empty($username) ? $username : " ";
             if ($uinfo->num_rows == 0) {
-                $firstTimeArrivalGift = (int)$botState['firstTimeArrivalGift'] ?? 0;
+                $firstTimeArrivalGift = (int) $botState['firstTimeArrivalGift'] ?? 0;
 
                 $sql = "INSERT INTO `users` (`userid`, `name`, `username`, `refcode`, `wallet`, `date`, `refered_by`)
                                     VALUES (?,?,?, 0,$firstTimeArrivalGift,?,?)";
@@ -10682,8 +10682,10 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 } elseif (preg_match('/^yesDeleteConfig(\d+)/', $data, $match)) {
 
     delMessage();
-    
+
     alert($mainValues['please_wait_message']);
+
+    sendMessage("AAA");
 
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
@@ -10691,6 +10693,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $stmt->execute();
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+
+    sendMessage("BBB");
 
     $token = $order["token"];
     $user_id = $order["userid"];
@@ -10701,6 +10705,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $stmt->execute();
     $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
+
+    sendMessage(txt: "CCC");
 
     $usage = 0;
     foreach ($orders as $order) {
@@ -10761,7 +10767,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $stmt->close();
     }
 
-
+    sendMessage("DDD");
+    
     if ($catId > 0) {
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
         $stmt->bind_param("i", $catId);
@@ -10775,6 +10782,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 
         $leftMb = $usage . ' GB';
     }
+
+    sendMessage("EEE");
 
     editText($message_id, "کانفیگ $remark با موفقیت حذف شد", json_encode([
         'inline_keyboard' => [
