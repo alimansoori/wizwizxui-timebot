@@ -201,7 +201,8 @@ $catInfoCache = [];
 
 foreach ($ordersByToken as $token => $orders) {
 
-    if ($token != "QpH6deUpTv5QY6rOmSoczRD5X3uM8G") continue;
+    if ($token != "QpH6deUpTv5QY6rOmSoczRD5X3uM8G")
+        continue;
 
     // --- Collect unique IDs for bulk fetches -----------------------------------
     $serverIds = [];
@@ -330,6 +331,9 @@ foreach ($ordersByToken as $token => $orders) {
         // Accumulate totals safely
         $accUsed += round(($up + $down) / 1073741824, 2);
 
+        $up_down = round(($up + $down) / 1073741824, 2);
+        sendMessage($up_down, null, null, $admin);
+
         // days left per order
         $expireTs = (int) ($order['expire_date'] ?? 0);
         $daysLeft = (int) max(0, $expireTs - time());
@@ -393,7 +397,6 @@ foreach ($ordersByToken as $token => $orders) {
             $customSni
         );
 
-        $up_down = round(($up + $down) / 1073741824, 2);
         if (is_array($vraylink)) {
             // Persist per-row update using reused statement
             $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
