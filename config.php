@@ -4702,8 +4702,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
     $server_info = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    sendMessage($remark, null, null, $admin);
-
     $panel_url = $server_info['panel_url'];
     $server_ip = $server_info['ip'];
     $sni = $server_info['sni'];
@@ -5137,6 +5135,8 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
         }
         $outputLink[] = $outputlink;
     }
+
+    sendMessage("Output: " . $outputLink, null, null, $admin);
 
     return $outputLink;
 }
