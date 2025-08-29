@@ -5136,8 +5136,6 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
         $outputLink[] = $outputlink;
     }
 
-    sendMessage("Output: " . json_encode($outputLink), null, null, $admin);
-
     return $outputLink;
 }
 function updateConfig($server_id, $inboundId, $protocol, $netType = 'tcp', $security = 'none', $rahgozar = false)

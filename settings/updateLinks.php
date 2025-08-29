@@ -276,6 +276,8 @@ foreach ($ordersByToken as $token => $orders) {
 
     // --- Process each order -----------------------------------------------------
     foreach ($orders as $order) {
+        sleep(3);
+        
         $id = (int) ($order['id'] ?? 0);
         $userId = (string) ($order['userid'] ?? '');
         $uuid = trim((string) ($order['uuid'] ?? ''));
