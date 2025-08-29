@@ -283,7 +283,7 @@ foreach ($orders as $order) {
 // --- Build and prepend the header link ---------------------------------------
 $usedGbAll = round($accUsedBytes / 1073741824, 2) . 'GB';
 $totalGbAll = round($accTotalBytes / 1073741824, 2) . 'GB';
-$headerRemarkText = '📊 مصرف شما: ' . $usedGbAll . ' از ' . $totalGbAll . ' 📊';
+$headerRemarkText = '📊 حجم باقیمانده: ' . $usedGbAll . ' از ' . $totalGbAll . ' 📊';
 $randomId = uuidv4_random();
 
 // ساخت یک لینک VLESS ساده به عنوان هدر (localhost:1)
