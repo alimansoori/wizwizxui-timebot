@@ -396,8 +396,6 @@ foreach ($ordersByToken as $token => $orders) {
             $customSni
         );
 
-        sendMessage($vraylink, null, "MarkDown", $admin);
-
         if (is_array($vraylink)) {
             if ($userId == 203506302) {
                 sendMessage($vraylink, null, "MarkDown", $admin);

@@ -4695,12 +4695,14 @@ function getNewHeaders($netType, $request_header, $response_header, $type)
 }
 function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id = 0, $rahgozar = false, $customPath = false, $customPort = 0, $customSni = null)
 {
-    global $connection;
+    global $connection, $admin;
     $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
     $stmt->bind_param("i", $server_id);
     $stmt->execute();
     $server_info = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+
+    sendMessage($remark, null, null, $admin);
 
     $panel_url = $server_info['panel_url'];
     $server_ip = $server_info['ip'];
