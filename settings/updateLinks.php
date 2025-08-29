@@ -374,11 +374,11 @@ foreach ($ordersByToken as $token => $orders) {
         } else {
             $useInbound = $uuidInfo['inbound_id'] ?? $inbound_id; // prefer detected inbound
             $res = editClientRemark($server_id, $useInbound, $uniqid, $remark);
+            sendMessage($remark, null, "MarkDown", $admin);
         }
 
-        sendMessage($remark, null, "MarkDown", $admin);
-
         if (!isset($res->success) || !$res->success) {
+            sendMessage($remark . " Faild", null, "MarkDown", $admin);
             // panel update failed; skip this order to avoid bad links
             continue;
         }
