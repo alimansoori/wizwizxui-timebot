@@ -4722,8 +4722,6 @@ if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
                     $stmt->execute();
                     $stmt->close();
                 }
-
-                break;
             }
 
             include 'phpqrcode/qrlib.php';
