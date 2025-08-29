@@ -5136,7 +5136,7 @@ function getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netT
         $outputLink[] = $outputlink;
     }
 
-    sendMessage("Output: " . $outputLink, null, null, $admin);
+    sendMessage("Output: " . json_encode($outputLink), null, null, $admin);
 
     return $outputLink;
 }
