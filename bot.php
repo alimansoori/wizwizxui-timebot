@@ -4455,7 +4455,7 @@ if (preg_match('/accCustom(.*)/', $data, $match) and $text != $buttonValues['can
     sendMessage($msg, $keys, "html", $admin);
 } */
 
-if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
+if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
     setUser();
 
     $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
@@ -4564,6 +4564,8 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
         for ($i = 1; $i <= $accountCount; $i++) {
 
             $token = RandomString(30);
+
+            sendMessage($token, null, null, $admin);
 
             $linkCounter = 0;
 
