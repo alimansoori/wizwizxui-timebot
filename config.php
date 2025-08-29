@@ -24,7 +24,7 @@ function bot($method, $datas = [])
         return json_decode($res);
     }
 }
-function sendMessage($txt, $key = null, $parse = "MarkDown", $ci = null, $msg = null)
+function sendMessage($txt, $key = null, $parse = "Markdown", $ci = null, $msg = null)
 {
     global $from_id;
     $ci = $ci ?? $from_id;
@@ -91,7 +91,7 @@ function forwardmessage($tochatId, $fromchatId, $message_id)
         'message_id' => $message_id
     ]);
 }
-function sendPhoto($photo, $caption = null, $keyboard = null, $parse = "MarkDown", $ci = null)
+function sendPhoto($photo, $caption = null, $keyboard = null, $parse = "Markdown", $ci = null)
 {
     global $from_id;
     $ci = $ci ?? $from_id;

@@ -173,13 +173,13 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
 
 با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
 
-                ", getMainKeys());
+                ", getMainKeys(), 'Markdown');
 
                 exit();
             }
         }
 
-        sendMessage($mainValues['start_message'], getMainKeys(), 'MarkDown');
+        sendMessage($mainValues['start_message'], getMainKeys(), 'Markdown');
     }
 }
 
@@ -1227,7 +1227,7 @@ if ($data == 'buyService' && ($botState['sellState'] == "on" || ($from_id == $ad
 
     $keyboard = array_chunk($keyboard, 1);
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
-    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'MarkDown');
+    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'Markdown');
 }
 
 if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuchBuy") && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
@@ -7145,7 +7145,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
                     ['text' => "بستن تیکت 🗳", 'callback_data' => "closeTicket_$chatRowId"]
                 ]
             ]
-        ]), "MarkDown", $userId);
+        ]), "Markdown", $userId);
     } else {
         $text = json_encode(['file_id' => $fileid, 'caption' => $caption]);
         $stmt = $connection->prepare("INSERT INTO `chats_info` (`chat_id`,`sent_date`,`msg_type`,`text`) VALUES
@@ -7161,7 +7161,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
             ]
         ]);
 
-        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "MarkDown", $userId);
+        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "Markdown", $userId);
     }
     $stmt->execute();
     $stmt->close();
@@ -8038,7 +8038,7 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
             ])
         ]);
         setUser(json_encode($configLocation, 488), "temp");
-        sendMessage("🔰مشخصات حسابت:", $keys, "MarkDown");
+        sendMessage("🔰مشخصات حسابت:", $keys, "Markdown");
     }
 }
 
