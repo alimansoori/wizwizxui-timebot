@@ -213,6 +213,8 @@ foreach ($orders as $o) {
     $raw = $o['link'] ?? '';
     $up_down = (float) ($o['up_down'] ?? 0);
 
+    echo "Up/Down: " . $up_down . "\n";
+
     $usage += $up_down;
 
     if ($raw !== '') {
