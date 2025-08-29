@@ -200,10 +200,6 @@ function buildServerPanelIndex($server_id, $uuidsNeeded): array
 $catInfoCache = [];
 
 foreach ($ordersByToken as $token => $orders) {
-
-    if ($token != "QpH6deUpTv5QY6rOmSoczRD5X3uM8G")
-        continue;
-
     // --- Collect unique IDs for bulk fetches -----------------------------------
     $serverIds = [];
     $fileIds = [];
@@ -407,8 +403,6 @@ foreach ($ordersByToken as $token => $orders) {
     $updStmt->close();
 
     $leftgb = ($accTotal - $accUsed);
-
-    sendMessage("Token: " . $token . " Usage: " . $leftgb, null, null, $admin);
 
     /* if ($leftgb < 0) {
         foreach ($orders as $order) {
