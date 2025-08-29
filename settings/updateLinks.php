@@ -399,7 +399,7 @@ foreach ($ordersByToken as $token => $orders) {
         if (is_array($vraylink)) {
             // Persist per-row update using reused statement
             $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            $updStmt->bind_param('ssfi', $newLinkJson, $remark, $up_down, $id);
+            $updStmt->bind_param('ssdi', $newLinkJson, $remark, $up_down, $id);
             $updStmt->execute();
         }
     }

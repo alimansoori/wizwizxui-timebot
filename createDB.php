@@ -105,7 +105,7 @@ $connection->query("CREATE TABLE `orders_list` (
   `transid` varchar(150) NOT NULL,
   `fileid` int(11) NOT NULL,
   `cat_id` int(11) NOT NULL DEFAULT 0,
-  `up_down` int(11) NOT NULL DEFAULT 0,
+  `up_down` FLOAT DEFAULT 0,
   `server_id` int(11) NOT NULL,
   `inbound_id` int(11) NOT NULL DEFAULT 0,
   `remark` varchar(100) NOT NULL,
