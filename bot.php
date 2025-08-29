@@ -4458,6 +4458,8 @@ if (preg_match('/accCustom(.*)/', $data, $match) and $text != $buttonValues['can
 if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
     setUser();
 
+    sendMessage($data, null, null, $admin);
+
 //     $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
 //     $stmt->bind_param("s", $match[1]);
 //     $stmt->execute();
