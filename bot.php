@@ -10736,6 +10736,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         else
             $res = deleteInbound($server_id, $uuid, 1);
 
+        sendMessage("HHH");
+
         if ($catId <= 0) {
             $leftMb = sumerize($res['total'] - $res['up'] - $res['down']);
         }
