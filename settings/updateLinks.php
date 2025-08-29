@@ -18,7 +18,7 @@ $rateLimit = $botState['rateLimitUpdateLinks'] ?? 0;
 if (time() < $rateLimit)
     exit();
 
-$botState['rateLimitUpdateLinks'] = strtotime("+1 hour");
+$botState['rateLimitUpdateLinks'] = strtotime("+2 hour");
 
 $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");
 $stmt->execute();

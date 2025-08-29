@@ -1579,49 +1579,15 @@ function getUserOrderDetailKeys($id, $offset = 0)
             $inbound_id = $order["inbound_id"];
             $server_id = $order["server_id"];
             $uuid = $order["uuid"];
+            $status = $order["status"];
+            $up_down = $order["up_down"];
 
-            $response = getJson($server_id)->obj;
-            if ($inbound_id == 0) {
-                foreach ($response as $row) {
-                    $clients = json_decode($row->settings)->clients;
-                    if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                        $total = $row->total;
-                        $up = $row->up;
-                        $enable = $row->enable;
-                        $down = $row->down;
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-                        break;
-                    }
-                }
-            } else {
-                foreach ($response as $row) {
-                    if ($row->id == $inbound_id) {
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-                        $clientsStates = $row->clientStats;
-                        $clients = json_decode($row->settings)->clients;
-                        foreach ($clients as $key => $client) {
-                            if ($client->id == $uuid || $client->password == $uuid) {
-                                $email = $client->email;
-                                $emails = array_column($clientsStates, 'email');
-                                $emailKey = array_search($email, $emails);
-
-                                $total = $clientsStates[$emailKey]->total;
-                                $up = $clientsStates[$emailKey]->up;
-                                $enable = $clientsStates[$emailKey]->enable;
-                                if (!$client->enable)
-                                    $enable = false;
-                                else
-                                    $hasEnable = true;
-                                $down = $clientsStates[$emailKey]->down;
-                                break;
-                            }
-                        }
-                    }
-                }
+            if ($status == 1) {
+                $hasEnable = true;
             }
-            $total_leftgb += round(($up + $down) / 1073741824, 2);
+
+            $total_leftgb += $up_down;
+
         }
 
         $leftgb = $volume - $total_leftgb . " GB";
@@ -1905,74 +1871,14 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             $inbound_id = $order["inbound_id"];
             $server_id = $order["server_id"];
             $uuid = $order["uuid"];
+            $up_down = $order["up_down"];
+            $status = $order["status"];
 
-            $response = getJson($server_id)->obj;
-            if ($inbound_id == 0) {
-                foreach ($response as $row) {
-                    $clients = json_decode($row->settings)->clients;
-                    if ($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                        $found = true;
-                        $total = $row->total;
-                        $up = $row->up;
-                        $down = $row->down;
-                        $enable = $row->enable;
-                        $expiryTime = $row->expiryTime;
-
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-
-                        $clientsStates = $row->clientStats;
-
-                        $inboundEmail = $clients[0]->email;
-                        $allEmails = array_column($clientsStates, 'email');
-                        $clienEmailKey = array_search($inboundEmail, $allEmails);
-
-                        $clientTotal = $clientsStates[$clienEmailKey]->total;
-                        $clientUp = $clientsStates[$clienEmailKey]->up;
-                        $clientDown = $clientsStates[$clienEmailKey]->down;
-                        $clientExpiryTime = $clientsStates[$clienEmailKey]->expiryTime;
-
-                        if ($clientTotal != 0 && $clientTotal != null && $clientExpiryTime != 0 && $clientExpiryTime != null) {
-                            $up += $clientUp;
-                            $down += $clientDown;
-                            $total = $clientTotal;
-                        }
-
-                        break;
-                    }
-                }
-            } else {
-                foreach ($response as $row) {
-                    if ($row->id == $inbound_id) {
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-
-                        $clientsStates = $row->clientStats;
-                        $clients = json_decode($row->settings)->clients;
-                        foreach ($clients as $key => $client) {
-                            if ($client->id == $uuid || $client->password == $uuid) {
-
-                                $found = true;
-                                $email = $client->email;
-                                $emails = array_column($clientsStates, 'email');
-                                $emailKey = array_search($email, $emails);
-
-                                $total = $clientsStates[$emailKey]->total;
-                                $up = $clientsStates[$emailKey]->up;
-                                $enable = $clientsStates[$emailKey]->enable;
-
-                                if (!$client->enable)
-                                    $enable = false;
-                                else
-                                    $hasEnable = true;
-                                $down = $clientsStates[$emailKey]->down;
-                                break;
-                            }
-                        }
-                    }
-                }
+            if ($status == 1) {
+                $hasEnable = true;
             }
-            $total_leftgb += round(($up + $down) / 1073741824, 2);
+
+            $total_leftgb += $up_down;
         }
 
         $leftgb = $volume - $total_leftgb . " GB";
