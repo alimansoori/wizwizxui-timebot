@@ -10681,11 +10681,7 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     ]));
 } elseif (preg_match('/^yesDeleteConfig(\d+)/', $data, $match)) {
 
-    delMessage();
-
     alert($mainValues['please_wait_message']);
-
-    sendMessage("AAA");
 
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
@@ -10694,7 +10690,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $order = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    sendMessage("BBB");
 
     $token = $order["token"];
     $user_id = $order["userid"];
@@ -10706,8 +10701,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
     $orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    sendMessage(txt: "CCC");
-
     $usage = 0;
     foreach ($orders as $order) {
         $orderId = $order["id"];
@@ -10717,6 +10710,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $uuid = $order['uuid'] ?? "0";
         $fileid = $order['fileid'];
 
+        sendMessage("AAA");
+
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ?");
         $stmt->bind_param("i", $fileid);
         $stmt->execute();
@@ -10725,12 +10720,16 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $volume = $planDetail['volume'];
         $days = $planDetail['days'];
 
+        sendMessage("BBB");
+
         $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
         $stmt->bind_param('i', $server_id);
         $stmt->execute();
         $serverConfig = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         $serverType = $serverConfig['type'];
+
+        sendMessage("CCC");
 
         if ($inbound_id > 0)
             $res = deleteClient($server_id, $inbound_id, $uuid, 1);
@@ -10760,15 +10759,17 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $stmt->execute();
         $stmt->close();
 
+        sendMessage("DDD");
+
         $vray_link = json_encode($vray_link);
         $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
         $stmt->bind_param("i", $orderId);
         $stmt->execute();
         $stmt->close();
+
+        sendMessage("EEE");
     }
 
-    sendMessage("DDD");
-    
     if ($catId > 0) {
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
         $stmt->bind_param("i", $catId);
@@ -10782,8 +10783,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 
         $leftMb = $usage . ' GB';
     }
-
-    sendMessage("EEE");
 
     editText($message_id, "کانفیگ $remark با موفقیت حذف شد", json_encode([
         'inline_keyboard' => [
