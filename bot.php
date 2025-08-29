@@ -57,7 +57,7 @@ if (strstr($text, "/start ")) {
             $first_name = !empty($first_name) ? $first_name : " ";
             $username = !empty($username) ? $username : " ";
             if ($uinfo->num_rows == 0) {
-                $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
+                $firstTimeArrivalGift = (int)$botState['firstTimeArrivalGift'] ?? 0;
 
                 $sql = "INSERT INTO `users` (`userid`, `name`, `username`, `refcode`, `wallet`, `date`, `refered_by`)
                                     VALUES (?,?,?, 0,$firstTimeArrivalGift,?,?)";

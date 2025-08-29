@@ -2181,7 +2181,7 @@ function checkStep($table)
 }
 function setUser($value = 'none', $field = 'step')
 {
-    global $connection, $from_id, $username, $first_name;
+    global $connection, $from_id, $username, $first_name, $botState;
 
     $stmt = $connection->prepare("SELECT * FROM `users` WHERE `userid`=?");
     $stmt->bind_param("i", $from_id);
@@ -2191,7 +2191,7 @@ function setUser($value = 'none', $field = 'step')
 
 
     if ($uinfo->num_rows == 0) {
-        $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
+        $firstTimeArrivalGift = (int) $botState['firstTimeArrivalGift'] ?? 0;
 
         $stmt = $connection->prepare("INSERT INTO `users` (`userid`, `name`, `username`, `refcode`, `wallet`, `date`)
                             VALUES (?,?,?, 0,$firstTimeArrivalGift,?)");
