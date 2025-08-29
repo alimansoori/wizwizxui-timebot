@@ -206,7 +206,7 @@ foreach ($ordersByToken as $token => $orders) {
     $uuidsPerServer = [];
     $catId = 0;
 
-    if ($token != "sADO5FcpK8wnlVfqYemfaFaXJCk9EX") continue;
+    if ($token != "Is22SuNBqLLqsh2dxiF7i7Bj4qUoEx") continue;
 
     sendMessage($token, null, "MarkDown", $admin);
 
