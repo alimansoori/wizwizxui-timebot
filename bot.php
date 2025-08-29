@@ -10686,6 +10686,10 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 
     alert($mainValues['please_wait_message']);
 
+    delMessage($message_id);
+
+    sendMessage($mainValues['please_wait_message']);
+
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
     $stmt->bind_param("i", $oid);
