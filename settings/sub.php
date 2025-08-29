@@ -211,7 +211,7 @@ $minDaysLeft = null;
 // --- Process each order -----------------------------------------------------
 foreach ($orders as $o) {
     $raw = $o['link'] ?? '';
-    $up_down = (int) ($o['up_down'] ?? 0);
+    $up_down = (float) ($o['up_down'] ?? 0);
 
     $usage += $up_down;
 
