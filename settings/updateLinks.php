@@ -206,10 +206,6 @@ foreach ($ordersByToken as $token => $orders) {
     $uuidsPerServer = [];
     $catId = 0;
 
-    if ($token != "Is22SuNBqLLqsh2dxiF7i7Bj4qUoEx") continue;
-
-    sendMessage($token, null, "MarkDown", $admin);
-
     foreach ($orders as $o) {
         $sid = (int) ($o['server_id'] ?? 0);
         $fid = (int) ($o['fileid'] ?? 0);
@@ -399,7 +395,6 @@ foreach ($ordersByToken as $token => $orders) {
         );
 
         if (is_array($vraylink)) {
-            sendMessage(json_encode($vraylink), null, "MarkDown", $admin);
             // Persist per-row update using reused statement
             $newLinkJson = json_encode($vraylink, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             $updStmt->bind_param('ssdi', $newLinkJson, $remark, $up_down, $id);
