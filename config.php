@@ -1038,6 +1038,7 @@ function getBotSettingKeys()
     $searchState = $botState['searchState'] == "on" ? $buttonValues['on'] : $buttonValues['off'];
     $updateConnectionState = $botState['updateConnectionState'] == "robot" ? "از روی ربات" : "از روی سایت";
     $rewaredTime = ($botState['rewaredTime'] ?? 0) . " ساعت";
+    $firstTimeArrivalGift = ($botState['firstTimeArrivalGift'] ?? 0) . " تومان";
     switch ($botState['remark']) {
         case "digits":
             $remarkType = "عدد رندم 5 حرفی";
@@ -1162,6 +1163,10 @@ function getBotSettingKeys()
             [
                 ['text' => $rewaredTime, 'callback_data' => 'editRewaredTime'],
                 ['text' => "ارسال گزارش درآمد", 'callback_data' => 'wizwizch']
+            ],
+            [
+                ['text' => $firstTimeArrivalGift, 'callback_data' => 'firstTimeArrivalGift'],
+                ['text' => "هدیه اولین ورود", 'callback_data' => 'wizwizch']
             ],
             [
                 ['text' => $botState['cartToCartAutoAcceptState'] == "on" ? $buttonValues['on'] : $buttonValues['off'], 'callback_data' => "changeBotcartToCartAutoAcceptState"],
@@ -2186,8 +2191,10 @@ function setUser($value = 'none', $field = 'step')
 
 
     if ($uinfo->num_rows == 0) {
+        $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
+
         $stmt = $connection->prepare("INSERT INTO `users` (`userid`, `name`, `username`, `refcode`, `wallet`, `date`)
-                            VALUES (?,?,?, 0,0,?)");
+                            VALUES (?,?,?, 0,$firstTimeArrivalGift,?)");
         $time = time();
         $stmt->bind_param("issi", $from_id, $first_name, $username, $time);
         $stmt->execute();
@@ -7161,7 +7168,8 @@ function addUser($server_id, $client_id, $protocol, $port, $expiryTime, $remark,
     return json_decode($response);
 }
 
-function changeUserConfigStateEnable($orderId) {
+function changeUserConfigStateEnable($orderId)
+{
     global $connection, $admin, $mainValues, $message_id;
 
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id`=?");
@@ -7221,7 +7229,8 @@ function changeUserConfigStateEnable($orderId) {
     editText($message_id, $keys['msg'], $keys['keyboard'], "HTML");
 }
 
-function changeUserConfigStateDisable($orderId) {
+function changeUserConfigStateDisable($orderId)
+{
     global $connection, $admin, $mainValues, $message_id;
 
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id`=?");

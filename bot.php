@@ -57,8 +57,10 @@ if (strstr($text, "/start ")) {
             $first_name = !empty($first_name) ? $first_name : " ";
             $username = !empty($username) ? $username : " ";
             if ($uinfo->num_rows == 0) {
+                $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
+
                 $sql = "INSERT INTO `users` (`userid`, `name`, `username`, `refcode`, `wallet`, `date`, `refered_by`)
-                                    VALUES (?,?,?, 0,0,?,?)";
+                                    VALUES (?,?,?, 0,$firstTimeArrivalGift,?,?)";
                 $stmt = $connection->prepare($sql);
                 $time = time();
                 $stmt->bind_param("issii", $from_id, $first_name, $username, $time, $inviter);
@@ -146,6 +148,26 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
                 ]
             ]);
 
+            $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
+
+            if ($firstTimeArrivalGift > 0) {
+                sendMessage("
+                سلااام 🌈💫  
+به **ربات فیلتربشکن** خوش اومدی 🫡🌸  
+
+اینجا همه‌چی آماده‌ست تا بدون هیچ محدودیتی به دنیای اینترنت وصل بشی 🚀🌍  
+
+✅ **سرعت و کیفیت عالی در کانکشن‌ها**  
+🔒 **امنیت کامل برای آرامش خاطر شما**  
+🤝 **همراهی و پشتیبانی تا آخرین روز**  
+
+🎁 به محض ورودت، مبلغ **{$firstTimeArrivalGift} تومان** به کیف پولت اضافه شد تا اولین تجربه‌ت با ما شیرین‌تر بشه 💳✨  
+
+با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
+
+                ", getMainKeys());
+            }
+
             sendMessage(
                 str_replace(["FULLNAME", "USERNAME", "USERID"], ["<a href='tg://user?id=$from_id'>$first_name</a>", $username, $from_id], $mainValues['new_member_joined'])
                 ,
@@ -153,8 +175,11 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
                 "html",
                 $admin
             );
+
+            exit();
         }
-        sendMessage($mainValues['start_message'], getMainKeys());
+
+        sendMessage($mainValues['start_message'], getMainKeys(), 'MarkDown');
     }
 }
 
@@ -526,6 +551,14 @@ if (preg_match('/^edit(RewaredTime|cartToCartAutoAcceptTime)/', $data, $match) &
     setUser($data);
 }
 
+if (preg_match('/firstTimeArrivalGift/', $data, $match) && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
+    delMessage();
+    $txt = "لطفا مقدار هدیه اولین ورود را به تومان وارد کنید";
+
+    sendMessage($txt, $cancelKey);
+    setUser($data);
+}
+
 if ($data == "userReports" && ($from_id == $admin || $userInfo['isAdmin'] == true)) {
     delMessage();
     sendMessage("🙃 | لطفا آیدی عددی کاربر رو وارد کن", $cancelKey);
@@ -705,6 +738,21 @@ if (preg_match('/^edit(RewaredTime|cartToCartAutoAcceptTime)/', $userInfo['step'
     }
 
     setSettings(lcfirst($match[1]), $text);
+    sendMessage($mainValues['change_bot_settings_message'], getBotSettingKeys());
+    setUser();
+    exit();
+}
+
+if (preg_match('/firstTimeArrivalGift/', $userInfo['step'], $match) && ($from_id == $admin || $userInfo['isAdmin'] == true) && $text != $buttonValues['cancel']) {
+    if (!is_numeric($text)) {
+        sendMessage("لطفا عدد بفرستید");
+        exit();
+    } elseif ($text < 0) {
+        sendMessage("مقدار وارد شده معتبر نیست");
+        exit();
+    }
+
+    setSettings("firstTimeArrivalGift", $text);
     sendMessage($mainValues['change_bot_settings_message'], getBotSettingKeys());
     setUser();
     exit();
@@ -4083,7 +4131,7 @@ if (preg_match('/accCustom(.*)/', $data, $match) and $text != $buttonValues['can
 
 }
 
-if (preg_match('/payWithWallet(.*)/', $data, $match)) {
+/* if (preg_match('/payWithWallet(.*)/', $data, $match)) {
     setUser();
 
     $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
@@ -4343,8 +4391,8 @@ if (preg_match('/payWithWallet(.*)/', $data, $match)) {
             }
 
             $stmt = $connection->prepare("INSERT INTO `orders_list` 
-        	    (`userid`, `token`, `transid`, `fileid`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
-        	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?,1, ?, 0, ?, ?);");
+                (`userid`, `token`, `transid`, `fileid`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
+                VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?,1, ?, 0, ?, ?);");
             $stmt->bind_param("ssiiisssisiiii", $uid, $token, $fid, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
             $stmt->execute();
             $order = $stmt->get_result();
@@ -4405,7 +4453,7 @@ if (preg_match('/payWithWallet(.*)/', $data, $match)) {
     }
 
     sendMessage($msg, $keys, "html", $admin);
-}
+} */
 
 if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
     setUser();
@@ -4517,6 +4565,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
 
             $token = RandomString(30);
 
+            sendMessage($token, null, null, $admin);
             $linkCounter = 0;
 
             foreach ($files_detail as $file_detail) {
@@ -4644,16 +4693,9 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
                     continue;
                 }
 
-                if ($serverType == "marzban") {
-                    $uniqid = $token = str_replace("/sub/", "", $response->sub_link);
-                    $subLink = $botState['subLinkState'] == "on" ? $panelUrl . $response->sub_link : "";
-                    $vraylink = [$subLink];
-                    $vray_link = json_encode($response->vray_links);
-                } else {
-                    $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
-                    $vray_link = json_encode($vraylink);
-                    $linkCounter += 1;
-                }
+                $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
+                $vray_link = json_encode($vraylink);
+                $linkCounter += 1;
 
                 $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
@@ -4770,7 +4812,7 @@ if (preg_match('/servicePayWithWallet(.*)/', $data, $match)) {
     sendMessage($msg, $keys, "html", $admin);
 }
 
-if (preg_match('/payWithCartToCart(.*)/', $data, $match)) {
+/* if (preg_match('/payWithCartToCart(.*)/', $data, $match)) {
     $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
     $stmt->bind_param("s", $match[1]);
     $stmt->execute();
@@ -4897,7 +4939,7 @@ if (preg_match('/payWithCartToCart(.*)/', $userInfo['step'], $match) and $text !
     } else {
         sendMessage($mainValues['please_send_only_image']);
     }
-}
+} */
 
 if (preg_match('/servicePayWithCartToCart(.*)/', $data, $match)) {
     $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
