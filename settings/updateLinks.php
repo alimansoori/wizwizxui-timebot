@@ -332,7 +332,6 @@ foreach ($ordersByToken as $token => $orders) {
         $accUsed += round(($up + $down) / 1073741824, 2);
 
         $up_down = round(($up + $down) / 1073741824, 2);
-        sendMessage($up_down, null, null, $admin);
 
         // days left per order
         $expireTs = (int) ($order['expire_date'] ?? 0);
