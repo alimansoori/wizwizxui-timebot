@@ -201,10 +201,13 @@ $catInfoCache = [];
 
 foreach ($ordersByToken as $token => $orders) {
     // --- Collect unique IDs for bulk fetches -----------------------------------
-    /* $serverIds = [];
+    $serverIds = [];
     $fileIds = [];
     $uuidsPerServer = [];
     $catId = 0;
+
+
+    sendMessage("Start update token: `" . $token . "`", null, "MarkDown", $admin);
 
     foreach ($orders as $o) {
         $sid = (int) ($o['server_id'] ?? 0);
@@ -402,7 +405,7 @@ foreach ($ordersByToken as $token => $orders) {
 
     $updStmt->close();
 
-    $leftgb = ($accTotal - $accUsed); */
+    $leftgb = ($accTotal - $accUsed);
 
     /* if ($leftgb < 0) {
         foreach ($orders as $order) {
