@@ -244,7 +244,7 @@ if (!empty($links)) {
     $randomId = uuidv4_random();
     $daysHeader = $minDaysLeft !== null ? $minDaysLeft : 0;
 
-    $headerRemarkText = '📊 حجم باقیمانده: ' . ($volume - $usage) . 'GB از ' . $volume . 'GB 📊';
+    $headerRemarkText = '📊 حجم باقیمانده: ' . ($volume - $usage) . ' گیگ از ' . $volume . ' گیگ 📊';
     $usageLink = 'vless://' . $randomId . '@127.0.0.1:1?type=none&encryption=none#'
         . rawurlencode($headerRemarkText);
 

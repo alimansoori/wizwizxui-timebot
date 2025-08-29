@@ -209,14 +209,14 @@ $mainValues = [
     'send_positive_number' => "لطفا عددی بزرگتر از 0 وارد کنید",
     'buy_subscription_detail' => "〽️ نام پلن: PLAN-NAME
         ➖➖➖➖➖➖➖➖➖➖
-        💎 قیمت پنل : PRICE
+        💎 قیمت : PRICE
         ➖➖➖➖➖➖➖➖➖➖
         📃 توضیحات :
         DESCRIPTION
         ➖➖➖➖➖➖➖➖➖➖",
     'buy_much_subscription_detail' => "〽️ نام پلن: PLAN-NAME
         تعداد اکانت: ACCOUNT-COUNT
-        قیمت پنل: PRICE
+        قیمت: PRICE
         ➖➖➖➖➖➖➖➖➖➖
         💎 قیمت کل : TOTAL-PRICE
         ➖➖➖➖➖➖➖➖➖➖
@@ -227,7 +227,7 @@ $mainValues = [
         حجم اختصاصی: VOLUME GB
         مدت اختصاصی: DAYS روز
         ➖➖➖➖➖➖➖➖➖➖
-        💎 قیمت پنل : PRICE
+        💎 قیمت : PRICE
         ➖➖➖➖➖➖➖➖➖➖
         📃 توضیحات :
         DESCRIPTION

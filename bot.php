@@ -10781,6 +10781,8 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         ]
     ]));
 
+    $leftMb = $volume - $usage;
+
     sendMessage("
 🔋|💰 حذف کانفیگ
 
@@ -10790,7 +10792,7 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 🎈 نام سرویس: $remark
 🔋حجم سرویس: $volume گیگ
 ⏰ مدت زمان سرویس: $days روز
-❌ حجم باقی مانده: ($volume - $usage) گیگ   
+❌ حجم باقیمانده: $leftMb گیگ
 📆 روز باقیمانده: $expiryDay روز
 ", null, "html", $admin);
     exit();
