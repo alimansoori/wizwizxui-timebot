@@ -10710,8 +10710,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $uuid = $order['uuid'] ?? "0";
         $fileid = $order['fileid'];
 
-        sendMessage("AAA");
-
         $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ?");
         $stmt->bind_param("i", $fileid);
         $stmt->execute();
@@ -10720,8 +10718,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $volume = $planDetail['volume'];
         $days = $planDetail['days'];
 
-        sendMessage("BBB");
-
         $stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
         $stmt->bind_param('i', $server_id);
         $stmt->execute();
@@ -10729,14 +10725,10 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $stmt->close();
         $serverType = $serverConfig['type'];
 
-        sendMessage("CCC");
-
         if ($inbound_id > 0)
             $res = deleteClient($server_id, $inbound_id, $uuid, 1);
         else
             $res = deleteInbound($server_id, $uuid, 1);
-
-        sendMessage("HHH");
 
         if ($catId <= 0) {
             $leftMb = sumerize($res['total'] - $res['up'] - $res['down']);
@@ -10761,15 +10753,12 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
         $stmt->execute();
         $stmt->close();
 
-        sendMessage("DDD");
-
         $vray_link = json_encode($vray_link);
         $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `id` = ?");
         $stmt->bind_param("i", $orderId);
         $stmt->execute();
         $stmt->close();
 
-        sendMessage("EEE");
     }
 
     if ($catId > 0) {
