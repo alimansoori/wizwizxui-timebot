@@ -4457,7 +4457,6 @@ if (preg_match('/accCustom(.*)/', $data, $match) and $text != $buttonValues['can
 
 if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
     setUser();
-    $data = "";
 
     delMessage($msg);
 
@@ -4570,7 +4569,7 @@ if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
 
             $token = RandomString(30);
 
-            sendMessage($token, null, null, $admin);
+            sendMessage($accountCount, null, null, $admin);
 
             $linkCounter = 0;
 
@@ -10687,10 +10686,6 @@ if (preg_match('/switchServer(.+)_(.+)/', $data, $match)) {
 } elseif (preg_match('/^yesDeleteConfig(\d+)/', $data, $match)) {
 
     alert($mainValues['please_wait_message']);
-
-    delMessage($message_id);
-
-    sendMessage($mainValues['please_wait_message']);
 
     $oid = $match[1];
     $stmt = $connection->prepare("SELECT * FROM `orders_list` WHERE `id` = ?");
