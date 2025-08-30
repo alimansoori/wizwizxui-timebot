@@ -330,6 +330,8 @@ if ($allQueueOrders->num_rows > 0) {
                         imagedestroy($qrImage);
 
                         sendMessage($userId, null, null, $admin);
+                        sendMessage($botUrl, null, null, $admin);
+                        sendMessage($file, null, null, $admin);
 
                         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
                         sendMessage("CCC", null, null, $admin);
