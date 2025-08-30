@@ -326,7 +326,7 @@ if ($allQueueOrders->num_rows > 0) {
 
                         sendMessage("CCC", null, null, $admin);
 
-                        $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
+                        $backgroundImage = imagecreatefromjpeg("QRCode.jpg");
                         $qrImage = imagecreatefrompng($file);
 
                         $qrSize = array('width' => imagesx($qrImage), 'height' => imagesy($qrImage));
