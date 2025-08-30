@@ -270,7 +270,6 @@ if ($allQueueOrders->num_rows > 0) {
                             continue;
                         }
 
-                        sendMessage("AAA", null, null, $admin);
 
                         $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
                         $vray_link = json_encode($vraylink);
@@ -281,13 +280,13 @@ if ($allQueueOrders->num_rows > 0) {
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
         	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
-                        $stmt->bind_param("ssiiiisssisiiii", $userId, $token, $planId, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
+                        $stmt->bind_param("ssiiiisssisiiii", $userId, $token, $planId, $catId, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
                         $stmt->execute();
                         $order = $stmt->get_result();
                         $stmt->close();
 
                         sendMessage("CCC", null, null, $admin);
-                        
+
                         $decrement = 1;
                         if ($inbound_id == 0) {
                             $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` - ? WHERE `id`=?");
