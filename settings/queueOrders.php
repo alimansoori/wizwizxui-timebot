@@ -41,6 +41,8 @@ $stmt1 = $connection->prepare("SELECT * FROM `orders_queue` WHERE `status` = 0")
 $stmt1->execute();
 $allQueueOrders = $stmt1->get_result();
 
+sendMessage("AAA", null, null, $admin);
+
 if ($allQueueOrders->num_rows > 0) {
     while ($row = $allQueueOrders->fetch_assoc()) {
         $userId = $row['user_id'];
@@ -50,12 +52,16 @@ if ($allQueueOrders->num_rows > 0) {
         $hashId = $row['hash_id'];
         $messageId = $row['message_id'];
 
+        sendMessage("BBB", null, null, $admin);
+
         if (preg_match('/^servicePayWithWallet(.*)/', $command, $match)) {
             $stmt = $connection->prepare("SELECT * FROM `pays` WHERE `hash_id` = ?");
             $stmt->bind_param("s", $hashId);
             $stmt->execute();
             $payInfo = $stmt->get_result();
             $stmt->close();
+
+            sendMessage("CCC", null, null, $admin);
 
             if ($payInfo->num_rows == 0)
                 continue;
@@ -75,6 +81,8 @@ if ($allQueueOrders->num_rows > 0) {
             $stmt->close();
             $username = $userInfo['username'];
             $first_name = $userInfo['first_name'];
+
+            sendMessage( "DDD", null, null, $admin);
 
             if ($payInfo['state'] == "paid_with_wallet")
                 continue;
@@ -99,6 +107,8 @@ if ($allQueueOrders->num_rows > 0) {
             $volume = (float) $cat_detail['volume'];
             $limitip = (int) $cat_detail['limit_ip'];
             $stmt->close();
+
+            sendMessage("EEE", null, null, $admin);
 
             if ($payInfo['type'] == "RENEW_SCONFIG") {
                 foreach ($files_detail as $file_detail) {
@@ -156,6 +166,8 @@ if ($allQueueOrders->num_rows > 0) {
 
                 for ($i = 1; $i <= $accountCount; $i++) {
                     $linkCounter = 0;
+
+                    sendMessage("FFF", null, null, $admin);
 
                     foreach ($files_detail as $file_detail) {
                         $planId = (int) $file_detail['id'];
@@ -294,6 +306,8 @@ if ($allQueueOrders->num_rows > 0) {
                             $stmt->close();
                         }
                     }
+
+                    sendMessage("GGG", null, null, $admin);
 
                     include 'phpqrcode/qrlib.php';
 
