@@ -35,10 +35,27 @@ $stmt->bind_param("s", $newData);
 $stmt->execute();
 $stmt->close();
 
+// Start
 
-sendMessage("Hi", null, null, $admin);
+$stmt1 = $connection->prepare("SELECT * FROM `orders_queue` WHERE `status` = 0");
+$stmt1->execute();
+$allQueueOrders = $stmt1->get_result();
+
+if ($allQueueOrders->num_rows > 0) {
+    while ($row = $allQueueOrders->fetch_assoc()) {
+        $userId = $row['user_id'];
+        $token = $row['token'];
+        $catId = $row['cat_id'];
+        $accountCount = $row['agent_count'];
+    }
+}
+
+$stmt1->close();
 
 
+
+
+// END
 $botState['queueOrders'] = 0;
 
 $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");

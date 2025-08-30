@@ -123,6 +123,15 @@ $connection->query("CREATE TABLE `orders_list` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
 
+$connection->query("CREATE TABLE `orders_queue` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userid` varchar(30) NOT NULL,
+  `token` varchar(1000) NOT NULL,
+  `cat_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
+
 
 $connection->query("CREATE TABLE IF NOT EXISTS `pays` (
     `id` int(255) NOT NULL AUTO_INCREMENT,

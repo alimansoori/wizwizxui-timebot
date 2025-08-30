@@ -4474,6 +4474,7 @@ if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
         delMessage();
         goto GOTOSTART;
     }
+    
     $payInfo = $payInfo->fetch_assoc();
 
     $uid = $from_id;
