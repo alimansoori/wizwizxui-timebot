@@ -297,12 +297,14 @@ if ($allQueueOrders->num_rows > 0) {
                         }
                     }
 
-                    sendMessage("HHH", null, null, $admin);
+                    sendMessage("AAA", null, null, $admin);
 
                     include '../phpqrcode/qrlib.php';
 
                     define('IMAGE_WIDTH', 540);
                     define('IMAGE_HEIGHT', 540);
+
+                    sendMessage("BBB", null, null, $admin);
 
                     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
@@ -322,6 +324,8 @@ if ($allQueueOrders->num_rows > 0) {
                         $frame_Size = 0;
                         QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_size);
 
+                        sendMessage("CCC", null, null, $admin);
+
                         $backgroundImage = imagecreatefromjpeg("settings/QRCode.jpg");
                         $qrImage = imagecreatefrompng($file);
 
@@ -330,6 +334,8 @@ if ($allQueueOrders->num_rows > 0) {
                         imagepng($backgroundImage, $file);
                         imagedestroy($backgroundImage);
                         imagedestroy($qrImage);
+
+                        sendMessage("DDD", null, null, $admin);
 
                         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
                         unlink($file);
