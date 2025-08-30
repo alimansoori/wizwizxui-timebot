@@ -320,8 +320,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $frame_Size = 0;
                         QRcode::png($subLink, $file, $ecc, $pixel_Size, $frame_size);
 
-                        sendMessage("CCC", null, null, $admin);
-
                         $backgroundImage = imagecreatefromjpeg("QRCode.jpg");
                         $qrImage = imagecreatefrompng($file);
 
@@ -331,9 +329,10 @@ if ($allQueueOrders->num_rows > 0) {
                         imagedestroy($backgroundImage);
                         imagedestroy($qrImage);
 
-                        sendMessage("DDD", null, null, $admin);
+                        sendMessage($userId, null, null, $admin);
 
                         sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
+                        sendMessage("CCC", null, null, $admin);
                         unlink($file);
                     } else {
                         sendMessage("❌ Error occurred while generating connection link. Please contact the admin. User ID: {$userId}, Token: {$token}, Hash: {$hash}", null, null, $admin);
