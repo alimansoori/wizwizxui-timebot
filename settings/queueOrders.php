@@ -275,8 +275,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $vray_link = json_encode($vraylink);
                         $linkCounter += 1;
 
-                        sendMessage("BBB", null, null, $admin);
-
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
         	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
@@ -284,8 +282,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $stmt->execute();
                         $order = $stmt->get_result();
                         $stmt->close();
-
-                        sendMessage("CCC", null, null, $admin);
 
                         $decrement = 1;
                         if ($inbound_id == 0) {
@@ -303,7 +299,7 @@ if ($allQueueOrders->num_rows > 0) {
 
                     sendMessage("HHH", null, null, $admin);
 
-                    include 'phpqrcode/qrlib.php';
+                    include '../phpqrcode/qrlib.php';
 
                     define('IMAGE_WIDTH', 540);
                     define('IMAGE_HEIGHT', 540);
