@@ -4457,6 +4457,7 @@ if (preg_match('/accCustom(.*)/', $data, $match) and $text != $buttonValues['can
 
 if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
     setUser();
+    $data = "";
 
     delMessage($msg);
 
@@ -4813,6 +4814,7 @@ if (preg_match('/^servicePayWithWallet(.*)/', $data, $match)) {
     }
 
     sendMessage($msg, $keys, "html", $admin);
+    exit();
 }
 
 /* if (preg_match('/payWithCartToCart(.*)/', $data, $match)) {
