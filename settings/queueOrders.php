@@ -223,7 +223,7 @@ if ($allQueueOrders->num_rows > 0) {
 
                         $uniqid = generateRandomString(42, $protocol);
 
-                        $savedinfo = file_get_contents('settings/temp.txt');
+                        $savedinfo = file_get_contents('temp.txt');
                         $savedinfo = explode('-', $savedinfo);
                         $port = $savedinfo[0] + 1;
                         $last_num = $savedinfo[1] + 1;
