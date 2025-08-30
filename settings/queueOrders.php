@@ -383,6 +383,15 @@ if ($allQueueOrders->num_rows > 0) {
                 }
 
                 sendMessage($msg, $keys, "html", $admin);
+
+                $query = "UPDATE `orders_queue` SET `status` = ? WHERE `hash_id` = ?";
+                $newData = json_encode($botState);
+
+                $stmt = $connection->prepare($query);
+                $status = 1;
+                $stmt->bind_param("is", $status, $hashId);
+                $stmt->execute();
+                $stmt->close();
             }
         }
     }
