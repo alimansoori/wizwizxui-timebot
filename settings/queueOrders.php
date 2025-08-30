@@ -333,7 +333,7 @@ if ($allQueueOrders->num_rows > 0) {
                         sendMessage($botUrl, null, null, $admin);
                         sendMessage($file, null, null, $admin);
 
-                        sendPhoto($botUrl . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
+                        sendPhoto($botUrl . "settings/" . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
                         sendMessage("CCC", null, null, $admin);
                         unlink($file);
                     } else {
