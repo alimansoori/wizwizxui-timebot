@@ -307,12 +307,12 @@ if ($allQueueOrders->num_rows > 0) {
                     if ($linkCounter > 0) {
 
                         $acc_text = "
-                            😍 سفارش جدید شما
-                            🔮 نام سرویس: $serviceName
-                            🔋 حجم سرویس: $volume گیگ
-                            ⏰ مدت سرویس: $days روز
+😍 سفارش جدید شما
+🔮 نام سرویس: $serviceName
+🔋 حجم سرویس: $volume گیگ
+⏰ مدت سرویس: $days روز
 
-                            \n🌐 Subscription : <code>$subLink</code>";
+\n🌐 Subscription : <code>$subLink</code>";
 
                         $file = RandomString() . ".png";
                         $ecc = 'L';
@@ -329,12 +329,7 @@ if ($allQueueOrders->num_rows > 0) {
                         imagedestroy($backgroundImage);
                         imagedestroy($qrImage);
 
-                        sendMessage($userId, null, null, $admin);
-                        sendMessage($botUrl, null, null, $admin);
-                        sendMessage($file, null, null, $admin);
-
                         sendPhoto($botUrl . "settings/" . $file, $acc_text, json_encode(['inline_keyboard' => [[['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]]]]), "HTML", $userId);
-                        sendMessage("CCC", null, null, $admin);
                         unlink($file);
                     } else {
                         sendMessage("❌ Error occurred while generating connection link. Please contact the admin. User ID: {$userId}, Token: {$token}, Hash: {$hash}", null, null, $admin);
