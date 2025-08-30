@@ -297,14 +297,10 @@ if ($allQueueOrders->num_rows > 0) {
                         }
                     }
 
-                    sendMessage("AAA", null, null, $admin);
-
                     include '../phpqrcode/qrlib.php';
 
                     define('IMAGE_WIDTH', 540);
                     define('IMAGE_HEIGHT', 540);
-
-                    sendMessage("BBB", null, null, $admin);
 
                     $subLink = $botState['subLinkState'] == "on" ? $botUrl . "settings/subLink.php?token=" . $token : "";
 
