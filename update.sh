@@ -203,6 +203,7 @@ do
 			
 			(crontab -l | grep -v "messagewizwiz.php") | crontab -
 			(crontab -l | grep -v "updateLinks.php") | crontab -
+			(crontab -l | grep -v "queueOrders.php") | crontab -
 			(crontab -l | grep -v "rewardReport.php") | crontab -
 			(crontab -l | grep -v "warnusers.php") | crontab -
 			(crontab -l | grep -v "backupnutif.php") | crontab -
