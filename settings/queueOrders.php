@@ -159,8 +159,6 @@ if ($allQueueOrders->num_rows > 0) {
                 for ($i = 1; $i <= $accountCount; $i++) {
                     $linkCounter = 0;
 
-                    sendMessage("AAA", null, null, $admin);
-
                     foreach ($files_detail as $file_detail) {
                         $planId = (int) $file_detail['id'];
                         $date = time();
@@ -176,8 +174,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $customPath = (int) $file_detail['custom_path'];
                         $customPort = (int) $file_detail['custom_port'];
                         $customSni = $file_detail['custom_sni'];
-
-                        sendMessage("BBB", null, null, $admin);
 
                         if ($acount == 0 and $inbound_id != 0) {
                             sendMessage($mainValues['out_of_connection_capacity'], null, null, $admin);
@@ -197,8 +193,6 @@ if ($allQueueOrders->num_rows > 0) {
                             }
                         }
 
-                        sendMessage("CCC", null, null, $admin);
-
                         $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `id`=?");
                         $stmt->bind_param("i", $server_id);
                         $stmt->execute();
@@ -217,8 +211,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $panelUrl = $serverConfig['panel_url'];
                         $stmt->close();
 
-                        sendMessage("DDD", null, null, $admin);
-
                         $agent_bought = $payInfo['agent_bought'];
 
                         $uniqid = generateRandomString(42, $protocol);
@@ -227,8 +219,6 @@ if ($allQueueOrders->num_rows > 0) {
                         $savedinfo = explode('-', $savedinfo);
                         $port = $savedinfo[0] + 1;
                         $last_num = $savedinfo[1] + 1;
-
-                        sendMessage("EEE", null, null, $admin);
 
                         if ($botState['remark'] == "digits") {
                             $rnd = rand(10000, 99999);
@@ -266,8 +256,6 @@ if ($allQueueOrders->num_rows > 0) {
                             }
                         }
 
-                        sendMessage("FFF", null, null, $admin);
-
                         if (is_null($response)) {
                             sendMessage('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...', null, null, $admin);
                             continue;
@@ -282,20 +270,24 @@ if ($allQueueOrders->num_rows > 0) {
                             continue;
                         }
 
-                        sendMessage("GGG", null, null, $admin);
+                        sendMessage("AAA", null, null, $admin);
 
                         $vraylink = getConnectionLink($server_id, $uniqid, $protocol, $remark, $port, $netType, $inbound_id, $rahgozar, $customPath, $customPort, $customSni);
                         $vray_link = json_encode($vraylink);
                         $linkCounter += 1;
 
+                        sendMessage("BBB", null, null, $admin);
+
                         $stmt = $connection->prepare("INSERT INTO `orders_list` 
         	    (`userid`, `token`, `transid`, `fileid`, `cat_id`, `server_id`, `inbound_id`, `remark`, `uuid`, `protocol`, `expire_date`, `link`, `amount`, `status`, `date`, `notif`, `rahgozar`, `agent_bought`)
         	    VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?);");
-                        $stmt->bind_param("ssiiiisssisiiii", $uid, $token, $planId, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
+                        $stmt->bind_param("ssiiiisssisiiii", $userId, $token, $planId, $cat_id, $server_id, $inbound_id, $remark, $uniqid, $protocol, $expire_date, $vray_link, $eachPrice, $date, $rahgozar, $agent_bought);
                         $stmt->execute();
                         $order = $stmt->get_result();
                         $stmt->close();
 
+                        sendMessage("CCC", null, null, $admin);
+                        
                         $decrement = 1;
                         if ($inbound_id == 0) {
                             $stmt = $connection->prepare("UPDATE `server_info` SET `ucount` = `ucount` - ? WHERE `id`=?");
