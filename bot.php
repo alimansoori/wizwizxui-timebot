@@ -173,13 +173,13 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
 
 با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
 
-                ", getMainKeys(), 'Markdown');
+                ", getMainKeys());
 
                 exit();
             }
         }
 
-        sendMessage($mainValues['start_message'], getMainKeys(), 'Markdown');
+        sendMessage($mainValues['start_message'], getMainKeys());
     }
 }
 
@@ -9988,9 +9988,10 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
             exit;
         }
 
-        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0, `status` = ? WHERE `id` = ?");
         $newExpire = $time + $days * 86400;
-        $stmt->bind_param("ii", $newExpire, $order_id);
+        $status = 1;
+        $stmt->bind_param("iii", $newExpire, $status, $order_id);
         $stmt->execute();
         $stmt->close();
         $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
