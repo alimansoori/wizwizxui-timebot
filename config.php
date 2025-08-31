@@ -2076,6 +2076,10 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
         } else
             $enable = $hasEnable == true ? $buttonValues['active'] : $mainValues['config_doesnt_exist'];
 
+        if ($botState['renewAccountState'] == "on") {
+            $temp[] = ['text' => $buttonValues['renew_config'], 'callback_data' => "renewAccount$id"];
+            array_push($keyboard, $temp);
+        }
 
         $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `id`=?");
         $stmt->bind_param("i", $server_id);
