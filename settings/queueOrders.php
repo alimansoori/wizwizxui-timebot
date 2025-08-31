@@ -103,8 +103,8 @@ if ($allQueueOrders->num_rows > 0) {
 
 
             if ($payInfo['type'] == "RENEW_SCONFIG") {
-                foreach ($files_detail as $file_detail) {
-                    /* $planId = (int) $file_detail['id'];
+                /* foreach ($files_detail as $file_detail) {
+                    $planId = (int) $file_detail['id'];
                     $date = time();
                     $expire_microdate = floor(microtime(true) * 1000) + (864000 * $days * 100);
                     $expire_date = $date + (86400 * $days);
@@ -151,8 +151,8 @@ if ($allQueueOrders->num_rows > 0) {
                             ],
                         ]
                     ]);
-                    editText($message_id, "✅سرویس $remark با موفقیت تمدید شد", $keys); */
-                }
+                    editText($message_id, "✅سرویس $remark با موفقیت تمدید شد", $keys);
+                } */
             } else {
                 $eachPrice = ($price / $accountCount);
 
@@ -231,7 +231,7 @@ if ($allQueueOrders->num_rows > 0) {
                         }
 
                         if ($portType == "auto") {
-                            file_put_contents('settings/temp.txt', $port . '-' . $last_num);
+                            file_put_contents('temp.txt', $port . '-' . $last_num);
                         } else {
                             $port = rand(1111, 65000);
                         }
@@ -257,11 +257,11 @@ if ($allQueueOrders->num_rows > 0) {
                         }
 
                         if (is_null($response)) {
-                            sendMessage('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...', null, null, $admin);
+                            sendMessage('❌ | 🥺 گلم ، اتصال به سرور برقرار نیست لطفا مدیر رو در جریان بزار ...' . " Server ID: $server_id, Server Name: {$serverInfo['title']}", null, null, $admin);
                             continue;
                         }
                         if ($response == "inbound not Found") {
-                            sendMessage("❌ | 🥺 سطر (inbound) با آیدی $inbound_id تو این سرور وجود نداره ، مدیر رو در جریان بزار ...", null, null, $admin);
+                            sendMessage("❌ | 🥺 سطر (inbound) با آیدی $inbound_id تو این سرور وجود نداره ، مدیر رو در جریان بزار ..." . " Server ID: $server_id, Server Name: {$serverInfo['title']}", null, null, $admin);
                             continue;
                         }
                         if (!$response->success) {

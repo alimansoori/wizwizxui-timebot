@@ -2074,7 +2074,7 @@ function getOrderDetailKeys($from_id, $id, $offset = 0)
             }
             $enable = $hasEnable == true ? $buttonValues['active'] : $buttonValues['deactive'];
         } else
-            $enable = $mainValues['config_doesnt_exist'];
+            $enable = $hasEnable == true ? $buttonValues['active'] : $mainValues['config_doesnt_exist'];
 
 
         $stmt = $connection->prepare("SELECT * FROM `server_info` WHERE `id`=?");
