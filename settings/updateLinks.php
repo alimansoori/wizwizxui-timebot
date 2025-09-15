@@ -406,11 +406,11 @@ foreach ($ordersByToken as $token => $orders) {
 
     $leftgb = ($accTotal - $accUsed);
 
-    if ($leftgb < 0) {
+    /* if ($leftgb < 0) {
         foreach ($orders as $order) {
             changeUserConfigStateDisable($order["id"]);
             break;
         }
-    }
+    } */
 
 }
