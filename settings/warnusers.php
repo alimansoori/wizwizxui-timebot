@@ -103,9 +103,10 @@ if($orders){
                 $send = "";
                 if($expiryTime < time() + 86400) $send = "روز"; elseif($leftgb < 1) $send = "گیگ";
                 if($send != ""){  
-                    $msg = "💡 کاربر گرامی، 
-        از سرویس اشتراک $remark تنها (۱ $send) باقی مانده است. میتواند از قسمت خرید های من سرویس فعلی خود را تمدید کنید یا سرویس جدید خریداری کنید.";
-                    sendMessage( $msg, null, null, $from_id);
+                    $msg = "💡 مدیریت گرامی، 
+                    userid = $from_id
+        از سرویس اشتراک $remark تنها (۱ $send) باقی مونده. میتونی بهش پیام بدی که سرویسش رو تمدید کنه.";
+                    sendMessage( $msg, null, null, $admin);
                     
                     $stmt = $connection->prepare("UPDATE `orders_list` SET `notif`= -1 WHERE `uuid`=?");
                     $stmt->bind_param("s", $uuid);
