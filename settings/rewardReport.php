@@ -698,9 +698,11 @@ if ($botState['cartToCartAutoAcceptState'] == "on") {
                     exit;
                 }
 
-                $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
+                $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0, `status` = ?, `up_down` = ? WHERE `id` = ?");
                 $newExpire = $time + $days * 86400;
-                $stmt->bind_param("ii", $newExpire, $orderId);
+                $upDown = 0;
+                $status = 1;
+                $stmt->bind_param("iiii", $newExpire, $status, $upDown, $orderId);
                 $stmt->execute();
                 $stmt->close();
                 $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
