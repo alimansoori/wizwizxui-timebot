@@ -223,9 +223,10 @@ if($orders){
                 if($serverType == "marzban") $res = deleteMarzban($server_id, $remark);
                 else{if($inbound_id > 0) $res = deleteClient($server_id, $inbound_id, $uuid, 1); else $res = deleteInbound($server_id, $uuid, 1); }
         		if(!is_null($res)){
-                    $msg = "💡 کاربر گرامی،
-    اشتراک سرویس $remark منقضی شد و از لیست سفارش ها حذف گردید. لطفا از فروشگاه, سرویس جدید خریداری کنید.";
-                    sendMessage( $msg, null, null, $from_id);
+                    $msg = "💡 مدیریت گرامی،
+                    userid = $from_id
+    اشتراک سرویس $remark منقضی شد و از لیست سفارش ها حذف گردید. میتونی در پیامی به مشتری اطلاع بدی..";
+                    sendMessage( $msg, null, null, $admin);
                     $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `uuid`=?");
                     $stmt->bind_param("s", $uuid);
                     $stmt->execute();
