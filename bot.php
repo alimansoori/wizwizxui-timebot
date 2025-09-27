@@ -9988,10 +9988,11 @@ if (preg_match('/payRenewWithWallet(.*)/', $data, $match)) {
             exit;
         }
 
-        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0, `status` = ? WHERE `id` = ?");
+        $stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0, `status` = ?, `up_down` = ? WHERE `id` = ?");
         $newExpire = $time + $days * 86400;
+        $upDown = 0;
         $status = 1;
-        $stmt->bind_param("iii", $newExpire, $status, $order_id);
+        $stmt->bind_param("iiii", $newExpire, $status, $upDown, $order_id);
         $stmt->execute();
         $stmt->close();
         $stmt = $connection->prepare("INSERT INTO `increase_order` VALUES (NULL, ?, ?, ?, ?, ?, ?);");
