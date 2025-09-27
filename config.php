@@ -3441,7 +3441,7 @@ function changeClientStateDisable($server_id, $inbound_id, $uuid)
         'down' => $row->down,
         'total' => $row->total,
         'remark' => $row->remark,
-        'enable' => 'true',
+        'enable' => false,
         'expiryTime' => $row->expiryTime,
         'listen' => '',
         'port' => $row->port,
@@ -3488,7 +3488,7 @@ function changeClientStateDisable($server_id, $inbound_id, $uuid)
         return $loginResponse;
     }
 
-    if ($serverType == "sanaei" || $serverType == "alireza") {
+    if ($serverType == "sanaei") {
 
         $newSetting = array();
         $newSetting['clients'][] = $editedClient;
@@ -3517,28 +3517,6 @@ function changeClientStateDisable($server_id, $inbound_id, $uuid)
             CURLOPT_POSTFIELDS => $dataArr,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_HEADER => false,
-            CURLOPT_HTTPHEADER => array(
-                'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-                'Accept:  application/json, text/plain, */*',
-                'Accept-Language:  en-US,en;q=0.5',
-                'Accept-Encoding:  gzip, deflate',
-                'X-Requested-With:  XMLHttpRequest',
-                'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
-            )
-        ));
-    } else {
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "$panel_url/xui/inbound/update/$inbound_id",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_TIMEOUT => 15,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $dataArr,
             CURLOPT_HEADER => false,
             CURLOPT_HTTPHEADER => array(
                 'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
