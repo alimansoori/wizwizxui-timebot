@@ -106,7 +106,7 @@ if($orders){
                     $msg = "💡 مدیریت گرامی، 
                     userid = $from_id
         از سرویس اشتراک $remark تنها (۱ $send) باقی مونده. میتونی بهش پیام بدی که سرویسش رو تمدید کنه.";
-                    sendMessage( $msg, null, null, $admin);
+                    // sendMessage( $msg, null, null, $admin);
                     
                     $stmt = $connection->prepare("UPDATE `orders_list` SET `notif`= -1 WHERE `uuid`=?");
                     $stmt->bind_param("s", $uuid);
@@ -226,7 +226,7 @@ if($orders){
                     $msg = "💡 مدیریت گرامی،
                     userid = $from_id
     اشتراک سرویس $remark منقضی شد و از لیست سفارش ها حذف گردید. میتونی در پیامی به مشتری اطلاع بدی..";
-                    sendMessage( $msg, null, null, $admin);
+                    // sendMessage( $msg, null, null, $admin);
                     $stmt = $connection->prepare("DELETE FROM `orders_list` WHERE `uuid`=?");
                     $stmt->bind_param("s", $uuid);
                     $stmt->execute();

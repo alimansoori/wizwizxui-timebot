@@ -7459,96 +7459,14 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
         $serverId = $row['id'];
         $serverType = $row['type'];
 
-        if ($serverType == "marzban") {
-            $usersList = getMarzbanJson($serverId)->users;
-            if (strstr(json_encode($usersList, JSON_UNESCAPED_UNICODE), $marzbanText) && !empty($marzbanText)) {
+        $response = getJson($serverId);
+        if ($response->success) {
+            if (strstr(json_encode($response->obj), $text)) {
                 $found = true;
-                $isMarzban = true;
-                foreach ($usersList as $key => $config) {
-                    if (strstr(json_encode($config->links, JSON_UNESCAPED_UNICODE), $marzbanText)) {
-                        $remark = $config->username;
-                        $total = $config->data_limit != 0 ? sumerize($config->data_limit) : "نامحدود";
-                        $totalUsed = sumerize($config->used_traffic);
-                        $state = $config->status == "active" ? $buttonValues['active'] : $buttonValues['deactive'];
-                        $expiryTime = $config->expire != 0 ? jdate("Y-m-d H:i:s", $config->expire) : "نامحدود";
-                        $leftMb = $config->data_limit != 0 ? $config->data_limit - $config->used_traffic : "نامحدود";
-
-                        if (is_numeric($leftMb)) {
-                            if ($leftMb < 0)
-                                $leftMb = 0;
-                            else
-                                $leftMb = sumerize($leftMb);
-                        }
-
-                        $expiryDay = $config->expire != 0 ?
-                            floor(
-                                ($config->expire - time()) / (60 * 60 * 24)
-                            ) :
-                            "نامحدود";
-                        if (is_numeric($expiryDay)) {
-                            if ($expiryDay < 0)
-                                $expiryDay = 0;
-                        }
-                        $configLocation = ["remark" => $remark, "uuid" => $text, "marzban" => true];
-                        break;
-                    }
-                }
-                break;
-            }
-        } else {
-            $response = getJson($serverId);
-            if ($response->success) {
-                if (strstr(json_encode($response->obj), $text)) {
-                    $found = true;
-                    $list = $response->obj;
-                    if (!isset($list[0]->clientStats)) {
-                        foreach ($list as $keys => $packageInfo) {
-                            if (strstr($packageInfo->settings, $text)) {
-                                $configLocation = ["remark" => $packageInfo->remark, "uuid" => $text];
-                                $remark = $packageInfo->remark;
-                                $upload = sumerize($packageInfo->up);
-                                $download = sumerize($packageInfo->down);
-                                $state = $packageInfo->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
-                                $totalUsed = sumerize($packageInfo->up + $packageInfo->down);
-                                $total = $packageInfo->total != 0 ? sumerize($packageInfo->total) : "نامحدود";
-                                $expiryTime = $packageInfo->expiryTime != 0 ? jdate("Y-m-d H:i:s", substr($packageInfo->expiryTime, 0, -3)) : "نامحدود";
-                                $leftMb = $packageInfo->total != 0 ? sumerize($packageInfo->total - $packageInfo->up - $packageInfo->down) : "نامحدود";
-                                $expiryDay = $packageInfo->expiryTime != 0 ?
-                                    floor(
-                                        (substr($packageInfo->expiryTime, 0, -3) - time()) / (60 * 60 * 24)
-                                    )
-                                    :
-                                    "نامحدود";
-                                if (is_numeric($expiryDay)) {
-                                    if ($expiryDay < 0)
-                                        $expiryDay = 0;
-                                }
-                                break;
-                            }
-                        }
-                    } else {
-                        $keys = -1;
-                        $settings = array_column($list, 'settings');
-                        foreach ($settings as $key => $value) {
-                            if (strstr($value, $text)) {
-                                $keys = $key;
-                                break;
-                            }
-                        }
-                        if ($keys == -1) {
-                            $found = false;
-                            break;
-                        }
-                        $clientsSettings = json_decode($list[$keys]->settings, true)['clients'];
-                        if (!is_array($clientsSettings)) {
-                            sendMessage("با عرض پوزش، متأسفانه مشکلی رخ داده است، لطفا مجدد اقدام کنید");
-                            exit();
-                        }
-                        $settingsId = array_column($clientsSettings, 'id');
-                        $settingKey = array_search($text, $settingsId);
-
-                        if (!isset($clientsSettings[$settingKey]['email'])) {
-                            $packageInfo = $list[$keys];
+                $list = $response->obj;
+                if (!isset($list[0]->clientStats)) {
+                    foreach ($list as $keys => $packageInfo) {
+                        if (strstr($packageInfo->settings, $text)) {
                             $configLocation = ["remark" => $packageInfo->remark, "uuid" => $text];
                             $remark = $packageInfo->remark;
                             $upload = sumerize($packageInfo->up);
@@ -7558,109 +7476,153 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
                             $total = $packageInfo->total != 0 ? sumerize($packageInfo->total) : "نامحدود";
                             $expiryTime = $packageInfo->expiryTime != 0 ? jdate("Y-m-d H:i:s", substr($packageInfo->expiryTime, 0, -3)) : "نامحدود";
                             $leftMb = $packageInfo->total != 0 ? sumerize($packageInfo->total - $packageInfo->up - $packageInfo->down) : "نامحدود";
+                            $expiryDay = $packageInfo->expiryTime != 0 ?
+                                floor(
+                                    (substr($packageInfo->expiryTime, 0, -3) - time()) / (60 * 60 * 24)
+                                )
+                                :
+                                "نامحدود";
+                            if (is_numeric($expiryDay)) {
+                                if ($expiryDay < 0)
+                                    $expiryDay = 0;
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    $keys = -1;
+                    $settings = array_column($list, 'settings');
+                    foreach ($settings as $key => $value) {
+                        if (strstr($value, $text)) {
+                            $keys = $key;
+                            break;
+                        }
+                    }
+                    if ($keys == -1) {
+                        $found = false;
+                        break;
+                    }
+                    $clientsSettings = json_decode($list[$keys]->settings, true)['clients'];
+                    if (!is_array($clientsSettings)) {
+                        sendMessage("با عرض پوزش، متأسفانه مشکلی رخ داده است، لطفا مجدد اقدام کنید");
+                        exit();
+                    }
+                    $settingsId = array_column($clientsSettings, 'id');
+                    $settingKey = array_search($text, $settingsId);
+
+                    if (!isset($clientsSettings[$settingKey]['email'])) {
+                        $packageInfo = $list[$keys];
+                        $configLocation = ["remark" => $packageInfo->remark, "uuid" => $text];
+                        $remark = $packageInfo->remark;
+                        $upload = sumerize($packageInfo->up);
+                        $download = sumerize($packageInfo->down);
+                        $state = $packageInfo->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
+                        $totalUsed = sumerize($packageInfo->up + $packageInfo->down);
+                        $total = $packageInfo->total != 0 ? sumerize($packageInfo->total) : "نامحدود";
+                        $expiryTime = $packageInfo->expiryTime != 0 ? jdate("Y-m-d H:i:s", substr($packageInfo->expiryTime, 0, -3)) : "نامحدود";
+                        $leftMb = $packageInfo->total != 0 ? sumerize($packageInfo->total - $packageInfo->up - $packageInfo->down) : "نامحدود";
+                        if (is_numeric($leftMb)) {
+                            if ($leftMb < 0) {
+                                $leftMb = 0;
+                            } else {
+                                $leftMb = sumerize($packageInfo->total - $packageInfo->up - $packageInfo->down);
+                            }
+                        }
+
+
+                        $expiryDay = $packageInfo->expiryTime != 0 ?
+                            floor(
+                                (substr($packageInfo->expiryTime, 0, -3) - time()) / (60 * 60 * 24)
+                            ) :
+                            "نامحدود";
+                        if (is_numeric($expiryDay)) {
+                            if ($expiryDay < 0)
+                                $expiryDay = 0;
+                        }
+                    } else {
+                        $email = $clientsSettings[$settingKey]['email'];
+                        $clientState = $list[$keys]->clientStats;
+                        $emails = array_column($clientState, 'email');
+                        $emailKey = array_search($email, $emails);
+
+                        // if($clientState[$emailKey]->total != 0 || $clientState[$emailKey]->up != 0  ||  $clientState[$emailKey]->down != 0 || $clientState[$emailKey]->expiryTime != 0){
+                        if (count($clientState) > 1) {
+                            $configLocation = ["id" => $list[$keys]->id, "remark" => $email, "uuid" => $text];
+                            $upload = sumerize($clientState[$emailKey]->up);
+                            $download = sumerize($clientState[$emailKey]->down);
+                            $total = $clientState[$emailKey]->total == 0 && $list[$keys]->total != 0 ? $list[$keys]->total : $clientState[$emailKey]->total;
+                            $leftMb = $total != 0 ? ($total - $clientState[$emailKey]->up - $clientState[$emailKey]->down) : "نامحدود";
                             if (is_numeric($leftMb)) {
                                 if ($leftMb < 0) {
                                     $leftMb = 0;
                                 } else {
-                                    $leftMb = sumerize($packageInfo->total - $packageInfo->up - $packageInfo->down);
+                                    $leftMb = sumerize($total - $clientState[$emailKey]->up - $clientState[$emailKey]->down);
                                 }
                             }
-
-
-                            $expiryDay = $packageInfo->expiryTime != 0 ?
+                            $totalUsed = sumerize($clientState[$emailKey]->up + $clientState[$emailKey]->down);
+                            $total = $total != 0 ? sumerize($total) : "نامحدود";
+                            $expTime = $clientState[$emailKey]->expiryTime == 0 && $list[$keys]->expiryTime ? $list[$keys]->expiryTime : $clientState[$emailKey]->expiryTime;
+                            $expiryTime = $expTime != 0 ? jdate("Y-m-d H:i:s", substr($expTime, 0, -3)) : "نامحدود";
+                            $expiryDay = $expTime != 0 ?
                                 floor(
-                                    (substr($packageInfo->expiryTime, 0, -3) - time()) / (60 * 60 * 24)
+                                    ((substr($expTime, 0, -3) - time()) / (60 * 60 * 24))
                                 ) :
                                 "نامحدود";
                             if (is_numeric($expiryDay)) {
                                 if ($expiryDay < 0)
                                     $expiryDay = 0;
                             }
+                            $state = $clientState[$emailKey]->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
+                            $remark = $email;
                         } else {
-                            $email = $clientsSettings[$settingKey]['email'];
-                            $clientState = $list[$keys]->clientStats;
-                            $emails = array_column($clientState, 'email');
-                            $emailKey = array_search($email, $emails);
+                            $clientUpload = $clientState[$emailKey]->up;
+                            $clientDownload = $clientState[$emailKey]->down;
+                            $clientTotal = $clientState[$emailKey]->total;
+                            $clientExpTime = $clientState[$emailKey]->expiryTime;
 
-                            // if($clientState[$emailKey]->total != 0 || $clientState[$emailKey]->up != 0  ||  $clientState[$emailKey]->down != 0 || $clientState[$emailKey]->expiryTime != 0){
-                            if (count($clientState) > 1) {
-                                $configLocation = ["id" => $list[$keys]->id, "remark" => $email, "uuid" => $text];
-                                $upload = sumerize($clientState[$emailKey]->up);
-                                $download = sumerize($clientState[$emailKey]->down);
-                                $total = $clientState[$emailKey]->total == 0 && $list[$keys]->total != 0 ? $list[$keys]->total : $clientState[$emailKey]->total;
-                                $leftMb = $total != 0 ? ($total - $clientState[$emailKey]->up - $clientState[$emailKey]->down) : "نامحدود";
-                                if (is_numeric($leftMb)) {
-                                    if ($leftMb < 0) {
-                                        $leftMb = 0;
-                                    } else {
-                                        $leftMb = sumerize($total - $clientState[$emailKey]->up - $clientState[$emailKey]->down);
-                                    }
-                                }
-                                $totalUsed = sumerize($clientState[$emailKey]->up + $clientState[$emailKey]->down);
-                                $total = $total != 0 ? sumerize($total) : "نامحدود";
-                                $expTime = $clientState[$emailKey]->expiryTime == 0 && $list[$keys]->expiryTime ? $list[$keys]->expiryTime : $clientState[$emailKey]->expiryTime;
-                                $expiryTime = $expTime != 0 ? jdate("Y-m-d H:i:s", substr($expTime, 0, -3)) : "نامحدود";
-                                $expiryDay = $expTime != 0 ?
-                                    floor(
-                                        ((substr($expTime, 0, -3) - time()) / (60 * 60 * 24))
-                                    ) :
-                                    "نامحدود";
-                                if (is_numeric($expiryDay)) {
-                                    if ($expiryDay < 0)
-                                        $expiryDay = 0;
-                                }
-                                $state = $clientState[$emailKey]->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
-                                $remark = $email;
-                            } else {
-                                $clientUpload = $clientState[$emailKey]->up;
-                                $clientDownload = $clientState[$emailKey]->down;
-                                $clientTotal = $clientState[$emailKey]->total;
-                                $clientExpTime = $clientState[$emailKey]->expiryTime;
+                            $up = $list[$keys]->up;
+                            $down = $list[$keys]->down;
+                            $total = $list[$keys]->total;
+                            $expiry = $list[$keys]->expiryTime;
 
-                                $up = $list[$keys]->up;
-                                $down = $list[$keys]->down;
-                                $total = $list[$keys]->total;
-                                $expiry = $list[$keys]->expiryTime;
-
-                                if (($clientTotal != 0 || $clientTotal != null) && ($clientExpTime != 0 || $clientExpTime != null)) {
-                                    $up = $clientUpload;
-                                    $down = $clientDownload;
-                                    $total = $clientTotal;
-                                    $expiry = $clientExpTime;
-                                }
-
-                                $upload = sumerize($up);
-                                $download = sumerize($down);
-                                $configLocation = ["uuid" => $text, "remark" => $list[$keys]->remark];
-                                $leftMb = $total != 0 ? ($total - $up - $down) : "نامحدود";
-                                if (is_numeric($leftMb)) {
-                                    if ($leftMb < 0) {
-                                        $leftMb = 0;
-                                    } else {
-                                        $leftMb = sumerize($total - $up - $down);
-                                    }
-                                }
-                                $totalUsed = sumerize($up + $down);
-                                $total = $total != 0 ? sumerize($total) : "نامحدود";
-
-
-                                $expiryTime = $expiry != 0 ? jdate("Y-m-d H:i:s", substr($expiry, 0, -3)) : "نامحدود";
-                                $expiryDay = $expiry != 0 ?
-                                    floor(
-                                        ((substr($expiry, 0, -3) - time()) / (60 * 60 * 24))
-                                    ) :
-                                    "نامحدود";
-                                if (is_numeric($expiryDay)) {
-                                    if ($expiryDay < 0)
-                                        $expiryDay = 0;
-                                }
-                                $state = $list[$keys]->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
-                                $remark = $list[$keys]->remark;
+                            if (($clientTotal != 0 || $clientTotal != null) && ($clientExpTime != 0 || $clientExpTime != null)) {
+                                $up = $clientUpload;
+                                $down = $clientDownload;
+                                $total = $clientTotal;
+                                $expiry = $clientExpTime;
                             }
+
+                            $upload = sumerize($up);
+                            $download = sumerize($down);
+                            $configLocation = ["uuid" => $text, "remark" => $list[$keys]->remark];
+                            $leftMb = $total != 0 ? ($total - $up - $down) : "نامحدود";
+                            if (is_numeric($leftMb)) {
+                                if ($leftMb < 0) {
+                                    $leftMb = 0;
+                                } else {
+                                    $leftMb = sumerize($total - $up - $down);
+                                }
+                            }
+                            $totalUsed = sumerize($up + $down);
+                            $total = $total != 0 ? sumerize($total) : "نامحدود";
+
+
+                            $expiryTime = $expiry != 0 ? jdate("Y-m-d H:i:s", substr($expiry, 0, -3)) : "نامحدود";
+                            $expiryDay = $expiry != 0 ?
+                                floor(
+                                    ((substr($expiry, 0, -3) - time()) / (60 * 60 * 24))
+                                ) :
+                                "نامحدود";
+                            if (is_numeric($expiryDay)) {
+                                if ($expiryDay < 0)
+                                    $expiryDay = 0;
+                            }
+                            $state = $list[$keys]->enable == true ? $buttonValues['active'] : $buttonValues['deactive'];
+                            $remark = $list[$keys]->remark;
                         }
                     }
-                    break;
                 }
+                break;
             }
         }
     }
@@ -7669,16 +7631,18 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
     } else {
         setUser();
         $keys = json_encode([
-            'inline_keyboard' => array_merge([
+            'inline_keyboard' => array_merge(
                 [
-                    ['text' => $state ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "🔘 وضعیت اکانت 🔘", 'callback_data' => "wizwizch"],
+                    [
+                        ['text' => $state ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "🔘 وضعیت اکانت 🔘", 'callback_data' => "wizwizch"],
+                    ],
+                    [
+                        ['text' => $remark ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "« نام اکانت »", 'callback_data' => "wizwizch"],
+                    ]
                 ],
                 [
-                    ['text' => $remark ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "« نام اکانت »", 'callback_data' => "wizwizch"],
-                ]
-            ], (!$isMarzban ? [
                     [
                         ['text' => $upload ?? " ", 'callback_data' => "wizwizch"],
                         ['text' => "√ آپلود √", 'callback_data' => "wizwizch"],
@@ -7687,46 +7651,43 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
                         ['text' => $download ?? " ", 'callback_data' => "wizwizch"],
                         ['text' => "√ دانلود √", 'callback_data' => "wizwizch"],
                     ]
-                ] : [
-                    [
-                        ['text' => $totalUsed ?? " ", 'callback_data' => "wizwizch"],
-                        ['text' => "√ آپلود + دانلود √", 'callback_data' => "wizwizch"],
-                    ]
-                ]), [
-                [
-                    ['text' => $total ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "† حجم کلی †", 'callback_data' => "wizwizch"],
                 ],
                 [
-                    ['text' => $leftMb ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "~ حجم باقیمانده ~", 'callback_data' => "wizwizch"],
-                ],
-                [
-                    ['text' => $expiryTime ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "تاریخ اتمام", 'callback_data' => "wizwizch"],
-                ],
-                [
-                    ['text' => $expiryDay ?? " ", 'callback_data' => "wizwizch"],
-                    ['text' => "تعداد روز باقیمانده", 'callback_data' => "wizwizch"],
-                ],
-                (($botState['renewAccountState'] == "on" && $botState['updateConfigLinkState'] == "on") ?
                     [
-                        ['text' => $buttonValues['renew_config'], 'callback_data' => "sConfigRenew" . $serverId],
-                        ['text' => $buttonValues['update_config_connection'], 'callback_data' => "sConfigUpdate" . $serverId],
-                    ] : []
-                ),
-                (($botState['renewAccountState'] != "on" && $botState['updateConfigLinkState'] == "on") ?
+                        ['text' => $total ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "† حجم کلی †", 'callback_data' => "wizwizch"],
+                    ],
                     [
-                        ['text' => $buttonValues['update_config_connection'], 'callback_data' => "sConfigUpdate" . $serverId]
-                    ] : []
-                ),
-                (($botState['renewAccountState'] == "on" && $botState['updateConfigLinkState'] != "on") ?
+                        ['text' => $leftMb ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "~ حجم باقیمانده ~", 'callback_data' => "wizwizch"],
+                    ],
                     [
-                        ['text' => $buttonValues['renew_config'], 'callback_data' => "sConfigRenew" . $serverId]
-                    ] : []
-                ),
-                [['text' => "صفحه اصلی", 'callback_data' => "mainMenu"]]
-            ])
+                        ['text' => $expiryTime ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "تاریخ اتمام", 'callback_data' => "wizwizch"],
+                    ],
+                    [
+                        ['text' => $expiryDay ?? " ", 'callback_data' => "wizwizch"],
+                        ['text' => "تعداد روز باقیمانده", 'callback_data' => "wizwizch"],
+                    ],
+                    (($botState['renewAccountState'] == "on" && $botState['updateConfigLinkState'] == "on") ?
+                        [
+                            ['text' => $buttonValues['renew_config'], 'callback_data' => "sConfigRenew" . $serverId],
+                            ['text' => $buttonValues['update_config_connection'], 'callback_data' => "sConfigUpdate" . $serverId],
+                        ] : []
+                    ),
+                    (($botState['renewAccountState'] != "on" && $botState['updateConfigLinkState'] == "on") ?
+                        [
+                            ['text' => $buttonValues['update_config_connection'], 'callback_data' => "sConfigUpdate" . $serverId]
+                        ] : []
+                    ),
+                    (($botState['renewAccountState'] == "on" && $botState['updateConfigLinkState'] != "on") ?
+                        [
+                            ['text' => $buttonValues['renew_config'], 'callback_data' => "sConfigRenew" . $serverId]
+                        ] : []
+                    ),
+                    [['text' => "صفحه اصلی", 'callback_data' => "mainMenu"]]
+                ]
+            )
         ]);
         setUser(json_encode($configLocation, 488), "temp");
         sendMessage("🔰مشخصات حسابت:", $keys, "Markdown");
