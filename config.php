@@ -3236,7 +3236,7 @@ function changeClientState($server_id, $inbound_id, $uuid)
 
 function changeClientStateEnable($server_id, $inbound_id, $uuid)
 {
-    global $connection;
+    global $connection, $admin;
     $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
     $stmt->bind_param("i", $server_id);
     $stmt->execute();
@@ -3244,6 +3244,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
     $stmt->close();
     $panel_url = $server_info['panel_url'];
     $serverType = $server_info['type'];
+
+    sendMessage("AAA", null, null, $admin);
 
     $response = getJson($server_id);
     if (!$response)
@@ -3267,6 +3269,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
     if ($client_key == -1)
         return null;
 
+    sendMessage("BBB", null, null, $admin);
+
     if (!isset($settings['clients'][$client_key]['subId']) && ($serverType == "sanaei" || $serverType == "alireza"))
         $settings['clients'][$client_key]['subId'] = RandomString(16);
     $settings['clients'][$client_key]['enable'] = true;
@@ -3289,6 +3293,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
         'sniffing' => $row->sniffing
     );
 
+    sendMessage("CCC", null, null, $admin);
+
     $serverName = $server_info['username'];
     $serverPass = $server_info['password'];
 
@@ -3298,6 +3304,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
         "username" => $serverName,
         "password" => $serverPass
     );
+
+    sendMessage("DDD", null, null, $admin);
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $loginUrl);
@@ -3320,6 +3328,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
         $cookies = array_merge($cookies, $cookie);
     }
 
+    sendMessage("EEE", null, null, $admin);
+
     $loginResponse = json_decode($body, true);
     if (!$loginResponse['success']) {
         curl_close($curl);
@@ -3336,6 +3346,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
             "id" => $inbound_id,
             "settings" => $newSetting
         );
+
+        sendMessage("FFF", null, null, $admin);
 
         if ($serverType == "sanaei")
             $url = "$panel_url/panel/inbound/updateClient/" . rawurlencode($uuid);
@@ -3365,6 +3377,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
                 'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
             )
         ));
+
+        sendMessage("HHH", null, null, $admin);
     } else {
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$panel_url/xui/inbound/update/$inbound_id",
@@ -3388,6 +3402,8 @@ function changeClientStateEnable($server_id, $inbound_id, $uuid)
             )
         ));
     }
+
+    sendMessage("III", null, null, $admin);
 
     $response = curl_exec($curl);
     $response = json_decode($response);
@@ -7185,10 +7201,7 @@ function changeUserConfigStateEnable($orderId)
         $serverType = $server_info['type'];
 
         if ($inboundId == 0) {
-            if ($serverType == "marzban")
-                $update_response = changeMarzbanState($server_id, $remark);
-            else
-                $update_response = changeInboundState($server_id, $uuid);
+            $update_response = changeInboundState($server_id, $uuid);
         } else {
             $update_response = changeClientStateEnable($server_id, $inboundId, $uuid);
         }
