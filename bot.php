@@ -9283,7 +9283,7 @@ if (preg_match('/changeUserConfigStateDisable(\d+)/', $data, $match)) {
     alert($mainValues['please_wait_message']);
     $oid = $match[1];
 
-    changeUserConfigStateDisable($oid);
+    // changeUserConfigStateDisable($oid);
 }
 
 if (preg_match('/changeAccProtocol(\d+)_(\d+)_(.*)/', $data, $match)) {
