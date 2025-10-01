@@ -9276,7 +9276,7 @@ if (preg_match('/changeUserConfigStateEnable(\d+)/', $data, $match)) {
     alert($mainValues['please_wait_message']);
     $oid = $match[1];
 
-    changeUserConfigStateEnable($oid);
+    // changeUserConfigStateEnable($oid);
 }
 
 if (preg_match('/changeUserConfigStateDisable(\d+)/', $data, $match)) {
