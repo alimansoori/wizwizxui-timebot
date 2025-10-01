@@ -159,18 +159,21 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
             $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
 
             if ($firstTimeArrivalGift > 0) {
-                sendMessage("🔥 سلام رفیق خوش اومدی به فیلتربشکن 🔥 
+                sendMessage("
+                سلااام 🌈💫  
+به **ربات فیلتربشکن** خوش اومدی 🫡🌸  
 
-کافیه یه بار امتحان کنی تا مشتری دائممون بشی❤️
+اینجا همه‌چی آماده‌ست تا بدون هیچ محدودیتی به دنیای اینترنت وصل بشی 🚀🌍  
 
-🎁 اینجا هم ۱۵ گیگ رایگان در اختیارت میزاریم فقط کافیه استارت کنی بات رو😎.
+✅ **سرعت و کیفیت عالی در کانکشن‌ها**  
+🔒 **امنیت کامل برای آرامش خاطر شما**  
+🤝 **همراهی و پشتیبانی تا آخرین روز**  
 
-🎉 تخفیف و جشنواره هامونم هر هفته برقراره.
+🎁 به محض ورودت، مبلغ **{$firstTimeArrivalGift} تومان** به کیف پولت اضافه شد تا اولین تجربه‌ت با ما شیرین‌تر بشه 💳✨  
 
-✅ برای اینکه به ربات و تست رایگان 
-و تمام سرویس هامون دسترسی داشته باشی، اول عضو کانالمون شو، بعد بزن بریم 😍
+با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
 
-🚪 /start'", getMainKeys());
+                ", getMainKeys());
 
                 exit();
             }
@@ -1224,7 +1227,7 @@ if ($data == 'buyService' && ($botState['sellState'] == "on" || ($from_id == $ad
 
     $keyboard = array_chunk($keyboard, 1);
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
-    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'Markdown');
+    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'MarkdownV2');
 }
 
 if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuchBuy") && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
@@ -6833,7 +6836,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
                     ['text' => "بستن تیکت 🗳", 'callback_data' => "closeTicket_$chatRowId"]
                 ]
             ]
-        ]), "Markdown", $userId);
+        ]), "MarkdownV2", $userId);
     } else {
         $text = json_encode(['file_id' => $fileid, 'caption' => $caption]);
         $stmt = $connection->prepare("INSERT INTO `chats_info` (`chat_id`,`sent_date`,`msg_type`,`text`) VALUES
@@ -6849,7 +6852,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
             ]
         ]);
 
-        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "Markdown", $userId);
+        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "MarkdownV2", $userId);
     }
     $stmt->execute();
     $stmt->close();
@@ -7687,7 +7690,7 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
             )
         ]);
         setUser(json_encode($configLocation, 488), "temp");
-        sendMessage("🔰مشخصات حسابت:", $keys, "Markdown");
+        sendMessage("🔰مشخصات حسابت:", $keys, "MarkdownV2");
     }
 }
 
