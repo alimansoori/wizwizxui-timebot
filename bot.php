@@ -135,9 +135,9 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
     setUser();
     setUser("", "temp");
     if (isset($data) and $data == "mainMenu") {
-        $res = editText($message_id, $mainValues['start_message'], getMainKeys());
+        $res = editText($message_id, $mainValues['start_message'], getMainKeys(), "MarkdownV2");
         if (!$res->ok) {
-            sendMessage($mainValues['start_message'], getMainKeys());
+            sendMessage($mainValues['start_message'], getMainKeys(), "MarkdownV2");
         }
     } else {
         if ($from_id != $admin && empty($userInfo['first_start'])) {
@@ -159,21 +159,15 @@ if (preg_match('/^\/([Ss]tart)/', $text) or $text == $buttonValues['back_to_main
             $firstTimeArrivalGift = $botState['firstTimeArrivalGift'] ?? 0;
 
             if ($firstTimeArrivalGift > 0) {
-                sendMessage("
-                سلااام 🌈💫  
-به **ربات فیلتربشکن** خوش اومدی 🫡🌸  
+                sendMessage("🎁 به محض ورودت، مبلغ **{$firstTimeArrivalGift} تومان** به کیف پولت اضافه شد 💳✨  
 
-اینجا همه‌چی آماده‌ست تا بدون هیچ محدودیتی به دنیای اینترنت وصل بشی 🚀🌍  
+حالا می‌تونی خیلی راحت اولین سرویس‌ت رو فعال کنی:  
+1️⃣ روی دکمه **«خرید سرویس جدید»** بزن\.  
+2️⃣ پلن **اقتصادی** رو انتخاب کن\.  
+3️⃣ در مرحله پرداخت، گزینه **پرداخت با کیف پول** رو بزن\.  
 
-✅ **سرعت و کیفیت عالی در کانکشن‌ها**  
-🔒 **امنیت کامل برای آرامش خاطر شما**  
-🤝 **همراهی و پشتیبانی تا آخرین روز**  
-
-🎁 به محض ورودت، مبلغ **{$firstTimeArrivalGift} تومان** به کیف پولت اضافه شد تا اولین تجربه‌ت با ما شیرین‌تر بشه 💳✨  
-
-با ما همیشه یک قدم جلوتر از محدودیت‌ها باش 😉✨
-
-                ", getMainKeys());
+✅ همین\! سرویس‌ت بدون پرداخت اضافه فعال میشه 🚀🌍
+", getMainKeys(), "MarkdownV2");
 
                 exit();
             }
@@ -1227,7 +1221,7 @@ if ($data == 'buyService' && ($botState['sellState'] == "on" || ($from_id == $ad
 
     $keyboard = array_chunk($keyboard, 1);
     $keyboard[] = [['text' => $buttonValues['back_to_main'], 'callback_data' => "mainMenu"]];
-    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'MarkdownV2');
+    editText($message_id, $mainValues['buy_service_select_category'], json_encode(['inline_keyboard' => $keyboard]), 'Markdown');
 }
 
 if (($data == "agentOneBuy" || $data == 'buySubscription' || $data == "agentMuchBuy") && ($botState['sellState'] == "on" || ($from_id == $admin || $userInfo['isAdmin'] == true))) {
@@ -6836,7 +6830,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
                     ['text' => "بستن تیکت 🗳", 'callback_data' => "closeTicket_$chatRowId"]
                 ]
             ]
-        ]), "MarkdownV2", $userId);
+        ]), "Markdown", $userId);
     } else {
         $text = json_encode(['file_id' => $fileid, 'caption' => $caption]);
         $stmt = $connection->prepare("INSERT INTO `chats_info` (`chat_id`,`sent_date`,`msg_type`,`text`) VALUES
@@ -6852,7 +6846,7 @@ if (preg_match('/^answer_(.*)/', $userInfo['step'], $match) and $from_id == $adm
             ]
         ]);
 
-        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "MarkdownV2", $userId);
+        sendPhoto($fileid, "\[$ticketTitle] _{$ticketCat}_\n\n" . $caption, $keyboard, "Markdown", $userId);
     }
     $stmt->execute();
     $stmt->close();
@@ -7690,7 +7684,7 @@ if ($userInfo['step'] == "showAccount" and $text != $buttonValues['cancel']) {
             )
         ]);
         setUser(json_encode($configLocation, 488), "temp");
-        sendMessage("🔰مشخصات حسابت:", $keys, "MarkdownV2");
+        sendMessage("🔰مشخصات حسابت:", $keys, "Markdown");
     }
 }
 
