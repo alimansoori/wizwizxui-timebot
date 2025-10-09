@@ -6405,7 +6405,6 @@ function getJson($server_id)
 
     $loginResponse = json_decode($body, true);
 
-    // sendMessage(json_encode(['loginResponse'=> $loginResponse]), null, null, $admin);
 
     if (!$loginResponse['success']) {
         curl_close($curl);
@@ -6441,6 +6440,7 @@ function getJson($server_id)
     ));
 
     $response = curl_exec($curl);
+    sendMessage(json_encode(['response'=> $response]), null, null, $admin);
     curl_close($curl);
     return json_decode($response);
 }
