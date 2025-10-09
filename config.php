@@ -6382,8 +6382,6 @@ function getJson($server_id)
         "password" => $serverPass
     );
 
-    // sendMessage(json_encode(['server_info'=> $server_info]), null, null, $admin);
-
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $loginUrl);
     curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -6407,14 +6405,18 @@ function getJson($server_id)
 
     $loginResponse = json_decode($body, true);
 
+    sendMessage(json_encode(['loginResponse'=> $loginResponse]), null, null, $admin);
+
     if (!$loginResponse['success']) {
         curl_close($curl);
         return $loginResponse;
     }
+
     if ($serverType == "sanaei")
         $url = "$panel_url/panel/inbound/list";
     else
         $url = "$panel_url/xui/inbound/list";
+
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
