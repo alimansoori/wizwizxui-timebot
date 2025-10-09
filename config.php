@@ -6405,7 +6405,7 @@ function getJson($server_id)
 
     $loginResponse = json_decode($body, true);
 
-    sendMessage(json_encode(['loginResponse'=> $loginResponse]), null, null, $admin);
+    // sendMessage(json_encode(['loginResponse'=> $loginResponse]), null, null, $admin);
 
     if (!$loginResponse['success']) {
         curl_close($curl);
