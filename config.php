@@ -6438,7 +6438,7 @@ function getJson($server_id)
             'Accept-Language:  en-US,en;q=0.5',
             'Accept-Encoding:  gzip, deflate',
             'X-Requested-With:  XMLHttpRequest',
-            // 'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+            'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
         ),
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
@@ -6449,7 +6449,7 @@ function getJson($server_id)
     $errMsg = curl_error($curl);
     $info = curl_getinfo($curl);
 
-    sendMessage(json_encode(['response' => $response, 'errNo' => $errNo, 'errMsg' => $errMsg, 'info' => $info, 'cookies' => $cookies]), null, null, $admin);
+    // sendMessage(json_encode(['response' => $response, 'errNo' => $errNo, 'errMsg' => $errMsg, 'info' => $info, 'cookies' => $cookies]), null, null, $admin);
 
     curl_close($curl);
     return json_decode($response);
