@@ -6396,7 +6396,6 @@ function getJson($server_id)
     $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
     $header = substr($response, 0, $header_size);
     $body = substr($response, $header_size);
-    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
 
     preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
     $cookies = [];
