@@ -6416,7 +6416,7 @@ function getJson($server_id)
         array_values($cookies)
     )); 
 
-    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
+    // sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
 
     $loginResponse = json_decode($body, true);
