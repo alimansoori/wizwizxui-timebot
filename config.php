@@ -6440,7 +6440,12 @@ function getJson($server_id)
     ));
 
     $response = curl_exec($curl);
-    sendMessage(json_encode(['response'=> $response]), null, null, $admin);
+    $errNo = curl_errno($curl);
+    $errMsg = curl_error($curl);
+    $info = curl_getinfo($curl);
+
+    sendMessage(json_encode(['response' => $response, 'errNo' => $errNo, 'errMsg' => $errMsg, 'info' => $info]), null, null, $admin);
+    
     curl_close($curl);
     return json_decode($response);
 }
