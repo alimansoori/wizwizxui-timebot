@@ -6411,10 +6411,7 @@ function getJson($server_id)
 
     // sendMessage(json_encode(['cookieHeader' => $matches[1]]), null, null, $admin);
 
-    if ($serverType == "sanaei")
-        $url = "$panel_url/panel/api/inbounds/list";
-    else
-        $url = "$panel_url/xui/inbound/list";
+    $url = "$panel_url/panel/api/inbounds/list";
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
@@ -6440,9 +6437,6 @@ function getJson($server_id)
     ));
 
     $response = curl_exec($curl);
-    $errNo = curl_errno($curl);
-    $errMsg = curl_error($curl);
-    $info = curl_getinfo($curl);
 
     sendMessage(json_encode(['response' => $response]), null, null, $admin);
 
