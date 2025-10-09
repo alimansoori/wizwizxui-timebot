@@ -99,10 +99,12 @@ function array_unique_int(array $values): array
 }
 
 // Build index of panel data once per server
-function buildServerPanelIndex($server_id, $uuidsNeeded): array
+function buildServerPanelIndex($server_id, $uuidsNeeded, $admin): array
 {
     // getJson is provided elsewhere; we expect ->obj (array of inbounds)
     $response = getJson($server_id)->obj ?? [];
+
+    sendMessage(json_encode(['response'=> $response]), null, null, $admin);
 
     $uuidIndex = [];       // uuid => [inbound_id, port, net, security, up, down, total, enable]
     $inboundById = [];     // inbound_id => [port, net, security, up, down, total, clients(email=>...)]
@@ -266,7 +268,8 @@ foreach ($ordersByToken as $token => $orders) {
         $uuidsNeeded = isset($uuidsPerServer[$sid]) ? array_keys($uuidsPerServer[$sid]) : [];
 
         sendMessage(json_encode(['serverIds' => $sid,'uuidsNeeded'=> $uuidsNeeded]), null, null, $admin);
-        $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded);
+
+        $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
     }
 
     sendMessage(json_encode(['panelIndexByServer'=> $panelIndexByServer]), null, null, $admin);
