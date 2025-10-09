@@ -6399,7 +6399,16 @@ function getJson($server_id)
 
     preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
 
-    $cookieHeader = $matches[1];
+    $cookiePairs = array_map(function ($line) {
+        return explode(';', trim($line), 2)[0]; // "name=value"
+    }, $matches[1] ?? []);
+
+    if (empty($cookiePairs)) {
+        curl_close($curl);
+        return (object) ['success' => false, 'message' => 'No cookies set on login'];
+    }
+
+    $cookieHeader = implode('; ', $cookiePairs);
 
     $loginResponse = json_decode($body, true);
 
