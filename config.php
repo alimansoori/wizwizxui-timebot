@@ -6398,6 +6398,7 @@ function getJson($server_id)
     $body = substr($response, $header_size);
 
     preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
+    sendMessage(json_encode(['matches' => $matches]), null, null, $admin);
     $cookies = [];
     foreach ($matches[1] as $cookieLine) {
         $pair = explode(';', $cookieLine, 2)[0];
@@ -6412,8 +6413,6 @@ function getJson($server_id)
     }
 
     $cookieHeader = implode('; ', array_map(fn($k, $v) => "$k=$v", array_keys($cookies), array_values($cookies)));
-
-    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
     $loginResponse = json_decode($body, true);
 
