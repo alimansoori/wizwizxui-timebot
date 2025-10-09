@@ -270,6 +270,7 @@ foreach ($ordersByToken as $token => $orders) {
         sendMessage(json_encode(['serverIds' => $sid,'uuidsNeeded'=> $uuidsNeeded]), null, null, $admin);
 
         $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
+        break;
     }
 
     sendMessage(json_encode(['panelIndexByServer'=> $panelIndexByServer]), null, null, $admin);
