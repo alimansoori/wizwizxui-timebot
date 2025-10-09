@@ -6382,7 +6382,7 @@ function getJson($server_id)
         "password" => $serverPass
     );
 
-    sendMessage(json_encode(['server_info'=> $server_info]), null, null, $admin);
+    // sendMessage(json_encode(['server_info'=> $server_info]), null, null, $admin);
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $loginUrl);
