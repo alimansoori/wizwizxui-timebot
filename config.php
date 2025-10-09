@@ -6418,7 +6418,7 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    // sendMessage(json_encode(['cookieHeader' => $matches[1]]), null, null, $admin);
+    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
     $url = "$panel_url/panel/api/inbounds/list";
 
