@@ -5,13 +5,8 @@ include_once '../config.php';
 include_once 'jdf.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-try {
-    $connection = new mysqli('localhost', $dbUserName, $dbPassword, $dbName);
-    $connection->set_charset('utf8mb4');
-} catch (mysqli_sql_exception $e) {
-    http_response_code(500);
-    exit('error ' . $e->getMessage());
-}
+
+$connection = db_connect('localhost', $dbUserName, $dbPassword, $dbName);
 
 $rateLimit = $botState['rateLimitUpdateLinks'] ?? 0;
 
@@ -200,6 +195,8 @@ function buildServerPanelIndex($server_id, $uuidsNeeded): array
 $catInfoCache = [];
 
 foreach ($ordersByToken as $token => $orders) {
+
+    if ($token != "9xwSrXHbHac9nItRHgpPqL1sWd3si7") continue;
     // --- Collect unique IDs for bulk fetches -----------------------------------
     $serverIds = [];
     $fileIds = [];
@@ -219,8 +216,11 @@ foreach ($ordersByToken as $token => $orders) {
         if ($fid > 0)
             $fileIds[] = $fid;
     }
+    
     $serverIds = array_unique_int($serverIds);
     $fileIds = array_unique_int($fileIds);
+
+    sendMessage(json_encode(['serverIds'=> $serverIds,'uuidsPerServer'=> $uuidsPerServer, 'fileIds'=> $fileIds]), null, null, $admin);
 
     // --- Bulk fetch server_info and server_plans -------------------------------
     $serverInfoCache = []; // id => row
@@ -233,6 +233,7 @@ foreach ($ordersByToken as $token => $orders) {
             $serverInfoCache[(int) $row['id']] = $row;
         }
     }
+
 
     if (!empty($fileIds)) {
         $idsStr = implode(',', array_map('intval', $fileIds));

@@ -24,6 +24,22 @@ function bot($method, $datas = [])
         return json_decode($res);
     }
 }
+
+/**
+ * Create and return a MySQLi connection with proper settings.
+ */
+function db_connect(string $host, string $user, string $pass, string $db): mysqli
+{
+    try {
+        $conn = new mysqli($host, $user, $pass, $db);
+        $conn->set_charset('utf8mb4');
+        return $conn;
+    } catch (mysqli_sql_exception $e) {
+        http_response_code(500);
+        exit('DB connection error: ' . $e->getMessage());
+    }
+}
+
 function sendMessage($txt, $key = null, $parse = "Markdown", $ci = null, $msg = null)
 {
     global $from_id;
