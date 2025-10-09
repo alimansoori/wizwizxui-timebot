@@ -234,7 +234,6 @@ foreach ($ordersByToken as $token => $orders) {
         }
     }
 
-
     if (!empty($fileIds)) {
         $idsStr = implode(',', array_map('intval', $fileIds));
         $q = $connection->query("SELECT id, custom_path, custom_port, custom_sni FROM server_plans WHERE id IN ($idsStr)");
@@ -243,6 +242,8 @@ foreach ($ordersByToken as $token => $orders) {
         }
     }
 
+    sendMessage(json_encode(['serverInfoCache'=> $serverInfoCache,'planCache'=> $planCache]), null, null, $admin);
+
     if (!isset($catInfoCache[$catId])) {
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
         $stmt->bind_param("i", $catId);
@@ -250,6 +251,8 @@ foreach ($ordersByToken as $token => $orders) {
         $catInfoCache[$catId] = $stmt->get_result()->fetch_assoc() ?: [];
         $stmt->close();
     }
+
+    sendMessage(json_encode(['catInfoCache'=> $catInfoCache]), null, null, $admin);
 
     $catInfo = $catInfoCache[$catId] ?? [];
     $volume = (int) ($catInfo['volume'] ?? 0);
@@ -261,6 +264,8 @@ foreach ($ordersByToken as $token => $orders) {
         $uuidsNeeded = isset($uuidsPerServer[$sid]) ? array_keys($uuidsPerServer[$sid]) : [];
         $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded);
     }
+
+    sendMessage(json_encode(['panelIndexByServer'=> $panelIndexByServer]), null, null, $admin);
 
     // --- Caches & accumulators --------------------------------------------------
     $allLinksFlat = [];
