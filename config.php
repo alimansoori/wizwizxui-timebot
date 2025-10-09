@@ -6396,14 +6396,13 @@ function getJson($server_id)
     $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
     $header = substr($response, 0, $header_size);
     $body = substr($response, $header_size);
-    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
-    $cookies = array();
+    // preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
 
-    // sendMessage(json_encode(['header' => $header]), null, null, $admin);
-
-    foreach ($matches[1] as $item) {
-        parse_str($item, $cookie);
-        $cookies = array_merge($cookies, $cookie);
+    $cookies = [];
+    if (preg_match_all('/^Set-Cookie:\s*([^=\s;]+)=([^;\r\n]*)/mi', $header, $m, PREG_SET_ORDER)) {
+        foreach ($m as $row) {
+            $cookies[$row[1]] = $row[2];  // name => value
+        }
     }
 
     if (empty($cookies)) {
@@ -6412,10 +6411,13 @@ function getJson($server_id)
     }
 
     $cookieHeader = implode('; ', array_map(
-        fn($k, $v) => "$k=$v",
+        fn($k, $v) => $k . '=' . $v,
         array_keys($cookies),
         array_values($cookies)
-    ));
+    )); 
+
+    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
+
 
     $loginResponse = json_decode($body, true);
 
