@@ -6428,15 +6428,6 @@ function getJson($server_id)
     else
         $url = "$panel_url/xui/inbound/list";
 
-    sendMessage(json_encode(['cookies' => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . $cookieHeader
-        )]), null, null, $admin);
-
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
