@@ -6398,21 +6398,8 @@ function getJson($server_id)
     $body = substr($response, $header_size);
 
     preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
-    sendMessage(json_encode(['matches' => $matches]), null, null, $admin);
-    $cookies = [];
-    foreach ($matches[1] as $cookieLine) {
-        $pair = explode(';', $cookieLine, 2)[0];
-        [$key, $val] = explode('=', $pair, 2);
-        $cookies[trim($key)] = $val;
-    }
-    $cookies = array();
 
-    if (empty($cookies)) {
-        curl_close($curl);
-        return (object) ['success' => false, 'message' => 'No cookies found'];
-    }
-
-    $cookieHeader = implode('; ', array_map(fn($k, $v) => "$k=$v", array_keys($cookies), array_values($cookies)));
+    $cookieHeader = $matches[1];
 
     $loginResponse = json_decode($body, true);
 
@@ -6421,6 +6408,8 @@ function getJson($server_id)
         curl_close($curl);
         return $loginResponse;
     }
+
+    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
     if ($serverType == "sanaei")
         $url = "$panel_url/panel/inbound/list";
