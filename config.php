@@ -6399,6 +6399,8 @@ function getJson($server_id)
     preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
     $cookies = array();
 
+    sendMessage(json_encode(['header' => $header]), null, null, $admin);
+
     foreach ($matches[1] as $item) {
         parse_str($item, $cookie);
         $cookies = array_merge($cookies, $cookie);
