@@ -6428,7 +6428,7 @@ function getJson($server_id)
     else
         $url = "$panel_url/xui/inbound/list";
 
-    sendMessage(json_encode(['cookies' => $cookieHeader]), null, null, $admin);
+    // sendMessage(json_encode(['cookies' => $cookieHeader]), null, null, $admin);
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
