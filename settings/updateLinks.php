@@ -258,6 +258,8 @@ foreach ($ordersByToken as $token => $orders) {
     $volume = (int) ($catInfo['volume'] ?? 0);
     $days = (int) ($catInfo['days'] ?? 0);
 
+    sendMessage(json_encode(['catInfo'=> $catInfo]), null, null, $admin);
+
     // --- Panel JSON cache & indices per server ---------------------------------
     $panelIndexByServer = []; // server_id => ['uuidIndex'=>..., 'inboundById'=>...]
     foreach ($serverIds as $sid) {
