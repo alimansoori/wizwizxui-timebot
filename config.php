@@ -6398,7 +6398,7 @@ function getJson($server_id)
     $body = substr($response, $header_size);
     preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
     $cookies = array();
-    
+
 
     foreach ($matches[1] as $item) {
         parse_str($item, $cookie);
@@ -6426,35 +6426,31 @@ function getJson($server_id)
 
     $url = "$panel_url/panel/api/inbounds/list";
 
-    curl_setopt_array($curl, array(
+    curl_setopt_array($curl, [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
+        CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_MAXREDIRS => 10,
         CURLOPT_CONNECTTIMEOUT => 15,
         CURLOPT_TIMEOUT => 15,
-        CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPGET => true,          // 👈 مهم
         CURLOPT_HEADER => false,
-        CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . $cookieHeader
-        ),
+        CURLOPT_ENCODING => '',            // برای gzip/deflate
+        CURLOPT_HTTPHEADER => [
+            'User-Agent: Mozilla/5.0',
+            'Accept: application/json, text/plain, */*',
+            'X-Requested-With: XMLHttpRequest',
+            'Referer: ' . rtrim($panel_url, '/') . '/',  // 👈 پیشنهاد می‌شود
+            'Cookie: '.$cookieHeader,
+        ],
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
-    ));
+    ]);
 
     $response = curl_exec($curl);
-    $errNo = curl_errno($curl);
-    $errMsg = curl_error($curl);
-    $info = curl_getinfo($curl);
 
-    sendMessage(json_encode(['response' => $response, 'errNo' => $errNo, 'errMsg' => $errMsg, 'info' => $info, 'cookies' => $cookieHeader]), null, null, $admin);
+    sendMessage(json_encode(['response' => $response]), null, null, $admin);
 
     curl_close($curl);
     return json_decode($response);
