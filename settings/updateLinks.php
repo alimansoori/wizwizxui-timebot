@@ -220,7 +220,7 @@ foreach ($ordersByToken as $token => $orders) {
     $serverIds = array_unique_int($serverIds);
     $fileIds = array_unique_int($fileIds);
 
-    sendMessage(json_encode(['serverIds'=> $serverIds,'uuidsPerServer'=> $uuidsPerServer, 'fileIds'=> $fileIds]), null, null, $admin);
+    // sendMessage(json_encode(['serverIds'=> $serverIds,'uuidsPerServer'=> $uuidsPerServer, 'fileIds'=> $fileIds]), null, null, $admin);
 
     // --- Bulk fetch server_info and server_plans -------------------------------
     $serverInfoCache = []; // id => row
@@ -242,7 +242,7 @@ foreach ($ordersByToken as $token => $orders) {
         }
     }
 
-    sendMessage(json_encode(['serverInfoCache'=> $serverInfoCache,'planCache'=> $planCache]), null, null, $admin);
+    // sendMessage(json_encode(['serverInfoCache'=> $serverInfoCache,'planCache'=> $planCache]), null, null, $admin);
 
     if (!isset($catInfoCache[$catId])) {
         $stmt = $connection->prepare("SELECT * FROM `server_categories` WHERE `id` = ?");
@@ -252,18 +252,20 @@ foreach ($ordersByToken as $token => $orders) {
         $stmt->close();
     }
 
-    sendMessage(json_encode(['catInfoCache'=> $catInfoCache]), null, null, $admin);
+    // sendMessage(json_encode(['catInfoCache'=> $catInfoCache]), null, null, $admin);
 
     $catInfo = $catInfoCache[$catId] ?? [];
     $volume = (int) ($catInfo['volume'] ?? 0);
     $days = (int) ($catInfo['days'] ?? 0);
 
-    sendMessage(json_encode(['catInfo'=> $catInfo]), null, null, $admin);
+    // sendMessage(json_encode(['catInfo'=> $catInfo]), null, null, $admin);
 
     // --- Panel JSON cache & indices per server ---------------------------------
     $panelIndexByServer = []; // server_id => ['uuidIndex'=>..., 'inboundById'=>...]
     foreach ($serverIds as $sid) {
         $uuidsNeeded = isset($uuidsPerServer[$sid]) ? array_keys($uuidsPerServer[$sid]) : [];
+
+        sendMessage(json_encode(['serverIds' => $sid,'uuidsNeeded'=> $uuidsNeeded]), null, null, $admin);
         $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded);
     }
 
