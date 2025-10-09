@@ -6424,10 +6424,7 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    if ($serverType == "sanaei")
-        $url = "$panel_url/panel/api/inbounds/list";
-    else
-        $url = "$panel_url/xui/inbound/list";
+    $url = "$panel_url/panel/api/inbounds/list";
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
@@ -6438,7 +6435,7 @@ function getJson($server_id)
         CURLOPT_TIMEOUT => 15,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_CUSTOMREQUEST => 'GET',
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
             'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',

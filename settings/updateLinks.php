@@ -105,8 +105,6 @@ try {
         // getJson is provided elsewhere; we expect ->obj (array of inbounds)
         $response = getJson($server_id)->obj ?? [];
 
-        return null;
-
         $uuidIndex = [];       // uuid => [inbound_id, port, net, security, up, down, total, enable]
         $inboundById = [];     // inbound_id => [port, net, security, up, down, total, clients(email=>...)]
 
