@@ -6416,6 +6416,8 @@ function getJson($server_id)
     else
         $url = "$panel_url/xui/inbound/list";
 
+    sendMessage(json_encode(['url' => $url]), null, null, $admin);
+
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -6445,7 +6447,7 @@ function getJson($server_id)
     $info = curl_getinfo($curl);
 
     sendMessage(json_encode(['response' => $response, 'errNo' => $errNo, 'errMsg' => $errMsg, 'info' => $info]), null, null, $admin);
-    
+
     curl_close($curl);
     return json_decode($response);
 }
