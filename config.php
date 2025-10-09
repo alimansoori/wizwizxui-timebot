@@ -6362,7 +6362,7 @@ function changeMarzbanState($server_id, $remark)
 }
 function getJson($server_id)
 {
-    global $connection;
+    global $connection, $admin;
     $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
     $stmt->bind_param("i", $server_id);
     $stmt->execute();
@@ -6381,6 +6381,8 @@ function getJson($server_id)
         "username" => $serverName,
         "password" => $serverPass
     );
+
+    sendMessage($server_id, null, null, $admin);
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $loginUrl);
