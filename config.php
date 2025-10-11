@@ -6521,7 +6521,7 @@ function getJson2($server_id)
         'Accept-Language: en-US,en;q=0.5',
         'Accept-Encoding: gzip, deflate',
         'X-Requested-With: XMLHttpRequest',
-        // 'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+        'Cookie: ' . $cookie
     ];
 
     curl_setopt_array($curl, array(
@@ -6539,7 +6539,7 @@ function getJson2($server_id)
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_COOKIE => $cookie
+        // CURLOPT_COOKIE => $cookie
     ));
 
     $response = curl_exec($curl);
