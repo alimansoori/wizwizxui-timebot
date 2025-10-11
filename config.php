@@ -6445,7 +6445,7 @@ function getJson($server_id)
             'Accept-Language:  en-US,en;q=0.5',
             'Accept-Encoding:  gzip, deflate',
             'X-Requested-With:  XMLHttpRequest',
-            // 'Cookie: ' . $cookieHeader
+            'Cookie: ' . $cookieHeader
         ),
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
