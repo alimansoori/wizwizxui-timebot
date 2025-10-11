@@ -6397,25 +6397,15 @@ function getJson($server_id)
     $header = substr($response, 0, $header_size);
     $body = substr($response, $header_size);
 
-    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
-
-    $cookies = array();
-
-    foreach ($matches[1] as $item) {
-        parse_str($item, $cookie);
-        $cookies = array_merge($cookies, $cookie);
+    $cookies = [];
+    if (preg_match_all('/^Set-Cookie:\s*([^=;]+)=([^;\r\n]+)/mi', $header, $m, PREG_SET_ORDER)) {
+        foreach ($m as $row) {
+            $name = trim($row[1]);
+            $value = $row[2];
+            $cookies[$name] = $value;
+        }
     }
-
-    if (empty($cookies)) {
-        curl_close($curl);
-        return (object) ['success' => false, 'message' => 'No cookies found'];
-    }
-
-    $cookieHeader = implode('; ', array_map(
-        fn($k, $v) => "$k=$v",
-        array_keys($cookies),
-        array_values($cookies)
-    ));
+    $cookieHeader = implode('; ', array_map(fn($k, $v) => $k . '=' . $v, array_keys($cookies), array_values($cookies)));
 
     $loginResponse = json_decode($body, true);
 
@@ -6450,6 +6440,9 @@ function getJson($server_id)
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
     ));
+    if (!empty($cookies['XSRF-TOKEN'])) {
+    $headers[] = 'X-XSRF-TOKEN: '.$cookies['XSRF-TOKEN'];
+}
 
     $response = curl_exec($curl);
 
