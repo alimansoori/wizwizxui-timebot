@@ -6508,34 +6508,37 @@ function getJson2($server_id)
         curl_close($curl);
         return $loginResponse;
     }
+    curl_close($curl);
+
+    $curl = curl_init();
 
     $url = "$panel_url/panel/inbound/list";
 
     sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
 
     $headers = [
-        // 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-        // 'Accept: application/json, text/plain, */*',
-        // 'Accept-Language: en-US,en;q=0.5',
-        // 'Accept-Encoding: gzip, deflate',
-        // 'X-Requested-With: XMLHttpRequest',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+        'Accept: application/json, text/plain, */*',
+        'Accept-Language: en-US,en;q=0.5',
+        'Accept-Encoding: gzip, deflate',
+        'X-Requested-With: XMLHttpRequest',
         'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
     ];
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
-        // CURLOPT_RETURNTRANSFER => true,
-        // CURLOPT_ENCODING => '',
-        // CURLOPT_MAXREDIRS => 10,
-        // CURLOPT_CONNECTTIMEOUT => 15,
-        // CURLOPT_TIMEOUT => 15,
-        // CURLOPT_FOLLOWLOCATION => true,
-        // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => $headers,
-        // CURLOPT_SSL_VERIFYHOST => false,
-        // CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => false,
     ));
 
     $response = curl_exec($curl);
