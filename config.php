@@ -6514,11 +6514,11 @@ function getJson2($server_id)
     sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
 
     $headers = [
-        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-        'Accept: application/json, text/plain, */*',
-        'Accept-Language: en-US,en;q=0.5',
-        'Accept-Encoding: gzip, deflate',
-        'X-Requested-With: XMLHttpRequest',
+        // 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+        // 'Accept: application/json, text/plain, */*',
+        // 'Accept-Language: en-US,en;q=0.5',
+        // 'Accept-Encoding: gzip, deflate',
+        // 'X-Requested-With: XMLHttpRequest',
         'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
     ];
 
@@ -6537,8 +6537,6 @@ function getJson2($server_id)
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
     ));
-
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     $response = curl_exec($curl);
 
