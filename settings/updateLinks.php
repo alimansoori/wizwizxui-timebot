@@ -23,15 +23,20 @@ try {
         exit();
     }
 
-    $current['rateLimitUpdateLinks'] = time() + 2 * 3600;
+    $current['rateLimitUpdateLinks'] = time() + 2*3600;
 
-    $newData = json_encode($current, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $newData = json_encode($current, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");
+    $stmt->execute();
+    $isExists = $stmt->get_result();
+    $stmt->close();
+    if ($isExists->num_rows > 0)
+        $query = "UPDATE `setting` SET `value` = ? WHERE `type` = 'BOT_STATES'";
+    else
+        $query = "INSERT INTO `setting` (`type`, `value`) VALUES ('BOT_STATES', ?)";
+    
 
-    $stmt = $connection->prepare("
-    INSERT INTO `setting` (`type`,`value`)
-    VALUES ('BOT_STATES', ?)
-    ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)
-");
+    $stmt = $connection->prepare($query);
     $stmt->bind_param("s", $newData);
     $stmt->execute();
     $stmt->close();
@@ -109,6 +114,8 @@ try {
     {
         // getJson is provided elsewhere; we expect ->obj (array of inbounds)
         $response = getJson($server_id)->obj ?? [];
+
+        sendMessage(json_encode(['response' => $response]), null, null, $admin);
 
         $uuidIndex = [];       // uuid => [inbound_id, port, net, security, up, down, total, enable]
         $inboundById = [];     // inbound_id => [port, net, security, up, down, total, clients(email=>...)]
