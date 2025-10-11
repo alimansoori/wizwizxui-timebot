@@ -6399,16 +6399,7 @@ function getJson($server_id)
 
     preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
 
-    $cookiePairs = array_map(function ($line) {
-        return explode(';', trim($line), 2)[0]; // "name=value"
-    }, $matches[1] ?? []);
-
-    if (empty($cookiePairs)) {
-        curl_close($curl);
-        return (object) ['success' => false, 'message' => 'No cookies set on login'];
-    }
-
-    $cookieHeader = implode('; ', $cookiePairs);
+    $cookieHeader = $matches[1];
 
     $loginResponse = json_decode($body, true);
 
@@ -6418,9 +6409,12 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    // sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
+    // sendMessage(json_encode(['cookieHeader' => $matches[1]]), null, null, $admin);
 
-    $url = "$panel_url/panel/api/inbounds/list";
+    if ($serverType == "sanaei")
+        $url = "$panel_url/panel/inbound/list";
+    else
+        $url = "$panel_url/xui/inbound/list";
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
@@ -6431,7 +6425,7 @@ function getJson($server_id)
         CURLOPT_TIMEOUT => 15,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
             'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
@@ -6446,6 +6440,9 @@ function getJson($server_id)
     ));
 
     $response = curl_exec($curl);
+    $errNo = curl_errno($curl);
+    $errMsg = curl_error($curl);
+    $info = curl_getinfo($curl);
 
     // sendMessage(json_encode(['response' => $response]), null, null, $admin);
 

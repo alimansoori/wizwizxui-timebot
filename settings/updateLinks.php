@@ -267,7 +267,7 @@ try {
         foreach ($serverIds as $sid) {
             $uuidsNeeded = isset($uuidsPerServer[$sid]) ? array_keys($uuidsPerServer[$sid]) : [];
 
-            sendMessage(json_encode(['serverIds' => $sid, 'uuidsNeeded' => $uuidsNeeded]), null, null, $admin);
+            // sendMessage(json_encode(['serverIds' => $sid, 'uuidsNeeded' => $uuidsNeeded]), null, null, $admin);
 
             $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
             break;
