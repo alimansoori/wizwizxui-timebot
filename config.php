@@ -6430,12 +6430,13 @@ function getJson($server_id)
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => array(
-            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept:  application/json, text/plain, */*',
-            'Accept-Language:  en-US,en;q=0.5',
-            'Accept-Encoding:  gzip, deflate',
-            'X-Requested-With:  XMLHttpRequest',
-            'Cookie: ' . $cookieHeader
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+            'Accept: application/json, text/plain, */*',
+            'Accept-Language: en-US,en;q=0.5',
+            'Accept-Encoding: gzip, deflate',
+            'X-Requested-With: XMLHttpRequest',
+            'Cookie: 3x-ui=MTc2MDE3OTkyMXxEWDhFQVFMX2dBQUJFQUVRQUFCbF80QUFBUVp6ZEhKcGJtY01EQUFLVEU5SFNVNWZWVk5GVWhoNExYVnBMMlJoZEdGaVlYTmxMMjF2WkdWc0xsVnpaWExfZ1FNQkFRUlZjMlZ5QWYtQ0FBRURBUUpKWkFFRUFBRUlWWE5sY201aGJXVUJEQUFCQ0ZCaGMzTjNiM0prQVF3QUFBQk5fNEpLQVFJQkIyTnNiM1ZrZW5rQlBDUXlZU1F4TUNSd00waFlZVVo0Wm5ZeldVd3lTWG80WlZScE5VcGxlVzQ1T0ZKV1VsVlFlbE16Um5oT2VHVk9MemxDYWpVNFJVNWhPVFJ1U3dBPXzd7S7CmClE-pkRiiWT_Ka4mshxhqwasf601-0PRQjDRQ==; Path=/; Expires=Sat, 11 Oct 2025 11:52:01 GMT; Max-Age=3600; HttpOnly'
+            // 'Cookie: dd=gg' . $cookieHeader
         ),
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
