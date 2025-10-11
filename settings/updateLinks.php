@@ -110,7 +110,7 @@ try {
     }
 
     // Build index of panel data once per server
-    function buildServerPanelIndex($server_id, $uuidsNeeded, $admin): array
+    /* function buildServerPanelIndex($server_id, $uuidsNeeded, $admin): array
     {
         // getJson is provided elsewhere; we expect ->obj (array of inbounds)
         $response = getJson($server_id)->obj ?? [];
@@ -203,7 +203,7 @@ try {
         }
 
         return ['uuidIndex' => $uuidIndex, 'inboundById' => $inboundById];
-    }
+    } */
 
     $catInfoCache = [];
 
