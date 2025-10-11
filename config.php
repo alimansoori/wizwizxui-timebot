@@ -6397,15 +6397,12 @@ function getJson($server_id)
     $header = substr($response, 0, $header_size);
     $body = substr($response, $header_size);
 
-    $cookies = [];
-    if (preg_match_all('/^Set-Cookie:\s*([^=;]+)=([^;\r\n]+)/mi', $header, $m, PREG_SET_ORDER)) {
-        foreach ($m as $row) {
-            $name = trim($row[1]);
-            $value = $row[2];
-            $cookies[$name] = $value;
-        }
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+    $cookies = array();
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
     }
-    $cookieHeader = implode('; ', array_map(fn($k, $v) => $k . '=' . $v, array_keys($cookies), array_values($cookies)));
 
     $loginResponse = json_decode($body, true);
 
@@ -6417,13 +6414,15 @@ function getJson($server_id)
 
     $url = "$panel_url/panel/inbound/list";
 
+    sendMessage(json_encode(['cookies' => $$cookies]), null, null, $admin);
+
     $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
         'Accept: application/json, text/plain, */*',
         'Accept-Language: en-US,en;q=0.5',
         'Accept-Encoding: gzip, deflate',
         'X-Requested-With: XMLHttpRequest',
-        'Cookie: ' . $cookieHeader
+        'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
     ];
 
 
@@ -6455,7 +6454,7 @@ function getJson($server_id)
         sendMessage("cURL error: $err", null, null, $admin);
     }
 
-    sendMessage(json_encode(['ress' => $response, 'cookie' => $cookieHeader]), null, null, $admin);
+    sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
 
     curl_close($curl);
 
