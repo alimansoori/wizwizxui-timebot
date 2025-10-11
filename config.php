@@ -6435,9 +6435,7 @@ function getJson($server_id)
             'Accept-Language: en-US,en;q=0.5',
             'Accept-Encoding: gzip, deflate',
             'X-Requested-With: XMLHttpRequest',
-            'Cookie: 	
-3x-ui=MTc2MDE3OTkyMXxEWDhFQVFMX2dBQUJFQUVRQUFCbF80QUFBUVp6ZEhKcGJtY01EQUFLVEU5SFNVNWZWVk5GVWhoNExYVnBMMlJoZEdGaVlYTmxMMjF2WkdWc0xsVnpaWExfZ1FNQkFRUlZjMlZ5QWYtQ0FBRURBUUpKWkFFRUFBRUlWWE5sY201aGJXVUJEQUFCQ0ZCaGMzTjNiM0prQVF3QUFBQk5fNEpLQVFJQkIyTnNiM1ZrZW5rQlBDUXlZU1F4TUNSd00waFlZVVo0Wm5ZeldVd3lTWG80WlZScE5VcGxlVzQ1T0ZKV1VsVlFlbE16Um5oT2VHVk9MemxDYWpVNFJVNWhPVFJ1U3dBPXzd7S7CmClE-pkRiiWT_Ka4mshxhqwasf601-0PRQjDRQ=='
-            // 'Cookie: dd=gg' . $cookieHeader
+            'Cookie:' . $cookieHeader
         ),
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
