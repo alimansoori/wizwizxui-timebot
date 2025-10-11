@@ -6417,6 +6417,15 @@ function getJson($server_id)
 
     $url = "$panel_url/panel/inbound/list";
 
+    $headers = [
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+        'Accept: application/json, text/plain, */*',
+        'Accept-Language: en-US,en;q=0.5',
+        'Accept-Encoding: gzip, deflate',
+        'X-Requested-With: XMLHttpRequest',
+        'Cookie: ' . $cookieHeader
+    ];
+
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
@@ -6429,20 +6438,15 @@ function getJson($server_id)
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
-        CURLOPT_HTTPHEADER => array(
-            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-            'Accept: application/json, text/plain, */*',
-            'Accept-Language: en-US,en;q=0.5',
-            'Accept-Encoding: gzip, deflate',
-            'X-Requested-With: XMLHttpRequest',
-            'Cookie:' . $cookieHeader
-        ),
+
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
     ));
     if (!empty($cookies['XSRF-TOKEN'])) {
-    $headers[] = 'X-XSRF-TOKEN: '.$cookies['XSRF-TOKEN'];
-}
+        $headers[] = 'X-XSRF-TOKEN: ' . $cookies['XSRF-TOKEN'];
+    }
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     $response = curl_exec($curl);
 
