@@ -6519,7 +6519,7 @@ function getJson2($server_id)
         'Accept-Language: en-US,en;q=0.5',
         'Accept-Encoding: gzip, deflate',
         'X-Requested-With: XMLHttpRequest',
-        'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+        // 'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
     ];
 
     curl_setopt_array($curl, array(
@@ -6531,7 +6531,7 @@ function getJson2($server_id)
         CURLOPT_TIMEOUT => 15,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        // CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POST => true,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => $headers,
