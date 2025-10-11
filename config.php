@@ -6409,7 +6409,16 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    // sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
+    sendMessage(json_encode($header), null, null, $admin);
+
+    sendMessage(json_encode(array(
+            'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+            'Accept:  application/json, text/plain, */*',
+            'Accept-Language:  en-US,en;q=0.5',
+            'Accept-Encoding:  gzip, deflate',
+            'X-Requested-With:  XMLHttpRequest',
+            'Cookie: ' . $cookieHeader
+        )), null, null, $admin);
 
     $url = "$panel_url/panel/inbound/list";
 
@@ -6440,6 +6449,8 @@ function getJson($server_id)
     $response = curl_exec($curl);
 
     curl_close($curl);
+
+    sendMessage(json_encode($response), null, null, $admin);
     return json_decode($response);
 }
 function getNewCert($server_id)
