@@ -6511,7 +6511,9 @@ function getJson2($server_id)
 
     $url = "$panel_url/panel/inbound/list";
 
-    // sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
+    sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
+
+    $cookie = array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]];
 
     $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
@@ -6537,7 +6539,7 @@ function getJson2($server_id)
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_COOKIE => $cookie,
+        CURLOPT_COOKIE => $cookie
     ));
 
     $response = curl_exec($curl);
