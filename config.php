@@ -6399,7 +6399,23 @@ function getJson($server_id)
 
     preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
 
-    $cookieHeader = $matches[1];
+        $cookies = array();
+
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
+    }
+
+    if (empty($cookies)) {
+        curl_close($curl);
+        return (object) ['success' => false, 'message' => 'No cookies found'];
+    }
+
+    $cookieHeader = implode('; ', array_map(
+        fn($k, $v) => "$k=$v",
+        array_keys($cookies),
+        array_values($cookies)
+    ));
 
     $loginResponse = json_decode($body, true);
 
