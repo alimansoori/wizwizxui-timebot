@@ -6409,7 +6409,7 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
+    // sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
     if ($serverType == "sanaei")
         $url = "$panel_url/panel/inbound/list";
