@@ -6537,6 +6537,7 @@ function getJson2($server_id)
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_COOKIE => $cookie,
     ));
 
     $response = curl_exec($curl);
@@ -6546,7 +6547,7 @@ function getJson2($server_id)
         sendMessage("cURL error: $err", null, null, $admin);
     }
 
-    // sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
+    sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
 
     curl_close($curl);
 
