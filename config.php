@@ -6397,7 +6397,7 @@ function getJson($server_id)
     $header = substr($response, 0, $header_size);
     $body = substr($response, $header_size);
 
-    preg_match_all('/^Set-Cookie:\s*([^\r\n]*)/mi', $header, $matches);
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
 
     $cookieHeader = $matches[1];
 
@@ -6409,7 +6409,7 @@ function getJson($server_id)
         return $loginResponse;
     }
 
-    // sendMessage(json_encode(['cookieHeader' => $matches[1]]), null, null, $admin);
+    sendMessage(json_encode(['cookieHeader' => $cookieHeader]), null, null, $admin);
 
     if ($serverType == "sanaei")
         $url = "$panel_url/panel/inbound/list";
