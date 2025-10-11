@@ -6414,7 +6414,7 @@ function getJson($server_id)
 
     $url = "$panel_url/panel/inbound/list";
 
-    // sendMessage(json_encode(['cookies' => $cookies]), null, null, $admin);
+    sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
 
     $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',

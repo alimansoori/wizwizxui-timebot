@@ -281,7 +281,7 @@ try {
 
             // sendMessage(json_encode(['serverIds' => $sid, 'uuidsNeeded' => $uuidsNeeded]), null, null, $admin);
 
-            $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
+            // $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
             break;
         }
 
@@ -294,10 +294,10 @@ try {
         $minDaysLeft = null; // min remaining days across orders
 
         // Prepared UPDATE statement (reused)
-        $updStmt = $connection->prepare("UPDATE orders_list SET link = ?, remark = ?, up_down = ? WHERE id = ?");
+        // $updStmt = $connection->prepare("UPDATE orders_list SET link = ?, remark = ?, up_down = ? WHERE id = ?");
 
         // --- Process each order -----------------------------------------------------
-        foreach ($orders as $order) {
+        /*foreach ($orders as $order) {
             sleep(3);
 
             $id = (int) ($order['id'] ?? 0);
@@ -426,9 +426,9 @@ try {
                 $updStmt->bind_param('ssdi', $newLinkJson, $remark, $up_down, $id);
                 $updStmt->execute();
             }
-        }
+        } */
 
-        $updStmt->close();
+        // $updStmt->close();
 
         $leftgb = ($accTotal - $accUsed);
 
