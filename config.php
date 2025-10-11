@@ -6508,13 +6508,10 @@ function getJson2($server_id)
         curl_close($curl);
         return $loginResponse;
     }
-    curl_close($curl);
-
-    $curl = curl_init();
 
     $url = "$panel_url/panel/inbound/list";
 
-    sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
+    // sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
 
     $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
@@ -6534,7 +6531,8 @@ function getJson2($server_id)
         CURLOPT_TIMEOUT => 15,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
+        // CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POST => true,
         CURLOPT_HEADER => false,
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYHOST => false,
@@ -6548,7 +6546,7 @@ function getJson2($server_id)
         sendMessage("cURL error: $err", null, null, $admin);
     }
 
-    sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
+    // sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
 
     curl_close($curl);
 
