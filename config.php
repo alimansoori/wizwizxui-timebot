@@ -6399,7 +6399,7 @@ function getJson($server_id)
 
     preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
 
-        $cookies = array();
+    $cookies = array();
 
     foreach ($matches[1] as $item) {
         parse_str($item, $cookie);
@@ -6424,17 +6424,6 @@ function getJson($server_id)
         curl_close($curl);
         return $loginResponse;
     }
-
-    // sendMessage(json_encode($header), null, null, $admin);
-
-    // sendMessage(json_encode(array(
-    //         'User-Agent:  Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-    //         'Accept:  application/json, text/plain, */*',
-    //         'Accept-Language:  en-US,en;q=0.5',
-    //         'Accept-Encoding:  gzip, deflate',
-    //         'X-Requested-With:  XMLHttpRequest',
-    //         'Cookie: ' . $cookieHeader
-    //     )), null, null, $admin);
 
     $url = "$panel_url/panel/inbound/list";
 
@@ -6463,6 +6452,11 @@ function getJson($server_id)
     ));
 
     $response = curl_exec($curl);
+
+    if ($response === false) {
+        $err = curl_error($curl);
+        sendMessage("cURL error: $err", null, null, $admin);
+    }
 
     sendMessage(json_encode(['ress' => $response]), null, null, $admin);
 
