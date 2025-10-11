@@ -6451,7 +6451,7 @@ function getJson($server_id)
         sendMessage("cURL error: $err", null, null, $admin);
     }
 
-    sendMessage(json_encode(['ress' => $response]), null, null, $admin);
+    sendMessage(json_encode(['ress' => $response, 'cookie' => $cookieHeader]), null, null, $admin);
 
     curl_close($curl);
 
