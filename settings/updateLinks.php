@@ -110,12 +110,10 @@ try {
     }
 
     // Build index of panel data once per server
-    /* function buildServerPanelIndex($server_id, $uuidsNeeded, $admin): array
+    function buildServerPanelIndex($server_id, $uuidsNeeded, $admin): array
     {
         // getJson is provided elsewhere; we expect ->obj (array of inbounds)
-        $response = getJson($server_id)->obj ?? [];
-
-        sendMessage(json_encode(['response' => $response]), null, null, $admin);
+        $response = getJson2($server_id)->obj ?? [];
 
         $uuidIndex = [];       // uuid => [inbound_id, port, net, security, up, down, total, enable]
         $inboundById = [];     // inbound_id => [port, net, security, up, down, total, clients(email=>...)]
@@ -203,7 +201,7 @@ try {
         }
 
         return ['uuidIndex' => $uuidIndex, 'inboundById' => $inboundById];
-    } */
+    }
 
     $catInfoCache = [];
 
@@ -281,7 +279,7 @@ try {
 
             // sendMessage(json_encode(['serverIds' => $sid, 'uuidsNeeded' => $uuidsNeeded]), null, null, $admin);
 
-            // $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
+            $panelIndexByServer[$sid] = buildServerPanelIndex($sid, $uuidsNeeded, $admin);
             break;
         }
 
@@ -294,10 +292,10 @@ try {
         $minDaysLeft = null; // min remaining days across orders
 
         // Prepared UPDATE statement (reused)
-        // $updStmt = $connection->prepare("UPDATE orders_list SET link = ?, remark = ?, up_down = ? WHERE id = ?");
+        $updStmt = $connection->prepare("UPDATE orders_list SET link = ?, remark = ?, up_down = ? WHERE id = ?");
 
         // --- Process each order -----------------------------------------------------
-        /*foreach ($orders as $order) {
+        foreach ($orders as $order) {
             sleep(3);
 
             $id = (int) ($order['id'] ?? 0);
@@ -426,9 +424,9 @@ try {
                 $updStmt->bind_param('ssdi', $newLinkJson, $remark, $up_down, $id);
                 $updStmt->execute();
             }
-        } */
+        }
 
-        // $updStmt->close();
+        $updStmt->close();
 
         $leftgb = ($accTotal - $accUsed);
 

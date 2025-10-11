@@ -6425,7 +6425,6 @@ function getJson($server_id)
         'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
     ];
 
-
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -6437,13 +6436,10 @@ function getJson($server_id)
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_HEADER => false,
-
+        CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_SSL_VERIFYPEER => false,
     ));
-    if (!empty($cookies['XSRF-TOKEN'])) {
-        $headers[] = 'X-XSRF-TOKEN: ' . $cookies['XSRF-TOKEN'];
-    }
 
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -6460,6 +6456,104 @@ function getJson($server_id)
 
     return json_decode($response);
 }
+
+function getJson2($server_id)
+{
+    global $connection, $admin;
+    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
+    $stmt->bind_param("i", $server_id);
+    $stmt->execute();
+    $server_info = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $panel_url = $server_info['panel_url'];
+
+    $serverName = $server_info['username'];
+    $serverPass = $server_info['password'];
+    $serverType = $server_info['type'];
+
+    $loginUrl = $panel_url . '/login';
+
+    $postFields = array(
+        "username" => $serverName,
+        "password" => $serverPass
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $loginUrl);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postFields));
+    curl_setopt($curl, CURLOPT_HEADER, 1);
+    $response = curl_exec($curl);
+
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+    $cookies = array();
+    foreach ($matches[1] as $item) {
+        parse_str($item, $cookie);
+        $cookies = array_merge($cookies, $cookie);
+    }
+
+    $loginResponse = json_decode($body, true);
+
+
+    if (!$loginResponse['success']) {
+        curl_close($curl);
+        return $loginResponse;
+    }
+
+    $url = "$panel_url/panel/inbound/list";
+
+    sendMessage(array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]], null, null, $admin);
+
+    $headers = [
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+        'Accept: application/json, text/plain, */*',
+        'Accept-Language: en-US,en;q=0.5',
+        'Accept-Encoding: gzip, deflate',
+        'X-Requested-With: XMLHttpRequest',
+        'Cookie: ' . array_keys($cookies)[0] . "=" . $cookies[array_keys($cookies)[0]]
+    ];
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_HEADER => false,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => false,
+    ));
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $response = curl_exec($curl);
+
+    if ($response === false) {
+        $err = curl_error($curl);
+        sendMessage("cURL error: $err", null, null, $admin);
+    }
+
+    sendMessage(json_encode(['ress' => $response, 'cookie' => $$cookies]), null, null, $admin);
+
+    curl_close($curl);
+
+    return json_decode($response);
+}
+
 function getNewCert($server_id)
 {
     global $connection;
